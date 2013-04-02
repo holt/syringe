@@ -14,7 +14,7 @@ forin:false, curly:false */
 // Function.bind polyfill (MDN)
 Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==typeof this)throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");var d=Array.prototype.slice.call(arguments,1),e=this,a=function(){},c=function(){return e.apply(this instanceof a&&b?this:b,d.concat(Array.prototype.slice.call(arguments)))};a.prototype=this.prototype;c.prototype=new a;return c});
 
-// syringe.js v0.1.0 
+// syringe.js v0.1.1 
 (function () {
 
    "use strict";
@@ -154,10 +154,18 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
          },      
          
          set: function (str, value) {
-            var strArr = str.split('.'), objStr = strArr.pop();
-            setObj(strArr.join('.'), deps)[objStr] = value;
+
+            var strArr  = str.split('.')
+            , objStr    = (strArr.length > 1) ? strArr.pop() : false;
+         
+            if (objStr) {
+                setObj(strArr.join('.'), deps)[objStr] = value;
+            }
+            else {            
+                deps[strArr.toString()] = value;        
+            }
             return this;
-         },      
+         },
          
          remove: function (name) {
             delete deps[name];
@@ -166,5 +174,4 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
          
       };
    };
-
 }.call(this));
