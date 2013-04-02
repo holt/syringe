@@ -1,7 +1,3 @@
-/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
-undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
-forin:false, curly:false */
-
 // Array.filter polyfill (MDN)
 [].filter||(Array.prototype.filter=function(c,f){if(null==this)throw new TypeError;var b=Object(this),g=b.length>>>0;if("function"!=typeof c)throw new TypeError;for(var d=[],a=0;a<g;a++)if(a in b){var e=b[a];c.call(f,e,a,b)&&d.push(e)}return d});
 
@@ -14,7 +10,11 @@ forin:false, curly:false */
 // Function.bind polyfill (MDN)
 Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==typeof this)throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");var d=Array.prototype.slice.call(arguments,1),e=this,a=function(){},c=function(){return e.apply(this instanceof a&&b?this:b,d.concat(Array.prototype.slice.call(arguments)))};a.prototype=this.prototype;c.prototype=new a;return c});
 
-// syringe.js v0.1.1 
+/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
+undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
+forin:false, curly:false */
+
+// syringe.js v0.1.2
 (function () {
 
    "use strict";
@@ -24,7 +24,8 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
    root.syringe = function (init_deps) {
       
       // Pointers and containers
-      var deps       = {}
+      var syringe    = {}
+         , deps      = {}
          , hasProp   = {}.hasOwnProperty
          , slice     = [].slice
          , toString  = Object.prototype.toString;
@@ -103,75 +104,72 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
       
       deps = (getType(init_deps, true) === 'object') ? init_deps : deps;      
       
-      // Public API
-      return {
-   
-         register: function (name, dep) {
-            if (getType(name, true) === 'object') {
-               for (var key in name) {
-                  if (!hasProp.call(name, key)) continue;
-                  this.register.apply(this, [key, name[key]]);
-               }
-               return this;
-            }         
-            deps[name] = dep;
-            return this;
-         },
-         
-         bind: function (name, fn, ctx) {
-            
-            // Is this binding going to be assigned to a name in an optional context?
-            if (getType(name, true) === 'string' && getType(fn, true) === 'function') {
-            
-               ctx = ctx || root;
-            
-               var strArr  = name.split('.')
-               , objStr    = (strArr.length > 1) ? strArr.pop() : false;
-               
-               fn = run.bind(ctx, fn);
-   
-               if (objStr) {
-                  setObj(strArr.join('.'), ctx)[objStr] = fn;
-               } else {
-                  ctx[strArr.join('.')] = fn;
-                  return fn;
-               }
-               
-            // Is this binding simply going to be returned as an anonymous function?
-            } else if (getType(name, true) === 'function') {
-               ctx = getType(fn, true) === 'object' ? fn : root;
-               return run.bind(ctx, name);
-            }
-   
-         },
-         
-         list: function () {
-            return deps;    
-         },
-   
-         get: function (str) {
-            return getObj(str, deps);
-         },      
-         
-         set: function (str, value) {
 
-            var strArr  = str.split('.')
-            , objStr    = (strArr.length > 1) ? strArr.pop() : false;
-         
-            if (objStr) {
-                setObj(strArr.join('.'), deps)[objStr] = value;
-            }
-            else {            
-                deps[strArr.toString()] = value;        
+      // --------------------------- Start Public API ---------------------------
+            
+      syringe.register = function (name, dep) {
+         if (getType(name, true) === 'object') {
+            for (var key in name) {
+               if (!hasProp.call(name, key)) continue;
+               this.register.apply(this, [key, name[key]]);
             }
             return this;
-         },
-         
-         remove: function (name) {
-            delete deps[name];
-            return this;
-         }
-         
+         }         
+         deps[name] = dep;
+         return this;
       };
+      
+      syringe.on = syringe.bind = function (name, fn, ctx) {
+         
+         // Is this binding going to be assigned to a name in an optional context?
+         if (getType(name, true) === 'string' && getType(fn, true) === 'function') {
+         
+            ctx = ctx || root;
+         
+            var strArr  = name.split('.')
+            , objStr    = (strArr.length > 1) ? strArr.pop() : false;
+            
+            fn = run.bind(ctx, fn);
+
+            if (objStr) {
+               setObj(strArr.join('.'), ctx)[objStr] = fn;
+            } else {
+               ctx[strArr.join('.')] = fn;
+               return fn;
+            }
+            
+         // Is this binding simply going to be returned as an anonymous function?
+         } else if (getType(name, true) === 'function') {
+            ctx = getType(fn, true) === 'object' ? fn : root;
+            return run.bind(ctx, name);
+         }
+
+      };
+      
+      syringe.list = function () {
+         return deps;    
+      };
+
+      syringe.get = function (str) {
+         return getObj(str, deps);
+      };      
+
+      syringe.set = function (str, value) {
+
+         var strArr  = str.split('.')
+         , objStr    = (strArr.length > 1) ? strArr.pop() : false;
+      
+         if (objStr) setObj(strArr.join('.'), deps)[objStr] = value;
+         else deps[strArr.toString()] = value;        
+         return this;
+      };
+
+      syringe.remove = function (name) {
+         delete deps[name];
+         return this;
+      };
+
+      return syringe;
+
    };
 }.call(this));
