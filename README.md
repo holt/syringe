@@ -1,6 +1,6 @@
 # syringe.js#
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick - there'll be no more "AAAAAAAAH!" ") Syringe is a tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly or indrectly, or relying on the lexical scope as Syringe will vaccinate your operations ahead of time.
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick - there'll be no more "AAAAAAAAH!" ") Syringe is a tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly or indirectly, or relying on the lexical scope - Syringe will vaccinate your operations ahead of time.
 
 Now, let's roll up our sleeves and begin shall we?
 
