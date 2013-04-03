@@ -1,6 +1,6 @@
-# syringe.js#
+# syringe.js #
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly or indirectly, or relying on the lexical scope - Syringe will vaccinate your operations ahead of time.
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -9,7 +9,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 ### Initialization and Registration
 
-Create an empty new syringe:
+Create a sterile new syringe:
 ```javascript
 var mySyringe = syringe();
 ```
@@ -17,68 +17,110 @@ var mySyringe = syringe();
 
 ```javascript
 var mySyringe = syringe({
-   "$"   : jQuery,
-   "bb"  : Backbone
+   '$'   : window.jQuery || window.Zepto,
+   'bb'  : window.Backbone,
+   'md'  : window.Modernizr,
+   'hb'  : window.Handlebars
 });
 ```
 
-Register some additional dependencies, one at a time:
+Register an additional item:
 ```javascript
-mySyringe.add('md', Modernizr);
+mySyringe.add('tzone', {
+   "result": [{
+         'TimeZoneId': 'America-Montevideo',
+         'DST': '-3',
+         'GMT': '-2'
+      }, {
+         'TimeZoneId': 'America-Noronha',
+         'DST': '-2',
+         'GMT': '-2'
+      }, {
+         'TimeZoneId': 'America-Sao_Paulo',
+         'DST': '-3',
+         'GMT': '-2'
+      }, {
+         'TimeZoneId': 'Atlantic-South_Georgia',
+         'DST': '-2',
+         'GMT': '-2'
+      }
+   ]
+});
 ```
-... or in bulk:
+... or a map of mutliple items:
 
 ```javascript
 mySyringe.add({
-   "hb"  : Handlebars,
-   "fn"  : function (name) { return 'Hello ' + name + '!'; }
+   'uuid': (function () {
+      var a = function () {
+         return Math.floor(65536 * Math.random()).toString(16)
+      };
+      return a() + a() + "-" + a() + "-" + a() + "-" + a() + "-" + a() + a() + a();
+   }()),
+   'time': (function () {
+      return JSON.parse(JSON.stringify(new Date()));
+   }()),
+   'cond': 0
 });
 ```
 
 ### Binding
 
 
-You can bind your methods in a number of different ways. As a function expression:
+You can bind your methods in a number of different ways. 
+
+... as a function expression:
 
 ```javascript
-var talk = mySyringe.on(function ($, fn, name) {      
-   $('body').append('<p>' + fn(name) + '</p>');
+var accessEvent = mySyringe.on(function (uuid, time, tzone, cond, props) {
+
+   var state = ['Green', 'Amber', 'Orange', 'Red'][cond++];
+
+   var GMT = tzone.result.filter(function (item) {
+      return item.TimeZoneId === props.locale;
+   })[0].GMT;
+
+   if (cond < 4) mySyringe.set('cond', cond)
+
+   return {
+      'msg' : 'User "' + props.name + '" entered restricted zone at ' + time + ' GMT(' + GMT + ')',
+      'id'  : uuid,
+      'cond': state
+   };
+
 });
+
 ```
 ... as an object reference:
 
 ```javascript
-mySyringe.on('talk', function ($, fn, name) {      
-   $('body').append('<p>' + fn(name) + '</p>');
-});
+mySyringe.on('accessEvent', function (uuid, time, tzone, props) { /* ... as above */ });
 ```
-... as a deep object reference (which is progressively constructed if it doesn't exist):
+... as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-mySyringe.on('talk.to.this.guy', function ($, fn, name) {
-   $('body').append('<p>' + fn(name) + '</p>');
-});
+mySyringe.on('security.access.event', function (uuid, time, tzone, props) { /* ... as above */ });
 ```
+... as an object reference within a provided context:
 
-... as a set:
+```javascript
+mySyringe.on('event', function (uuid, time, tzone, props) { /* ... as above */ }, security.access);
+```
+... as a map:
 
 ```javascript
 mySyringe.on({
-   "talk": function ($, fn, name) {      
-      $('body').append('<p>' + fn(name) + '</p>');
-   },
-   "shout": function ($, fn, name) {      
-      $('body').append('<p><strong>' + fn(name) + '!!!</strong></p>');
-   },
+   'accessEvent'  : function (uuid, time, tzone, props) { /* ... as above  */ },
+   'exitEvent'    : function (uuid, time, tzone, props) { /* ... more code */ },
+   'otherEvent'   : function (uuid, time, tzone, props) { /* ... more code */ }
 });
 ```
 ... or in a chain:
 
 ```javascript
-mySyringe
-   .on('func.talk', function ($, fn, name) { /* Do stuff with jQuery, fn, and the "name" argument */ })
-   .on('func.yell', function ($, hb) { /* Do stuff with jQuery and Handlebars */ })
-   .on('func.quit', function ($, bb) { /* Do stuff with jQuery and Backbone */ });
+mySyringe.on('accessEvent', function (uuid, time, tzone, props) { /* ... as above  */ })
+   .on('exitEvent', function (uuid, time, tzone, props) { /* ... more code */ })
+   .on('otherEvent', function (uuid, time, tzone, props) { /* ... more code */ });
 ```
 
 ### Execution
@@ -86,17 +128,30 @@ mySyringe
 Run the function:
 
 ```javascript
-talk('Mike');  // Appends "Hello Mike!" to the page.
+accessEvent({
+   'name'   : 'Doe, John',
+   'locale' : 'America-Sao_Paulo'
+});
+
+// Returns: 
+{
+   "msg" : "User \"Doe, John\" entered restricted zone at 2013-04-03T02:38:49.068Z GMT(-2)",
+   "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
+   "cond": "Green"
+}
 ```
-
-Change the `fn` dependency to use a different function:
-
-```javascript
-mySyringe.set("fn", function (name) { return 'Goodbye ' + name + '!'; })
-````
-
-Run the function again:
+Run it again:
 
 ```javascript
-talk('Paul');  // Appends "Goodbye Paul!" to the page.
+accessEvent({
+   'name'   : 'Doe, John',
+   'locale' : 'America-Sao_Paulo'
+});
+
+// Returns: 
+{
+   "msg" : "User \"Doe, John\" entered restricted zone at 2013-04-03T02:44:13.196Z GMT(-2)",
+   "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
+   "cond": "Amber"
+}
 ```
