@@ -1,11 +1,23 @@
 # syringe.js #
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb _sans ECMAScript 5 shims_) little [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb _sans_ MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
-## Examples ##
+## Installation
 
+Just add `syringe.js` or `syringe.min.js` to your environment.
+
+**Note:** Syringe _does_ require the following methods ECMAScript 5 methods:  
+
+- `Array.filter` 
+- `Array.map`
+- `Array.reduce`
+- `Function.bind`
+
+For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them.
+
+## Examples ##
 
 ### Initialization and Registration
 
@@ -13,7 +25,7 @@ Create a sterile new syringe:
 ```javascript
 var mySyringe = syringe();
 ```
-... or create one loaded up with some with some globally available dependencies:
+... or create one loaded up with some with some available dependencies:
 
 ```javascript
 var mySyringe = syringe({
@@ -23,7 +35,6 @@ var mySyringe = syringe({
    'hb'  : window.Handlebars
 });
 ```
-
 Register an additional item:
 ```javascript
 mySyringe.add('tzone', {
@@ -58,7 +69,7 @@ mySyringe.add({
       var a = function () {
          return Math.floor(65536 * Math.random()).toString(16)
       };
-      return a() + a() + "-" + a() + "-" + a() + "-" + a() + "-" + a() + a() + a();
+      return a() + a() + '-' + a() + '-' + a() + '-' + a() + '-' + a() + a() + a();
    }()),
    'stat': 0
 });
