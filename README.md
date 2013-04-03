@@ -94,33 +94,33 @@ var accessEvent = mySyringe.on(function (uuid, time, tzone, cond, props) {
 ... as an object reference:
 
 ```javascript
-mySyringe.on('accessEvent', function (uuid, time, tzone, props) { /* ... as above */ });
+mySyringe.on('accessEvent', function (uuid, time, tzone, cond, props) { /* ... as above */ });
 ```
 ... as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-mySyringe.on('security.access.event', function (uuid, time, tzone, props) { /* ... as above */ });
+mySyringe.on('security.access.event', function (uuid, time, tzone, cond, props) { /* ... as above */ });
 ```
 ... as an object reference within a provided context:
 
 ```javascript
-mySyringe.on('event', function (uuid, time, tzone, props) { /* ... as above */ }, security.access);
+mySyringe.on('event', function (uuid, time, tzone, cond, props) { /* ... as above */ }, security.access);
 ```
 ... as a map:
 
 ```javascript
 mySyringe.on({
-   'accessEvent'  : function (uuid, time, tzone, props) { /* ... as above  */ },
-   'exitEvent'    : function (uuid, time, tzone, props) { /* ... more code */ },
-   'otherEvent'   : function (uuid, time, tzone, props) { /* ... more code */ }
+   'accessEvent'  : function (uuid, time, tzone, cond, props) { /* ... as above  */ },
+   'exitEvent'    : function (uuid, time, tzone, cond, props) { /* ... more code */ },
+   'otherEvent'   : function (uuid, time, tzone, cond, props) { /* ... more code */ }
 });
 ```
 ... or in a chain:
 
 ```javascript
-mySyringe.on('accessEvent', function (uuid, time, tzone, props) { /* ... as above  */ })
-   .on('exitEvent', function (uuid, time, tzone, props) { /* ... more code */ })
-   .on('otherEvent', function (uuid, time, tzone, props) { /* ... more code */ });
+mySyringe.on('accessEvent', function (uuid, time, tzone, cond, props) { /* ... as above  */ })
+   .on('exitEvent', function (uuid, time, tzone, cond, props) { /* ... more code */ })
+   .on('otherEvent', function (uuid, time, tzone cond, props) { /* ... more code */ });
 ```
 
 ### Execution
