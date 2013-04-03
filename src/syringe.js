@@ -14,7 +14,7 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.3
+// syringe.js v0.1.4
 (function () {
 
    "use strict";
@@ -35,6 +35,32 @@ forin:false, curly:false */
          , PARAM = /^\s*(_?)(\S+?)\1\s*$/
          , CLEAN = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
    
+      // Fast (non-jQuery) asynch script-loader/-runner...
+      var addScript = function (src, callback, props) {
+
+         props = props || {};
+
+         var el = document.createElement("script");
+
+         el.src    = props.src   || src;
+         el.type   = props.type  || "text/javascript";
+         el.async  = props.async || true;
+
+         ("function" === typeof callback) && (el.addEventListener ? el.addEventListener("load", callback, !1) : el.readyState && (el.onreadystatechange = callback));
+
+         document.getElementsByTagName("head")[0].appendChild(el);
+      };
+
+      // Get the number of "own" properties in an object
+      var getPropSize = function (obj) {
+         var size = 0,
+            key;
+         for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+         }
+         return size;
+      };
+
       // Get the name of an object type as a string
       var getType = function (obj, lc) {
          var str = toString.call(obj).slice(8, -1);
@@ -110,16 +136,29 @@ forin:false, curly:false */
          if (getType(name, true) === 'object') {
             for (var key in name) {
                if (!hasProp.call(name, key)) continue;
-               this.register.apply(this, [key, name[key]]);
+               this.add.apply(this, [key, name[key]]);
             }
             return this;
          }         
          deps[name] = dep;
          return this;
       };
-      
+
+      syringe.unregister = syringe.remove = function (name) {
+         delete deps[name];
+         return this;
+      };
+
       syringe.on = syringe.bind = function (name, fn, ctx) {
          
+         if (getType(name, true) === 'object') {
+            for (var key in name) {
+               if (!hasProp.call(name, key)) continue;
+               this.on.apply(this, [key, name[key]]);
+            }
+            return this;
+         }    
+
          // Is this binding going to be assigned to a name in an optional context?
          if (getType(name, true) === 'string' && getType(fn, true) === 'function') {
          
@@ -155,12 +194,34 @@ forin:false, curly:false */
          return this;
       };
 
-      syringe.unregister = syringe.remove = function (name) {
-         delete deps[name];
-         return this;
+      syringe.fetch = function (props, callback) {
+
+         var self = this,
+            count = 0;
+
+         // Keeps a count of the script load events and reconciles it
+         // against the length of the script list...
+         var stack = function () {
+
+            if (++count === getPropSize(props)) {
+               for (var key in props) {
+                  if (!hasProp.call(props, key)) continue;
+                  self.add(key, getObj(props[key].bind, root));
+               }
+               callback.call(self);
+            }
+         };
+
+         // Loop that adds new script element for each list item...
+         for (var key in props) {
+            if (!hasProp.call(props, key)) continue;
+            addScript(props[key].path, stack);
+         }
       };
 
-      // ---------------------------- End Public API ----------------------------
+      syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
+
+      syringe.VERSION = '0.1.4';
 
       return syringe;
 
