@@ -1,6 +1,6 @@
 # syringe.js#
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick - there'll be no more "AAAAAAAAH!" ") Syringe is a tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly or indirectly, or relying on the lexical scope - Syringe will vaccinate your operations ahead of time.
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny little dependency injection framework that allows you to bind data deterministically to your functions and methods. No more worrying about passing data directly or indirectly, or relying on the lexical scope - Syringe will vaccinate your operations ahead of time.
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -24,12 +24,12 @@ var mySyringe = syringe({
 
 Register some additional dependencies, one at a time:
 ```javascript
-mySyringe.register('Modernizr', Modernizr);
+mySyringe.add('md', Modernizr);
 ```
 ... or in bulk:
 
 ```javascript
-mySyringe.register({
+mySyringe.add({
    "hb"  : Handlebars,
    "fn"  : function (name) { return 'Hello ' + name + '!'; }
 });
@@ -41,21 +41,21 @@ mySyringe.register({
 You can bind your methods in a number of different ways. As a function expression:
 
 ```javascript
-var talk = mySyringe.bind(function ($, fn, name) {      
+var talk = mySyringe.on(function ($, fn, name) {      
    $('body').append('<p>' + fn(name) + '</p>');
 });
 ```
 ... as an object reference:
 
 ```javascript
-mySyringe.bind('talk', function ($, fn, name) {      
+mySyringe.on('talk', function ($, fn, name) {      
    $('body').append('<p>' + fn(name) + '</p>');
 });
 ```
-... as a progressively constructed object reference:
+... as a deep object reference (which is progressively constructed if it doesn't exist):
 
 ```javascript
-mySyringe.bind('talk.to.this.guy', function ($, fn, name) {
+mySyringe.on('talk.to.this.guy', function ($, fn, name) {
    $('body').append('<p>' + fn(name) + '</p>');
 });
 ```
@@ -63,7 +63,7 @@ mySyringe.bind('talk.to.this.guy', function ($, fn, name) {
 ... as a set:
 
 ```javascript
-mySyringe.bind({
+mySyringe.on({
    "talk": function ($, fn, name) {      
       $('body').append('<p>' + fn(name) + '</p>');
    },
@@ -71,6 +71,14 @@ mySyringe.bind({
       $('body').append('<p><strong>' + fn(name) + '!!!</strong></p>');
    },
 });
+```
+... or in a chain:
+
+```javascript
+mySyringe
+   .on('func.talk', function ($, fn, name) { /* Do stuff with jQuery, fn, and the "name" argument */ })
+   .on('func.yell', function ($, hb) { /* Do stuff with jQuery and Handlebars */ })
+   .on('func.quit', function ($, bb) { /* Do stuff with jQuery and Backbone */ });
 ```
 
 ### Execution
