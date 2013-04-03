@@ -14,14 +14,14 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.2
+// syringe.js v0.1.3
 (function () {
 
    "use strict";
    
    var root = this; 
 
-   root.syringe = function (init_deps) {
+   root.syringe = function (props, callback) {
       
       // Pointers and containers
       var syringe    = {}
@@ -102,12 +102,11 @@ forin:false, curly:false */
          return fn.apply(this, depArr.concat(args));
       };
       
-      deps = (getType(init_deps, true) === 'object') ? init_deps : deps;      
+      deps = (getType(props, true) === 'object') ? props : deps;      
       
-
       // --------------------------- Start Public API ---------------------------
             
-      syringe.register = function (name, dep) {
+      syringe.register = syringe.add = function (name, dep) {
          if (getType(name, true) === 'object') {
             for (var key in name) {
                if (!hasProp.call(name, key)) continue;
@@ -131,28 +130,20 @@ forin:false, curly:false */
             
             fn = run.bind(ctx, fn);
 
-            if (objStr) {
-               setObj(strArr.join('.'), ctx)[objStr] = fn;
-            } else {
-               ctx[strArr.join('.')] = fn;
-               return fn;
-            }
+            if (objStr) setObj(strArr.join('.'), ctx)[objStr] = fn;
+            else ctx[strArr.join('.')] = fn;
+            return this;
             
          // Is this binding simply going to be returned as an anonymous function?
          } else if (getType(name, true) === 'function') {
             ctx = getType(fn, true) === 'object' ? fn : root;
             return run.bind(ctx, name);
          }
-
       };
       
-      syringe.list = function () {
-         return deps;    
-      };
+      syringe.list = function () { return deps; };
 
-      syringe.get = function (str) {
-         return getObj(str, deps);
-      };      
+      syringe.get = function (str) { return getObj(str, deps); };      
 
       syringe.set = function (str, value) {
 
@@ -164,10 +155,12 @@ forin:false, curly:false */
          return this;
       };
 
-      syringe.remove = function (name) {
+      syringe.unregister = syringe.remove = function (name) {
          delete deps[name];
          return this;
       };
+
+      // ---------------------------- End Public API ----------------------------
 
       return syringe;
 
