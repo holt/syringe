@@ -14,14 +14,14 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.4
+// syringe.js v0.1.5
 (function () {
 
    "use strict";
    
    var root = this; 
 
-   root.syringe = function (props, callback) {
+   root.syringe = function (props) {
       
       // Pointers and containers
       var syringe    = {}
@@ -35,20 +35,31 @@ forin:false, curly:false */
          , PARAM = /^\s*(_?)(\S+?)\1\s*$/
          , CLEAN = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
    
-      // Fast (non-jQuery) asynch script-loader/-runner...
-      var addScript = function (src, callback, props) {
+      // Asynch script-loader/-runner...
+      var addScript = function (src, callback) {
 
-         props = props || {};
+         var doc     = document
+            , head   = doc.getElementsByTagName("head")[0] || doc.documentElement
+            , script = doc.createElement("script")
+            , done   = false;
 
-         var el = document.createElement("script");
+         script.src = src;
 
-         el.src    = props.src   || src;
-         el.type   = props.type  || "text/javascript";
-         el.async  = props.async || true;
+         script.onload = script.onreadystatechange = function () {
 
-         ("function" === typeof callback) && (el.addEventListener ? el.addEventListener("load", callback, !1) : el.readyState && (el.onreadystatechange = callback));
+            if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
 
-         document.getElementsByTagName("head")[0].appendChild(el);
+               done           = true;
+               script.onload  = script.onreadystatechange = null;
+
+               if (head && script.parentNode) head.removeChild(script);
+               if (getType(callback, true) === 'function') callback();
+
+            }
+         };
+
+         head.insertBefore(script, head.firstChild);
+
       };
 
       // Get the number of "own" properties in an object
