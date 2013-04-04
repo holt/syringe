@@ -21,15 +21,15 @@ For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScr
 
 Functions definitions in JavaScript are implicitly declarative; that is, you can see what arguments they expect by examining the signature and arity of their parameter definition. 
 
-If arguments are meaningfully named (or event just familiar) we can look at something like this:
+If arguments are meaningfully named (or even just familiar, like `$`) we can look at something like this:
 
 ```javascript
 var identify = function (name, age) { // Do stuff... };
 ```
-... and get a sense of what is expected.
+... and get an immediate sense of what is expected.
 
 
-### So I can look at function and know what it expects. So what?
+### So I can look at function and know what parameters it expects. So what?
 
 So the function still needs _something_ to pass those arguments at the point of invocation. Syringe is all about what - given what we know of a function's declarative nature - that _something_ might be.
 
@@ -39,7 +39,7 @@ Syringe works by examining the parameter definition of a provided function and i
 
 Not exactly. When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you need the parameter values in your hand before you can create a version of the function that has some (or all) of those values prebound to it. With Syringe, this binding takes place deterministically at the point of invocation. 
 
-This is immensely convenient because you can arbitrarily change the registry definition for a parameter and so that completely different data gets passed each time the bound function gets called. In medical terms, it's as if the influenza vaccine you recieved last Winter could receive software updates throughout the year.
+This is very convenient because you can arbitrarily change the registry definition for a parameter so that _completely different_ data gets passed each time the bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
 
 ## Examples ##
 
@@ -161,21 +161,33 @@ mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as abov
 ##### Asynchronously
 
 ```javascript
-mySyringe.fetch({
-   '_': {
-      'path': 'http://underscorejs.org/underscore-min.js',
-      'bind': '_'
+var scripts = {
+   'first': {
+      '_': {
+         'path': 'http://underscorejs.org/underscore-min.js',
+         'bind': '_'
+      },
+      '$': {
+         'path': 'http://code.jquery.com/jquery-1.9.1.min.js',
+         'bind': 'jQuery'
+      }
    },
-   'bb': {
-      'path': 'http://backbonejs.org/backbone-min.js',
-      'bind': 'Backbone'
-   },
-   '$': {
-      'path': 'http://code.jquery.com/jquery-1.9.1.min.js',
-      'bind': 'jQuery'
+   'second': {
+      'mz': {
+         'path': 'http://modernizr.com/downloads/modernizr-latest.js',
+         'bind': 'Modernizr'
+      },
+      'bb': {
+         'path': 'http://backbonejs.org/backbone-min.js',
+         'bind': 'Backbone'
+      }
    }
-}, function () {
-   // The context for the callback is `mySyringe`
+};
+
+mySyringe.fetch(scripts.first, function () {
+   mySyringe.fetch(scripts.second, this.bind(function (_, mz, bb, $) {
+      console.log(arguments);
+   }));
 });
 ```
 
