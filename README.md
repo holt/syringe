@@ -21,10 +21,10 @@ For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScr
 
 Functions definitions in JavaScript are implicitly declarative; that is, you can see what arguments they expect by examining the signature and arity of their parameter definition. 
 
-If arguments are meaningfully named (or even just familiar, like `$`) we can look at something like this:
+If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
 
 ```javascript
-var identify = function (name, age) { // Do stuff... };
+var identify = function (name, age) { /* Do stuff... */ };
 ```
 ... and get an immediate sense of what is expected.
 
@@ -35,9 +35,9 @@ So the function still needs _something_ to pass those arguments at the point of 
 
 Syringe works by examining the parameter definition of a provided function and innoculating it with any _corresponding_ data items that already exist in a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
 
-### Do I smell curry?
+### Can I smell curry?
 
-Not exactly. When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you need the parameter values in your hand before you can create a version of the function that has some (or all) of those values prebound to it. With Syringe, this binding takes place deterministically at the point of invocation. 
+Not exactly. When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
 
 This is very convenient because you can arbitrarily change the registry definition for a parameter so that _completely different_ data gets passed each time the bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
 
