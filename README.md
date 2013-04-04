@@ -17,6 +17,30 @@ Just add `syringe.js` or `syringe.min.js` to your environment.
 
 For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them.
 
+## Overview ##
+
+Functions definitions in JavaScript are implicitly declarative; that is, you can see what arguments they expect by examining the signature and arity of their parameter definition. 
+
+If arguments are meaningfully named (or event just familiar) we can look at something like this:
+
+```javascript
+var identify = function (name, age) { // Do stuff... };
+```
+... and get a sense of what is expected.
+
+
+### So I can look at function and know what it expects. So what?
+
+So the function still needs _something_ to pass those arguments at the point of invocation. Syringe is all about what - given what we know of a function's declarative nature - that _something_ might be.
+
+Syringe works by examining the parameter definition of a provided function and innoculating it with any _corresponding_ data items that already exist in a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
+
+### Do I smell curry?
+
+Not exactly. When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you need the parameter values in your hand before you can create a version of the function that has some (or all) of those values prebound to it. With Syringe, this binding takes place deterministically at the point of invocation. 
+
+This is immensely convenient because you can arbitrarily change the registry definition for a parameter and so that completely different data gets passed each time the bound function gets called. In medical terms, it's as if the influenza vaccine you recieved last Winter could receive software updates throughout the year.
+
 ## Examples ##
 
 ### Initialization and Registration
@@ -80,7 +104,7 @@ mySyringe.add({
 
 You can bind your methods in a number of different ways. 
 
-... as a function expression:
+##### Function Expression
 
 ```javascript
 var accessEvent = mySyringe.on(function (uuid, tzone, stat, props) {
@@ -101,22 +125,23 @@ var accessEvent = mySyringe.on(function (uuid, tzone, stat, props) {
 
 });
 ```
-... as an object reference:
+##### Object Reference
 
 ```javascript
 mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as above */ });
 ```
-... as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
+... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
 mySyringe.on('security.access.event', function (uuid, tzone, stat, props) { /* ... as above */ });
 ```
-... as an object reference within a provided context:
+... or as an object reference within a provided context:
 
 ```javascript
 mySyringe.on('event', function (uuid, tzone, stat, props) { /* ... as above */ }, security.access);
 ```
-... as a map:
+
+##### Map
 
 ```javascript
 mySyringe.on({
@@ -125,7 +150,7 @@ mySyringe.on({
    'otherEvent2'  : function ($, props) { /* ... yet more code */ }
 });
 ```
-... in a chain:
+##### Chain
 
 ```javascript
 mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as above  */ })
@@ -133,7 +158,7 @@ mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as abov
    .on('otherEvent2', function ($, props) { /* ... yet more code */ });
 ```
 
-... or asynchronously:
+##### Asynchronously
 
 ```javascript
 mySyringe.fetch({
@@ -147,7 +172,7 @@ mySyringe.fetch({
    },
    '$': {
       'path': 'http://code.jquery.com/jquery-1.9.1.min.js',
-      'bond': 'jQuery'
+      'bind': 'jQuery'
    }
 }, function () {
    // The context for the callback is `mySyringe`
