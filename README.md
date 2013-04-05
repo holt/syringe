@@ -23,11 +23,11 @@ Syringe works by examining the parameter definition of a provided function and i
 
 ### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
-Not exactly<sup>1</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
+Not exactly<sup>*</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
 
 This is very convenient because you can arbitrarily change the registry definition for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
 
-<sup>1</sup>Currying does take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
+<sup>*</sup>Currying _does_ take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
 
 ## Installation
 
@@ -95,9 +95,9 @@ mySyringe.add('tzone', {
 mySyringe.add({
    'uuid': (function () {
       var a = function () {
-         return Math.floor(65536 * Math.random()).toString(16)
+         return Math.floor(65536 * Math.random()).toString(16);
       };
-      return a() + a() + '-' + a() + '-' + a() + '-' + a() + '-' + a() + a() + a();
+      return a()+a()+'-'+a()+'-'+a()+'-'+a()+'-'+a()+a()+a();
    }()),
    'stat': 0
 });
@@ -111,7 +111,7 @@ You can bind your methods in a number of different ways.
 ##### Function Expression
 
 ```javascript
-var accessEvent = mySyringe.on(function (uuid, tzone, stat, props) {
+var event = mySyringe.on(function (uuid, tzone, stat, props) {
 
    var state = ['Green', 'Amber', 'Orange', 'Red'][stat++];
 
@@ -132,34 +132,35 @@ var accessEvent = mySyringe.on(function (uuid, tzone, stat, props) {
 ##### Object Reference
 
 ```javascript
-mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as above */ });
+mySyringe.on('event', function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-mySyringe.on('security.access.event', function (uuid, tzone, stat, props) { /* ... as above */ });
+mySyringe.on('security.access.event', function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as an object reference within a provided context:
 
 ```javascript
-mySyringe.on('event', function (uuid, tzone, stat, props) { /* ... as above */ }, security.access);
+mySyringe.on('event', function (uuid, tzone, stat, props) { /* as above */ }, security.access);
 ```
 
 ##### Map
 
 ```javascript
 mySyringe.on({
-   'accessEvent'  : function (uuid, tzone, stat, props) { /* ... as above  */ },
-   'otherEvent1'  : function ($, props) { /* ... yet more code */ },
-   'otherEvent2'  : function ($, props) { /* ... yet more code */ }
+   'event'  : function (uuid, tzone, stat, props) { /* as above  */ },
+   'func1'  : function ($, props) { /* ... */ },
+   'func2'  : function ($, props) { /* ... */ }
 });
 ```
 ##### Chain
 
 ```javascript
-mySyringe.on('accessEvent', function (uuid, tzone, stat, props) { /* ... as above  */ })
-   .on('otherEvent1', function ($, props) { /* ... yet more code */ })
-   .on('otherEvent2', function ($, props) { /* ... yet more code */ });
+mySyringe
+   .on('event', function (uuid, tzone, stat, props) { /* as above  */ })
+   .on('func1', function ($, props) { /* ... */ })
+   .on('func2', function ($, props) { /* ... */ });
 ```
 
 ##### Asynchronously
@@ -201,7 +202,7 @@ mySyringe.fetch(scripts.first, function () {
 Run the function:
 
 ```javascript
-accessEvent({
+event({
    'name'   : 'Doe, John',
    'locale' : 'America-Sao_Paulo'
 });
@@ -216,7 +217,7 @@ accessEvent({
 Run it again:
 
 ```javascript
-accessEvent({
+event({
    'name'   : 'Smith, Alice',
    'locale' : 'America-Sao_Paulo'
 });
