@@ -4,18 +4,6 @@
 
 Now, let's roll up our sleeves and begin shall we?
 
-## Installation
-
-Just add `syringe.js` or `syringe.min.js` to your environment.
-
-**Note:** Syringe _does_ require the following methods ECMAScript 5 methods:  
-
-- `Array.filter` 
-- `Array.map`
-- `Array.reduce`
-- `Function.bind`
-
-For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them.
 
 ## Overview ##
 
@@ -31,15 +19,34 @@ var identify = function (name, age) { /* Do stuff... */ };
 
 ### So I can look at function and know what parameters it expects. So what?
 
-So the function still needs _something_ to pass those arguments at the point of invocation. Syringe is all about what - given what we know of a function's declarative nature - that _something_ might be.
-
 Syringe works by examining the parameter definition of a provided function and innoculating it with any _corresponding_ data items that already exist in a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
 
-### Can I smell curry?
+### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
-Not exactly. When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
+Not exactly<sup>1</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
 
-This is very convenient because you can arbitrarily change the registry definition for a parameter so that _completely different_ data gets passed each time the bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
+This is very convenient because you can arbitrarily change the registry definition for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
+
+<sup>1</sup>Currying does take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
+
+## Installation
+
+Just add `syringe.js` or `syringe.min.js` to your environment.
+
+**Note:** Syringe _does_ require the following methods ECMAScript 5 methods:  
+
+- `Array.filter` 
+- `Array.map`
+- `Array.reduce`
+- `Function.bind`
+
+For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them.
+
+
+## Browser Compatibility / Unit Tests
+
+In progress.
+
 
 ## Examples ##
 
@@ -49,14 +56,11 @@ Create a sterile new syringe:
 ```javascript
 var mySyringe = syringe();
 ```
-... or create one loaded up with some with some available dependencies:
+... or create one loaded up with some with useful dependencies:
 
 ```javascript
 var mySyringe = syringe({
-   '$'   : window.jQuery || window.Zepto,
-   'bb'  : window.Backbone,
-   'md'  : window.Modernizr,
-   'hb'  : window.Handlebars
+   '$': window.jQuery || window.Zepto
 });
 ```
 Register an additional item:
@@ -115,7 +119,7 @@ var accessEvent = mySyringe.on(function (uuid, tzone, stat, props) {
       return item.TimeZoneId === props.locale;
    })[0].GMT;
 
-   if (stat < 4) mySyringe.set('stat', stat);
+   if (stat < 4) mySyringe.set('stat', stat); // Change the `stat` value
 
    return {
       'msg' : 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
