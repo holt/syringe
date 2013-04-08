@@ -47,8 +47,6 @@ var f = syr.on(function (props, arg1, arg2) {
 f('Foo', 'Bar'); // Returns: "Mike 39 Foo Bar"
 ```
 
-
-
 ### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
 Not exactly<sup>+</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place dynamically at the point of invocation. 
@@ -254,7 +252,7 @@ event({
 //    }
 ```
 
-### Bind and Register Example
+###  Register and Bind Example
 
 If you pass `true` as the third argument when you register a function, syringe will automatically bind the function before addding it to the map:
 
