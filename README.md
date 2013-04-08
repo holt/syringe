@@ -65,18 +65,18 @@ Name     | Parameters   | Description | Example
 
 Create a sterile new syringe:
 ```javascript
-var mySyringe = syringe();
+var syr = syringe();
 ```
-... or create one loaded up with some with useful dependencies:
+... or initialize one that is loaded up with some with useful dependencies:
 
 ```javascript
-var mySyringe = syringe({
+var syr = syringe({
    '$': window.jQuery || window.Zepto
 });
 ```
 Register an additional item:
 ```javascript
-mySyringe.add('tzone', {
+syr.add('tzone', {
    'result': [{
          'TimeZoneId': 'America-Montevideo',
          'DST': '-3',
@@ -103,7 +103,7 @@ mySyringe.add('tzone', {
 ... or a map of multiple items:
 
 ```javascript
-mySyringe.add({
+syr.add({
    'uuid': (function () {
       var a = function () {
          return Math.floor(65536 * Math.random()).toString(16);
@@ -121,7 +121,7 @@ You can bind your methods in a number of different ways.
 ##### Function Expression
 
 ```javascript
-var event = mySyringe.on(function (uuid, tzone, stat, props) {
+var event = syr.on(function (uuid, tzone, stat, props) {
 
    var state = ['Green', 'Amber', 'Orange', 'Red'][stat++];
 
@@ -129,7 +129,7 @@ var event = mySyringe.on(function (uuid, tzone, stat, props) {
       return item.TimeZoneId === props.locale;
    })[0].GMT;
 
-   if (stat < 4) mySyringe.set('stat', stat); // Change the `stat` value
+   if (stat < 4) syr.set('stat', stat); // Change the `stat` value
 
    return {
       'msg' : 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
@@ -142,23 +142,23 @@ var event = mySyringe.on(function (uuid, tzone, stat, props) {
 ##### Object Reference
 
 ```javascript
-mySyringe.on('event', function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('event', function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-mySyringe.on('security.access.event', function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('security.access.event', function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as an object reference within a provided context:
 
 ```javascript
-mySyringe.on('event', function (uuid, tzone, stat, props) { /* as above */ }, security.access);
+syr.on('event', function (uuid, tzone, stat, props) { /* as above */ }, security.access);
 ```
 
 ##### Map
 
 ```javascript
-mySyringe.on({
+syr.on({
    'event'  : function (uuid, tzone, stat, props) { /* as above  */ },
    'func1'  : function ($, props) { /* ... */ },
    'func2'  : function ($, props) { /* ... */ }
@@ -167,7 +167,7 @@ mySyringe.on({
 ##### Chain
 
 ```javascript
-mySyringe
+syr
    .on('event', function (uuid, tzone, stat, props) { /* as above  */ })
    .on('func1', function ($, props) { /* ... */ })
    .on('func2', function ($, props) { /* ... */ });
@@ -199,8 +199,8 @@ var scripts = {
    }
 };
 
-mySyringe.fetch(scripts.first, function () {
-   mySyringe.fetch(scripts.second, this.bind(function (_, mz, bb, $) {
+syr.fetch(scripts.first, function () {
+   syr.fetch(scripts.second, this.bind(function (_, mz, bb, $) {
       console.log(arguments);
    }));
 });
@@ -266,21 +266,21 @@ var getTime = function () {
 };
 
 // Create a new syringe:
-var mySyringe = syringe();
+var syr = syringe();
 
 // Register the data and time functions:
-mySyringe.register({
+syr.register({
    'date': getDate(),
    'time': getTime()
 });
 
 // Register a "condition" function that itself is bound and uses the date and time functions:
-mySyringe.register('condition', function (date, time, stat) {
+syr.register('condition', function (date, time, stat) {
    return 'Current status on ' + date + ' at ' + time + ' is ' + (stat || 'Green');
 }, true);   // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
-var msg = mySyringe.on(function (condition, stat, motd) {
+var msg = syr.on(function (condition, stat, motd) {
    return condition(stat) + '\nMessage of the day: ' + motd;
 });
 
