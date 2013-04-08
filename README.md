@@ -8,7 +8,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 Just add `syringe.js` or `syringe.min.js` to your environment.
 
-**Note:** Syringe _does_ require the following methods ECMAScript 5 methods:  
+**Note:** Syringe _does_ require the following ECMAScript 5 methods:  
 
 - `Array.filter` 
 - `Array.map`
@@ -23,16 +23,31 @@ In progress.
 
 ## Overview ##
 
-Functions definitions in JavaScript are implicitly declarative; that is, you can see usually what/how many arguments they expect by examining the signature/arity of the parameter definition. 
-
-If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
+Functions definitions in JavaScript are implicitly declarative; that is, you can see usually what/how many arguments they expect by examining the signature/arity of the parameter definition. If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
 
 ```javascript
-var identify = function (name, age) { /* Do stuff... */ };
+var f = function (name, age) { /* Do stuff... */ };
 ```
-... and get an immediate sense of what is expected.
+... and get an immediate idea of what is expected.
 
-Syringe works by examining the parameter definition of a provided function and then _inoculating_ the function with any _corresponding_ data items that already exist inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
+Syringe works by examining the parameter definition of a provided function and then _inoculating_ the function with any _corresponding_ data items that already exist inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. Example:
+
+```javascript
+var syr = syringe({
+   'props': {
+      'name': 'Mike',
+      'age' : 39
+   }
+});
+
+var f = syr.on(function (props, arg1, arg2) {
+   console.log('%s %s %s %s', props.name, props.age, arg1, arg2);
+});
+
+f('Foo', 'Bar'); // Returns: "Mike 39 Foo Bar"
+```
+
+
 
 ### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
@@ -44,7 +59,7 @@ This is very convenient because you can arbitrarily change the registry definiti
 
 ### What's this about a "registry"?
 
-The registry is a closured map of all the data items you're interested in automatically provisioning to your syringe-bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map their value directly or by reference.
+The registry is a closured map of all the data items you're interested in automatically provisioning to your syringe-bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
 ## API and Examples ##
 
