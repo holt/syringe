@@ -14,7 +14,7 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.6
+// syringe.js v0.1.8
 (function () {
 
    "use strict";
@@ -64,10 +64,9 @@ forin:false, curly:false */
       // Get the number of "own" properties in an object
       var getPropSize = function (obj) {
 
-         var size = 0,
-            key;
+         var size = 0, key;
          for (key in obj) {
-            if (obj.hasOwnProperty(key)) size++;
+            if (hasProp.call(obj, key)) size++;
          }
          return size;
       };
@@ -143,7 +142,7 @@ forin:false, curly:false */
       deps = (getType(props, true) === 'object') ? props : deps;      
       
       // --------------------------- Start Public API ---------------------------
-            
+
       syringe.register = syringe.add = function (name, dep, bind) {
          
          if (getType(name, true) === 'object') {
@@ -164,8 +163,16 @@ forin:false, curly:false */
 
       syringe.unregister = syringe.remove = function (name) {
 
-         delete deps[name];
+         var newdeps = {};
+
+         for (var key in deps) {
+            if (!hasProp.call(deps, key) || (hasProp.call(deps, name) && key === name)) continue;
+            newdeps[key] = deps[key];
+         }
+
+         deps = newdeps;
          return this;
+
       };
 
       syringe.on = syringe.bind = function (name, fn, ctx) {
@@ -198,13 +205,14 @@ forin:false, curly:false */
             return run.bind(ctx, name);
          }
       };
-      
-      syringe.list = function () { 
-         return deps; 
-      };
 
-      syringe.get = function (str) { 
-         return getObj(str, deps); 
+      syringe.get = function (str) {
+
+         if (getType(str, true) === 'string') {
+            return (getObj(str, deps) || false);
+         }
+
+         return deps;
       };      
 
       syringe.set = function (str, value) {
@@ -217,7 +225,7 @@ forin:false, curly:false */
          return this;
       };
 
-      syringe.fetch = function (props, callback) {
+      syringe.fetch = function (map, callback) {
 
          var self = this,
             count = 0;
@@ -226,25 +234,25 @@ forin:false, curly:false */
          // against the length of the script list...
          var stack = function () {
 
-            if (++count === getPropSize(props)) {
-               for (var key in props) {
-                  if (!hasProp.call(props, key)) continue;
-                  self.add(key, getObj(props[key].bind, root));
+            if (++count === getPropSize(map)) {
+               for (var key in map) {
+                  if (!hasProp.call(map, key)) continue;
+                  self.add(key, getObj(map[key].bind, root));
                }
                callback.call(self);
             }
          };
 
          // Loop that adds new script element for each list item...
-         for (var key in props) {
-            if (!hasProp.call(props, key)) continue;
-            addScript(props[key].path, stack);
+         for (var key in map) {
+            if (!hasProp.call(map, key)) continue;
+            addScript(map[key].path, stack);
          }
       };
 
       syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
 
-      syringe.VERSION = '0.1.6';
+      syringe.VERSION = '0.1.8';
 
       return syringe;
 
