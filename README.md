@@ -1,6 +1,6 @@
 # syringe.js #
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb when minified without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -59,7 +59,7 @@ Name     | Parameters   | Description | Example
 *on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('x.f', function (example) {...}, this);`
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('example');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('example.name', 'Bob');`
-*fetch*  | `map, callback` | xxx | [See below](#asynchronously)
+*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#asynchronously)
 
 ### Initialization and Registration
 
