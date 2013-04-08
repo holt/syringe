@@ -23,15 +23,9 @@ In progress.
 
 ## Overview ##
 
-Functions definitions in JavaScript are implicitly declarative; that is, you can see usually what/how many arguments they expect by examining the signature/arity of the parameter definition. If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
+Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with any _corresponding_ data items located inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
 
-```javascript
-var f = function (name, age) { /* Do stuff... */ };
-```
-... and get an immediate idea of what is expected.
-
-Syringe works by examining the parameter definition of a provided function and then _inoculating_ the function with any _corresponding_ data items that already exist inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. Example:
-
+Example:
 ```javascript
 var syr = syringe({
    'props': {
@@ -69,7 +63,7 @@ Name     | Parameters   | Description | Example
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'example': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('example');`
 *on*     | `function`               | Return a bound function that can access the dependency map. Alias: _bind_ | `var f = syr.on(function (example) {...});`
-*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('x.f', function (example) {...}, this);`
+*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', function (example) {...}, this);`
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('example');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('example.name', 'Bob');`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#asynchronously)
