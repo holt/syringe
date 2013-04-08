@@ -14,7 +14,7 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.5
+// syringe.js v0.1.6
 (function () {
 
    "use strict";
@@ -49,8 +49,8 @@ forin:false, curly:false */
 
             if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
 
-               done           = true;
-               script.onload  = script.onreadystatechange = null;
+               done = true;
+               script.onload = script.onreadystatechange = null;
 
                if (head && script.parentNode) head.removeChild(script);
                if (getType(callback, true) === 'function') callback();
@@ -59,11 +59,11 @@ forin:false, curly:false */
          };
 
          head.insertBefore(script, head.firstChild);
-
       };
 
       // Get the number of "own" properties in an object
       var getPropSize = function (obj) {
+
          var size = 0,
             key;
          for (key in obj) {
@@ -114,6 +114,7 @@ forin:false, curly:false */
       // Return a map of any items in the passed array that match
       // items in the dependency object
       var getDeps = function (arr) {
+         
          var fn = function (item) { 
             return deps[item];
          };
@@ -143,7 +144,8 @@ forin:false, curly:false */
       
       // --------------------------- Start Public API ---------------------------
             
-      syringe.register = syringe.add = function (name, dep) {
+      syringe.register = syringe.add = function (name, dep, bind) {
+         
          if (getType(name, true) === 'object') {
             for (var key in name) {
                if (!hasProp.call(name, key)) continue;
@@ -151,11 +153,17 @@ forin:false, curly:false */
             }
             return this;
          }         
+
+         if (getType(dep, true) === 'function' && bind) {
+            dep = this.on(dep);
+         }
+
          deps[name] = dep;
          return this;
       };
 
       syringe.unregister = syringe.remove = function (name) {
+
          delete deps[name];
          return this;
       };
@@ -191,9 +199,13 @@ forin:false, curly:false */
          }
       };
       
-      syringe.list = function () { return deps; };
+      syringe.list = function () { 
+         return deps; 
+      };
 
-      syringe.get = function (str) { return getObj(str, deps); };      
+      syringe.get = function (str) { 
+         return getObj(str, deps); 
+      };      
 
       syringe.set = function (str, value) {
 
@@ -232,7 +244,7 @@ forin:false, curly:false */
 
       syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
 
-      syringe.VERSION = '0.1.4';
+      syringe.VERSION = '0.1.6';
 
       return syringe;
 
