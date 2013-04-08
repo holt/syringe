@@ -1,37 +1,8 @@
 # syringe.js #
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb _sans_ MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
-
-
-## Overview ##
-
-Functions definitions in JavaScript are implicitly declarative; that is, you can see what arguments they expect by examining the signature and arity of their parameter definition. 
-
-If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
-
-```javascript
-var identify = function (name, age) { /* Do stuff... */ };
-```
-... and get an immediate sense of what is expected.
-
-Syringe works by similarly examining the parameter definition of a provided function and innoculating it with any _corresponding_ data items that already exist in a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
-
-### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
-
-Not exactly<sup>*</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place deterministically at the point of invocation. 
-
-This is very convenient because you can arbitrarily change the registry definition for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
-
-<sup>*</sup>Currying _does_ take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
-
-### What's this about a "registry"?
-
-The registry is a closured map of things that you're interested in provisioning to your functions on invocation. You can you provision objects, arrays, values, functions, strings, numbers, anything really. You can assign their value directly or by reference.
-
-
-
 
 ## Installation
 
@@ -44,15 +15,51 @@ Just add `syringe.js` or `syringe.min.js` to your environment.
 - `Array.reduce`
 - `Function.bind`
 
-For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them.
+For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them or have provided your own implementations.
 
-
-## Browser Compatibility / Unit Tests
+### Browser Compatibility / Unit Tests
 
 In progress.
 
+## Overview ##
 
-## Example ##
+Functions definitions in JavaScript are implicitly declarative; that is, you can see usually what/how many arguments they expect by examining the signature/arity of the parameter definition. 
+
+If arguments are meaningfully named (or familiar, like `$`) we can look at something like this:
+
+```javascript
+var identify = function (name, age) { /* Do stuff... */ };
+```
+... and get an immediate sense of what is expected.
+
+Syringe works by examining the parameter definition of a provided function and then _inoculating_ the function with any _corresponding_ data items that already exist inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters.
+
+### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
+
+Not exactly<sup>+</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place dynamically at the point of invocation. 
+
+This is very convenient because you can arbitrarily change the registry definition for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
+
+<sup>+</sup>Currying _does_ take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
+
+### What's this about a "registry"?
+
+The registry is a closured map of all the data items you're interested in automatically provisioning to your syringe-bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map their value directly or by reference.
+
+## API and Examples ##
+
+This following table describes the methods offered by a new Syringe object:
+
+Name     | Parameters   | Description | Example
+---------|--------------|-------------|---------
+*add*    | `name, value, bind` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Set `bind` to `true` if the value is a function that you want to automatically bind as a Syringe method. Alias: _register_ | `syr.add('example', {'name': 'Mike'});`
+*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'example': {'name': 'Mike'}});`
+*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('example');`
+*on*     | `function`               | Bind and return a function that can access the dependency map. Alias: _bind_ | `var f = syr.on(function (example) {...});`
+*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('x.f', function (example) {...}, this);`
+*get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('example');`
+*set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('example.name', 'Bob');`
+*fetch*  | `map, callback` | xxx | [See below](#asynchronously)
 
 ### Initialization and Registration
 
@@ -93,7 +100,7 @@ mySyringe.add('tzone', {
    }())   
 });
 ```
-... or a map of mutliple items:
+... or a map of multiple items:
 
 ```javascript
 mySyringe.add({
@@ -108,7 +115,6 @@ mySyringe.add({
 ```
 
 ### Binding
-
 
 You can bind your methods in a number of different ways. 
 
@@ -200,7 +206,6 @@ mySyringe.fetch(scripts.first, function () {
 });
 ```
 
-
 ### Execution
 
 Run the function:
@@ -234,8 +239,7 @@ event({
 //    }
 ```
 
-
-## Bind and Register
+### Bind and Register Example
 
 If you pass `true` as the third argument when you register a function, syringe will automatically bind the function before addding it to the map:
 
@@ -272,8 +276,7 @@ mySyringe.register({
 
 // Register a "condition" function that itself is bound and uses the date and time functions:
 mySyringe.register('condition', function (date, time, stat) {
-   stat = stat || 'Green';
-   return 'Current status on ' + date + ' at ' + time + ' is ' + stat;
+   return 'Current status on ' + date + ' at ' + time + ' is ' + (stat || 'Green');
 }, true);   // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
