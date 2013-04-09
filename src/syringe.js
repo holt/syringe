@@ -172,7 +172,6 @@ forin:false, curly:false */
 
          deps = newdeps;
          return this;
-
       };
 
       syringe.on = syringe.bind = function (name, fn, ctx) {

@@ -25,7 +25,7 @@ In progress.
 
 Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with any _corresponding_ data items located inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
 
-Example:
+Here's a simple example:
 ```javascript
 var syr = syringe({
    'props': {
@@ -188,17 +188,9 @@ var scripts = {
       '_': {
          'path': 'http://underscorejs.org/underscore-min.js',
          'bind': '_'
-      },
-      '$': {
-         'path': 'http://code.jquery.com/jquery-1.9.1.min.js',
-         'bind': 'jQuery'
       }
    },
    'second': {
-      'mz': {
-         'path': 'http://modernizr.com/downloads/modernizr-latest.js',
-         'bind': 'Modernizr'
-      },
       'bb': {
          'path': 'http://backbonejs.org/backbone-min.js',
          'bind': 'Backbone'
@@ -207,7 +199,7 @@ var scripts = {
 };
 
 syr.fetch(scripts.first, function () {
-   syr.fetch(scripts.second, this.bind(function (_, mz, bb, $) {
+   syr.fetch(scripts.second, this.bind(function (_, bb) {
       console.log(arguments);
    }));
 });
