@@ -35,7 +35,7 @@ var syr = syringe({
 });
 
 var f = syr.on(function (props, arg1, arg2) {
-   console.log('%s %s %s %s', props.name, props.age, arg1, arg2);
+   return props.name + ' ' + props.age + ' ' + arg1 + ' ' + arg2;
 });
 
 f('Foo', 'Bar'); // Returns: "Mike 39 Foo Bar"
