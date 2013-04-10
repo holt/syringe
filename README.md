@@ -112,12 +112,12 @@ syr.add('tzone', {
 
 ```javascript
 syr.add({
-   'uuid': (function () {
+   'uuid': function () {
       var a = function () {
          return Math.floor(65536 * Math.random()).toString(16);
       };
       return a()+a()+'-'+a()+'-'+a()+'-'+a()+'-'+a()+a()+a();
-   }()),
+   },
    'stat': 0
 });
 ```
@@ -141,7 +141,7 @@ var event = syr.on(function (uuid, tzone, stat, props) {
 
    return {
       'msg' : 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
-      'id'  : uuid,
+      'id'  : uuid(),
       'stat': state
    };
 
@@ -267,13 +267,13 @@ var getTime = function () {
 
 // Create a new syringe and register the date and time functions:
 var syr = syringe.create({
-   'date': getDate(),
-   'time': getTime()
+   'date': getDate,
+   'time': getTime
 });
 
 // Register a "condition" function that itself is bound and uses the date and time functions:
 syr.register('condition', function (date, time, stat) {
-   return 'Current status on ' + date + ' at ' + time + ' is ' + (stat || 'Green');
+   return 'Current status on ' + date() + ' at ' + time() + ' is ' + (stat || 'Green');
 }, true);   // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
