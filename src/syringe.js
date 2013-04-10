@@ -14,14 +14,14 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.8
+// syringe.js v0.1.9
 (function () {
 
    "use strict";
    
-   var root = this; 
+   var root = this, syringe;
 
-   root.syringe = function (props) {
+   syringe = function (props) {
       
       // Pointers and containers
       var syringe    = {}
@@ -251,9 +251,13 @@ forin:false, curly:false */
 
       syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
 
-      syringe.VERSION = '0.1.8';
+      syringe.VERSION = '0.1.9';
 
       return syringe;
 
    };
+
+   root.syringe         = syringe();
+   root.syringe.create  = syringe;
+
 }.call(this));
