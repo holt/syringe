@@ -60,13 +60,13 @@ This following table describes the methods offered by a new Syringe object:
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
 *create* | `map` (optional) | Create a new syringe object. | `var syr = syringe.create();`
-*add*    | `name, value, bind` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Set `bind` to `true` if the value is a function that you want to automatically bind as a Syringe method. Alias: _register_ | `syr.add('example', {'name': 'Mike'});`
-*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'example': {'name': 'Mike'}});`
-*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('example');`
-*on*     | `function`               | Return a bound function that can access the dependency map. Alias: _bind_ | `var f = syr.on(function (example) {...});`
-*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', function (example) {...}, this);`
-*get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('example');`
-*set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('example.name', 'Bob');`
+*add*    | `name, value, bind` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Set `bind` to `true` if the value is a function that you want to automatically bind as a Syringe method. Alias: _register_ | `syr.add('data', {'name': 'Mike'});`
+*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'data': {'name': 'Mike'}});`
+*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('data');`
+*on*     | `function`               | Return a bound function that can access the dependency map. Alias: _bind_ | `var f = syr.on(function (data) {...});`
+*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', function (data) {...}, this);`
+*get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
+*set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#asynchronously)
 
 ### Initialization and Registration
