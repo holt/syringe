@@ -35,10 +35,10 @@ var syr = Syringe.create({
 });
 
 var f = syr.on(function (props, arg1, arg2) {
-   return props.name + ' ' + props.age + ' ' + arg1 + ' ' + arg2;
+   return props.name + ' is ' + props.age + ' - ' + arg1 + ' ' + arg2 + '!';
 });
 
-f('Foo', 'Bar'); // Returns: "Mike 39 Foo Bar"
+f('Happy', 'Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
 ```
 
 ### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
@@ -59,7 +59,7 @@ This following table describes the methods offered by a the `Syringe` object:
 
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
-*create* | `map` (optional) | Create a new syringe object. | `var syr = syringe.create();`
+*create* | `map` (optional) | Create a new syringe object. | `var syr = Syringe.create();`
 *add*    | `name, value, bind` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Set `bind` to `true` if the value is a function that you want to automatically bind as a Syringe method. Alias: _register_ | `syr.add('data', {'name': 'Mike'});`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'data': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('data');`
