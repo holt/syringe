@@ -1,6 +1,6 @@
 # syringe.js #
 
-![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~1.5Kb when minified without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+![syringe](https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true "Just a little pin prick... there'll be no more "AAAAAAAAH!" ") Syringe is a teeny-tiny (~2.5Kb when minified without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -8,7 +8,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 Just add `syringe.js` or `syringe.min.js` to your environment.
 
-**Note:** Syringe _does_ require the following ECMAScript 5 methods:  
+**Note:** Syringe requires the following ECMAScript 5 / JavaScript 1.6 methods:  
 
 - `Array.filter` 
 - `Array.map`
@@ -55,7 +55,7 @@ The registry is a closured map of all the data items you're interested in automa
 
 ## API and Examples ##
 
-This following table describes the methods offered by a new Syringe object:
+This following table describes the methods offered by a the `syringe` object:
 
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
