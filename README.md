@@ -27,7 +27,7 @@ Syringe works by examining the parameter definition of a previously bound functi
 
 Here's a simple example:
 ```javascript
-var syr = syringe.create({
+var syr = Syringe.create({
    'props': {
       'name': 'Mike',
       'age' : 39
@@ -55,7 +55,7 @@ The registry is a closured map of all the data items you're interested in automa
 
 ## API and Examples ##
 
-This following table describes the methods offered by a the `syringe` object:
+This following table describes the methods offered by a the `Syringe` object:
 
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
@@ -73,12 +73,12 @@ Name     | Parameters   | Description | Example
 
 Create a sterile new syringe:
 ```javascript
-var syr = syringe.create();
+var syr = Syringe.create();
 ```
 ... or initialize one that is loaded up with some with useful dependencies:
 
 ```javascript
-var syr = syringe.create({
+var syr = Syringe.create({
    '$': window.jQuery || window.Zepto
 });
 ```
@@ -266,7 +266,7 @@ var getTime = function () {
 };
 
 // Create a new syringe and register the date and time functions:
-var syr = syringe.create({
+var syr = Syringe.create({
    'date': getDate,
    'time': getTime
 });
