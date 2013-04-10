@@ -14,7 +14,7 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.9
+// syringe.js v0.1.10
 (function () {
 
    "use strict";
@@ -153,11 +153,16 @@ forin:false, curly:false */
             return this;
          }         
 
-         if (getType(dep, true) === 'function' && bind) {
-            dep = this.on(dep);
+         if (deps[name]) {
+            throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
          }
-
-         deps[name] = dep;
+         else {
+            if (getType(dep, true) === 'function' && bind) {
+               dep = this.on(dep);
+            }
+            deps[name] = dep;
+         }
+         
          return this;
       };
 
@@ -219,8 +224,17 @@ forin:false, curly:false */
          var strArr  = str.split('.')
          , objStr    = (strArr.length > 1) ? strArr.pop() : false;
       
-         if (objStr) setObj(strArr.join('.'), deps)[objStr] = value;
-         else deps[strArr.toString()] = value;        
+         if (!getObj(str, deps)) {
+            throw new Error('Key "' + str + '" does not exist in the map!');
+         }
+
+         if (objStr) {
+            setObj(strArr.join('.'), deps)[objStr] = value;
+         }
+         else {
+            deps[strArr.toString()] = value;
+         }   
+
          return this;
       };
 
@@ -251,7 +265,7 @@ forin:false, curly:false */
 
       syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
 
-      syringe.VERSION = '0.1.9';
+      syringe.VERSION = '0.1.10';
 
       return syringe;
 
