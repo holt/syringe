@@ -30,35 +30,33 @@ forin:false, curly:false */
          , slice     = [].slice
          , toString  = Object.prototype.toString;
 
-      // Patterns
+      // RegExp Patterns
       var PARAMS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m
          , PARAM = /^\s*(_?)(\S+?)\1\s*$/
          , CLEAN = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
    
-      // Asynch script-loader/-runner...
+      // Asynch script loader
       var addScript = function (src, callback) {
 
          var doc     = document
             , head   = doc.getElementsByTagName("head")[0] || doc.documentElement
-            , script = doc.createElement("script")
+            , node   = doc.createElement("script")
             , done   = false;
 
-         script.src = src;
+         node.src = src;
 
-         script.onload = script.onreadystatechange = function () {
-
-            if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
-
+         node.onload = node.onreadystatechange = function () {
+            if (!done && (!this.readyState || this.readyState === "loaded" 
+                  || this.readyState === "complete"))
+            {
                done = true;
-               script.onload = script.onreadystatechange = null;
-
-               if (head && script.parentNode) head.removeChild(script);
+               node.onload = node.onreadystatechange = null;
+               if (head && node.parentNode) head.removeChild(node);
                if (getType(callback, true) === 'function') callback();
-
             }
          };
 
-         head.insertBefore(script, head.firstChild);
+         head.insertBefore(node, head.firstChild);
       };
 
       // Get the number of "own" properties in an object
@@ -240,8 +238,7 @@ forin:false, curly:false */
 
       syringe.fetch = function (map, callback) {
 
-         var self = this,
-            count = 0;
+         var self = this, count = 0;
 
          // Keeps a count of the script load events and reconciles it
          // against the length of the script list...
@@ -262,8 +259,6 @@ forin:false, curly:false */
             addScript(map[key].path, stack);
          }
       };
-
-      syringe.$ = root.jQuery || root.Zepto || root.ender || root.$;
 
       syringe.VERSION = '0.1.11';
 
