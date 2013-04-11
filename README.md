@@ -77,17 +77,26 @@ This is very convenient because you can arbitrarily change the registry definiti
 
 ### What's this about a "registry"?
 
-The registry is a closured map of all the data items you're interested in automatically provisioning to your syringe-bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
+The registry is a closured map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
-**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the _bound_ parameters _must_ exist in the registry at the point of invocation:
+**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, _the bound parameters must exist in the registry when the bound function is invoked_:
 
 ```javascript
-var f = syr.on(function (/* Bound: */ data1, data2, /* Free: */ 'color1', 'color2') { /* ... */ });
+var syr = Syringe.create({'data1': {}});
 
-f('red', 'blue', 'yellow', 'green');
+var f = syr.on(function (/* Bound: */ data1, data2, /* Free: */ color1, color2) { console.log(arguments) });
+
+f('red', 'blue', 'yellow', 'green'); // This won't work as expected because `data2` isn't in the registry!
+// Returns:
+//    {"0":{},"1":"red","2":"blue","3":"yellow","4":"green"}
+
+syr.add({'data2': {}});
+
+f('red', 'blue', 'yellow', 'green'); // All is now well
+// Returns:
+//    {"0":{},"1":{},"2":"red","3":"blue","4":"yellow","5":"green"}
 ```
-... so it's fine to pass too many or more too few free arguments on invocation, just as long as `data1` and `data2` exist in the registry. 
-
+Without duck-typing the bound parameter names it isn't possible for Syringe to disambiguate bound parameters from free ones at runtime. It's fine to pass too many (or too few) _free_ arguments on invocation, just as long as `data1` and `data2` exist in the registry when you call the function. If bound data is missing, the other arguments will shift over to fill the space of the missing bound argument (and weirdness may ensue). 
 
 ## API and Examples ##
 
