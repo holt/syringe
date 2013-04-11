@@ -14,14 +14,14 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.11
+// syringe.js v0.1.12
 (function () {
 
    "use strict";
    
-   var root = this, Syringe;
+   var root = this, syringe;
 
-   Syringe = function (props) {
+   syringe = function (props) {
       
       // Pointers and containers
       var syringe    = {}
@@ -46,8 +46,7 @@ forin:false, curly:false */
          node.src = src;
 
          node.onload = node.onreadystatechange = function () {
-            if (!done && (!this.readyState || this.readyState === "loaded" 
-                  || this.readyState === "complete"))
+            if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete"))
             {
                done = true;
                node.onload = node.onreadystatechange = null;
@@ -112,7 +111,7 @@ forin:false, curly:false */
       // items in the dependency object
       var getDeps = function (arr) {
          
-         var fn = function (item) { 
+         var fn = function (item) {
             return deps[item];
          };
          return arr.map(fn, this);
@@ -131,13 +130,14 @@ forin:false, curly:false */
             return val.replace(PARAM, function (match, p1, p2) {
                return p2;
             });
-         }));
+         })).filter(function (item) {
+            return item;
+         });
    
-         depArr.length = depArr.length - args.length;
          return fn.apply(this, depArr.concat(args));
       };
       
-      deps = (getType(props, true) === 'object') ? props : deps;      
+      deps = (getType(props, true) === 'object') ? props : deps;
       
       // --------------------------- Start Public API ---------------------------
 
@@ -149,7 +149,7 @@ forin:false, curly:false */
                this.add.apply(this, [key, name[key]]);
             }
             return this;
-         }         
+         }
 
          if (deps[name]) {
             throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
@@ -185,7 +185,7 @@ forin:false, curly:false */
                this.on.apply(this, [key, name[key]]);
             }
             return this;
-         }    
+         }
 
          // Is this binding going to be assigned to a name in an optional context?
          if (getType(name, true) === 'string' && getType(fn, true) === 'function') {
@@ -215,12 +215,12 @@ forin:false, curly:false */
          }
 
          return deps;
-      };      
+      };
 
       syringe.set = function (str, value) {
 
-         var strArr  = str.split('.')
-         , objStr    = (strArr.length > 1) ? strArr.pop() : false;
+         var strArr = str.split('.')
+         , objStr = (strArr.length > 1) ? strArr.pop() : false;
       
          if (!getObj(str, deps)) {
             throw new Error('Key "' + str + '" does not exist in the map!');
@@ -231,7 +231,7 @@ forin:false, curly:false */
          }
          else {
             deps[strArr.toString()] = value;
-         }   
+         }
 
          return this;
       };
@@ -260,13 +260,13 @@ forin:false, curly:false */
          }
       };
 
-      syringe.VERSION = '0.1.11';
+      syringe.VERSION = '0.1.12';
 
       return syringe;
 
    };
 
-   root.Syringe         = Syringe();
-   root.Syringe.create  = Syringe;
+   root.Syringe = syringe();
+   root.Syringe.create = syringe;
 
 }.call(this));
