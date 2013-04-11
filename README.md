@@ -79,9 +79,19 @@ This is very convenient because you can arbitrarily change the registry definiti
 
 The registry is a closured map of all the data items you're interested in automatically provisioning to your syringe-bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
+**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the _bound_ parameters _must_ exist in the registry at the point of invocation:
+
+```javascript
+var f = syr.on(function (/* Bound: */ data1, data2, /* Free: */ 'color1', 'color2') { /* ... */ });
+
+f('red', 'blue', 'yellow', 'green');
+```
+... so it's fine to pass too many or more too few free arguments on invocation, just as long as `data1` and `data2` exist in the registry. 
+
+
 ## API and Examples ##
 
-This following table describes the methods offered by a the `Syringe` object:
+This following table describes the methods provided by a the `Syringe` object:
 
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
