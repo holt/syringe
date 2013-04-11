@@ -3,13 +3,13 @@
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="Just a little pin prick... there'll be no more AAAAAAAAH!"/>
 
 
-Syringe is a teeny-tiny (~2.5Kb when minified without MDN polyfills) [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to assign data deterministically to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
 ## Installation
 
-Just add `syringe.js` or `syringe.min.js` to your environment.
+Just add `syringe.min.js` to your environment.
 
 **Note:** Syringe requires the following ECMAScript 5 / JavaScript 1.6 methods:  
 
@@ -42,6 +42,29 @@ var f = syr.on(function (props, arg1, arg2) {
 });
 
 f('Happy', 'Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
+```
+
+Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
+
+```javascript
+var syr = Syringe.create({
+   'proto': {
+      'stamp': function (arg) {
+           return ('Created by ' + arg + ' on ' + new Date);
+      }
+   }
+});
+
+Obj = syr.on(function (proto, data) {
+    for (var key in proto){
+        this.constructor.prototype[key] = proto[key];
+    }
+    data && (this.stamp = this.stamp(data));    
+});
+
+myObj = new Obj('Mike');
+// myObj looks like this: 
+//    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
 ```
 
 ### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
@@ -249,7 +272,7 @@ If you pass `true` as the third argument when you register a function, syringe w
 ```javascript
 // Define a function for getting the current date:
 var getDate = function () {
-   
+
    var a    = new Date
       , b   = a.getDate()
       , c   = a.getMonth() + 1
@@ -260,7 +283,7 @@ var getDate = function () {
 
 // Define a function for getting the current time:
 var getTime = function () {
-   
+
    var a    = new Date
       , b   = a.getMinutes()
       , a   = a.getHours();
@@ -280,7 +303,7 @@ syr.register('condition', function (date, time, stat) {
 }, true);   // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
-var msg = syr.on(function (condition, stat, motd) {
+var msg = syr.on(function (condition, motd, stat) {
    return condition(stat) + '\nMessage of the day: ' + motd;
 });
 
@@ -291,7 +314,7 @@ msg('All is well.');
 //    Message of the day: All is well."
 
 // Call the bound function with a status level and message of the day:
-msg('Amber', 'Keep calm and carry on!');  
+msg('Keep calm and carry on!', 'Amber');  
 // Returns:
 //    "Current status on 2013/04/07 at 23:15 is Amber
 //    Message of the day: Keep calm and carry on!"
