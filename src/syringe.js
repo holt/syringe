@@ -14,7 +14,7 @@ Function.prototype.bind||(Function.prototype.bind=function(b){if("function"!==ty
 undef:true, unused:true, curly:true, browser:true, indent:3, maxerr:50, laxcomma:true,
 forin:false, curly:false */
 
-// syringe.js v0.1.12
+// syringe.js v0.1.13
 (function () {
 
    "use strict";
@@ -137,7 +137,7 @@ forin:false, curly:false */
          return fn.apply(this, depArr.concat(args));
       };
       
-      deps = (getType(props, true) === 'object') ? props : deps;
+      deps = (props && getType(props, true) === 'object') ? props : deps;
       
       // --------------------------- Start Public API ---------------------------
 
@@ -260,7 +260,7 @@ forin:false, curly:false */
          }
       };
 
-      syringe.VERSION = '0.1.12';
+      syringe.VERSION = '0.1.13';
 
       return syringe;
 
