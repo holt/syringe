@@ -37,11 +37,11 @@ var syr = Syringe.create({
     }
 });
 
-var f = syr.on(function (props, arg1, arg2) {
-    return props.name + ' is ' + props.age + ' - ' + arg1 + ' ' + arg2 + '!';
+var f = syr.on(function (props, msg) {
+    return props.name + ' is ' + props.age + ' - ' + msg + '!';
 });
 
-f('Happy', 'Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
+f('Happy Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
 ```
 
 Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
@@ -55,7 +55,7 @@ var syr = Syringe.create({
     }
 });
 
-Obj = syr.on(function (proto, data) {
+var Obj = syr.on(function (proto, data) {
     for (var key in proto) {
         this.constructor.prototype[key] = proto[key];
     }
