@@ -31,14 +31,14 @@ Syringe works by examining the parameter definition of a previously bound functi
 Here's a simple example:
 ```javascript
 var syr = Syringe.create({
-   'props': {
-      'name': 'Mike',
-      'age' : 39
-   }
+    'props': {
+        'name': 'Mike',
+        'age': 39
+    }
 });
 
 var f = syr.on(function (props, arg1, arg2) {
-   return props.name + ' is ' + props.age + ' - ' + arg1 + ' ' + arg2 + '!';
+    return props.name + ' is ' + props.age + ' - ' + arg1 + ' ' + arg2 + '!';
 });
 
 f('Happy', 'Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
@@ -48,18 +48,18 @@ Here's a slightly more sophisticated example, this time showing how data can be 
 
 ```javascript
 var syr = Syringe.create({
-   'proto': {
-      'stamp': function (arg) {
-           return ('Created by ' + arg + ' on ' + new Date);
-      }
-   }
+    'proto': {
+        'stamp': function (arg) {
+            return ('Created by ' + arg + ' on ' + new Date);
+        }
+    }
 });
 
 Obj = syr.on(function (proto, data) {
-    for (var key in proto){
+    for (var key in proto) {
         this.constructor.prototype[key] = proto[key];
     }
-    data && (this.stamp = this.stamp(data));    
+    data && (this.stamp = this.stamp(data));
 });
 
 myObj = new Obj('Mike');
@@ -130,40 +130,40 @@ var syr = Syringe.create({
 Register an additional item:
 ```javascript
 syr.add('tzone', {
-   'result': [{
-         'TimeZoneId': 'America-Montevideo',
-         'DST': '-3',
-         'GMT': '-2'
-      }, {
-         'TimeZoneId': 'America-Noronha',
-         'DST': '-2',
-         'GMT': '-2'
-      }, {
-         'TimeZoneId': 'America-Sao_Paulo',
-         'DST': '-3',
-         'GMT': '-2'
-      }, {
-         'TimeZoneId': 'Atlantic-South_Georgia',
-         'DST': '-2',
-         'GMT': '-2'
-      }
-   ],
-   'datetime': (function () {
-      return JSON.parse(JSON.stringify(new Date()));
-   }())   
+    'result': [{
+            'TimeZoneId': 'America-Montevideo',
+            'DST': '-3',
+            'GMT': '-2'
+        }, {
+            'TimeZoneId': 'America-Noronha',
+            'DST': '-2',
+            'GMT': '-2'
+        }, {
+            'TimeZoneId': 'America-Sao_Paulo',
+            'DST': '-3',
+            'GMT': '-2'
+        }, {
+            'TimeZoneId': 'Atlantic-South_Georgia',
+            'DST': '-2',
+            'GMT': '-2'
+        }
+    ],
+    'datetime': (function () {
+        return JSON.parse(JSON.stringify(new Date()));
+    }())
 });
 ```
 ... or a map of multiple items:
 
 ```javascript
 syr.add({
-   'uuid': function () {
-      var a = function () {
-         return Math.floor(65536 * Math.random()).toString(16);
-      };
-      return a()+a()+'-'+a()+'-'+a()+'-'+a()+'-'+a()+a()+a();
-   },
-   'stat': 0
+    'uuid': function () {
+        var a = function () {
+            return Math.floor(65536 * Math.random()).toString(16);
+        };
+        return a() + a() + '-' + a() + '-' + a() + '-' + a() + '-' + a() + a() + a();
+    },
+    'stat': 0
 });
 ```
 
@@ -176,19 +176,19 @@ You can bind your methods in a number of different ways.
 ```javascript
 var event = syr.on(function (uuid, tzone, stat, props) {
 
-   var state = ['Green', 'Amber', 'Orange', 'Red'][stat++];
+    var state = ['Green', 'Amber', 'Orange', 'Red'][stat++];
 
-   var GMT = tzone.result.filter(function (item) {
-      return item.TimeZoneId === props.locale;
-   })[0].GMT;
+    var GMT = tzone.result.filter(function (item) {
+        return item.TimeZoneId === props.locale;
+    })[0].GMT;
 
-   if (stat < 4) syr.set('stat', stat); // Change the `stat` value
+    if (stat < 4) syr.set('stat', stat); // Change the `stat` value
 
-   return {
-      'msg' : 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
-      'id'  : uuid(),
-      'stat': state
-   };
+    return {
+        'msg': 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
+        'id': uuid(),
+        'stat': state
+    };
 
 });
 ```
@@ -212,42 +212,42 @@ syr.on('event', function (uuid, tzone, stat, props) { /* as above */ }, security
 
 ```javascript
 syr.on({
-   'event'  : function (uuid, tzone, stat, props) { /* as above  */ },
-   'func1'  : function ($, props) { /* ... */ },
-   'func2'  : function ($, props) { /* ... */ }
+    'event': function (uuid, tzone, stat, props) { /* as above  */ },
+    'func1': function ($, props) { /* ... */ },
+    'func2': function ($, props) { /* ... */ }
 });
 ```
 ##### Chain
 
 ```javascript
 syr
-   .on('event', function (uuid, tzone, stat, props) { /* as above  */ })
-   .on('func1', function ($, props) { /* ... */ })
-   .on('func2', function ($, props) { /* ... */ });
+    .on('event', function (uuid, tzone, stat, props) { /* as above  */ })
+    .on('func1', function ($, props) { /* ... */ })
+    .on('func2', function ($, props) { /* ... */ });
 ```
 
 ##### Asynchronously
 
 ```javascript
 var scripts = {
-   'first': {
-      '_': {
-         'path': 'http://underscorejs.org/underscore-min.js',
-         'bind': '_'
-      }
-   },
-   'second': {
-      'bb': {
-         'path': 'http://backbonejs.org/backbone-min.js',
-         'bind': 'Backbone'
-      }
-   }
+    'first': {
+        '_': {
+            'path': 'http://underscorejs.org/underscore-min.js',
+            'bind': '_'
+        }
+    },
+    'second': {
+        'bb': {
+            'path': 'http://backbonejs.org/backbone-min.js',
+            'bind': 'Backbone'
+        }
+    }
 };
 
 syr.fetch(scripts.first, function () {
-   syr.fetch(scripts.second, this.bind(function (_, bb) {
-      console.log(arguments);
-   }));
+    syr.fetch(scripts.second, this.bind(function (_, bb) {
+        console.log(arguments);
+    }));
 });
 ```
 
@@ -257,8 +257,8 @@ Run the function:
 
 ```javascript
 event({
-   'name'   : 'Doe, John',
-   'locale' : 'America-Sao_Paulo'
+    'name': 'Doe, John',
+    'locale': 'America-Sao_Paulo'
 });
 
 // Returns: 
@@ -272,8 +272,8 @@ Run it again:
 
 ```javascript
 event({
-   'name'   : 'Smith, Alice',
-   'locale' : 'America-Sao_Paulo'
+    'name': 'Smith, Alice',
+    'locale': 'America-Sao_Paulo'
 });
 
 // Returns: 
@@ -292,48 +292,48 @@ If you pass `true` as the third argument when you register a function, syringe w
 // Define a function for getting the current date:
 var getDate = function () {
 
-   var a    = new Date
-      , b   = a.getDate()
-      , c   = a.getMonth() + 1
-      , a   = a.getFullYear();
+    var a = new Date,
+        b = a.getDate(),
+        c = a.getMonth() + 1,
+        a = a.getFullYear();
 
-   return a + "/" + (10 > c ? "0" + c : c) + "/" + (10 > b ? "0" + b : b);
+    return a + "/" + (10 > c ? "0" + c : c) + "/" + (10 > b ? "0" + b : b);
 };
 
 // Define a function for getting the current time:
 var getTime = function () {
 
-   var a    = new Date
-      , b   = a.getMinutes()
-      , a   = a.getHours();
+    var a = new Date,
+        b = a.getMinutes(),
+        a = a.getHours();
 
-   return (10 > a ? "0" + a : a) + ":" + (10 > b ? "0" + b : b);
+    return (10 > a ? "0" + a : a) + ":" + (10 > b ? "0" + b : b);
 };
 
 // Create a new syringe and register the date and time functions:
 var syr = Syringe.create({
-   'date': getDate,
-   'time': getTime
+    'date': getDate,
+    'time': getTime
 });
 
 // Register a "condition" function that itself is bound and uses the date and time functions:
 syr.register('condition', function (date, time, stat) {
-   return 'Current status on ' + date() + ' at ' + time() + ' is ' + (stat || 'Green');
-}, true);   // Registration binds the passed function
+    return 'Current status on ' + date() + ' at ' + time() + ' is ' + (stat || 'Green');
+}, true); // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
 var msg = syr.on(function (condition, motd, stat) {
-   return condition(stat) + '\nMessage of the day: ' + motd;
+    return condition(stat) + '\nMessage of the day: ' + motd;
 });
 
 // Call the bound function with a message of the day:
-msg('All is well.');                      
+msg('All is well.');
 // Returns:
 //    "Current status on 2013/04/07 at 23:15 is Green
 //    Message of the day: All is well."
 
 // Call the bound function with a status level and message of the day:
-msg('Keep calm and carry on!', 'Amber');  
+msg('Keep calm and carry on!', 'Amber');
 // Returns:
 //    "Current status on 2013/04/07 at 23:15 is Amber
 //    Message of the day: Keep calm and carry on!"
