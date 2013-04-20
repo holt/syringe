@@ -3,5 +3,5 @@
   "description"   : "A lightweight dependency injection framework",
   "url"           : "https://holt.org/gitprojects",
   "author"        : "Michael Holt <mike@holt.org>",
-  "version"       : "0.1.13"
+  "version"       : "0.1.14"
 }
