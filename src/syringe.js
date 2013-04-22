@@ -1,4 +1,4 @@
-// syringe.js v0.1.14
+// syringe.js v0.1.15
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -8,10 +8,8 @@ forin:false, curly:false */
 
     "use strict";
 
-    var root = this,
-        syringe;
-
-    syringe = function (props) {
+    var root    = this
+    , syringe   = function (props) {
 
         // Pointers and containers
         var syringe  = {}
@@ -25,31 +23,10 @@ forin:false, curly:false */
         , PARAM     = /^\s*(_?)(\S+?)\1\s*$/
         , CLEAN     = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
-        // Asynch script loader
-        var addScript = function (src, callback) {
-
-            var doc = document
-            , head  = doc.getElementsByTagName("head")[0] || doc.documentElement
-            , node  = doc.createElement("script")
-            , done  = false;
-
-            node.src = src;
-            node.onload = node.onreadystatechange = function () {
-                if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
-                    done = true;
-                    node.onload = node.onreadystatechange = null;
-                    if (head && node.parentNode) head.removeChild(node);
-                    if (getType(callback, true) === 'function') callback();
-                }
-            };
-            head.insertBefore(node, head.firstChild);
-        };
-
         // Get the number of "own" properties in an object
         var getPropSize = function (obj) {
-
-            var size = 0,
-                key;
+            
+            var size = 0, key;
             for (key in obj) {
                 if (hasProp.call(obj, key)) size++;
             }
@@ -58,6 +35,7 @@ forin:false, curly:false */
 
         // Get the name of an object type as a string
         var getType = function (obj, lc) {
+            
             var str = toString.call(obj).slice(8, -1);
             return (lc && str.toLowerCase()) || str;
         };
@@ -94,11 +72,10 @@ forin:false, curly:false */
         // Return a map of any items in the passed array that match
         // items in the dependency object
         var getDeps = function (arr) {
-
-            var fn = function (item) {
+            
+            return arr.map(function (item) {
                 return deps[item];
-            };
-            return arr.map(fn, this);
+            }, this);
         };
 
         // Execute a passed function by first reconciling its arguments
@@ -108,17 +85,35 @@ forin:false, curly:false */
 
             var args    = slice.call(arguments)
             , fn        = args.shift()
-            , argStr    = fn.toString().replace(CLEAN, '').match(PARAMS);
-
-            var depArr = getDeps(argStr[1].split(',').map(function (val) {
+            , argStr    = fn.toString().replace(CLEAN, '').match(PARAMS)
+            , depArr    = getDeps(argStr[1].split(',').map(function (val) {
                 return val.replace(PARAM, function (match, p1, p2) {
                     return p2;
                 });
             })).filter(function (item) {
                 return item;
             });
-
             return fn.apply(this, depArr.concat(args));
+        };
+
+       // Asynch script loader
+        var addScript = function (src, callback) {
+
+            var doc = document
+            , head  = doc.getElementsByTagName("head")[0] || doc.documentElement
+            , node  = doc.createElement("script")
+            , done  = false;
+
+            node.src = src;
+            node.onload = node.onreadystatechange = function () {
+                if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
+                    done = true;
+                    node.onload = node.onreadystatechange = null;
+                    if (head && node.parentNode) head.removeChild(node);
+                    if (getType(callback, true) === 'function') callback();
+                }
+            };
+            head.insertBefore(node, head.firstChild);
         };
 
         deps = (props && getType(props, true) === 'object') ? props : deps;
@@ -227,7 +222,7 @@ forin:false, curly:false */
                 if (++count === getPropSize(map)) {
                     for (var key in map) {
                         if (!hasProp.call(map, key)) continue;
-                        self.add(key, getObj(map[key].bind, root));
+                        map[key].bind && self.add(key, getObj(map[key].bind, root));
                     }
                     callback.call(self);
                 }
@@ -240,11 +235,11 @@ forin:false, curly:false */
             }
         };
 
-        syringe.VERSION = '0.1.14';
+        syringe.VERSION = '0.1.15';
         return syringe;
     };
 
-    root.Syringe = syringe();
+    root.Syringe        = syringe();
     root.Syringe.create = syringe;
 
 }.call(this));
