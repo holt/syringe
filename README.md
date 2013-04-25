@@ -62,7 +62,7 @@ var Obj = syr.on(function (proto, data) {
     data && (this.stamp = this.stamp(data));
 });
 
-myObj = new Obj('Mike');
+var myObj = new Obj('Mike');
 // myObj looks like this: 
 //    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
 ```
