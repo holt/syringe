@@ -184,7 +184,7 @@ forin:false, curly:false */
             }
         };
 
-        syringe.run = function (name, args, ctx) {
+        syringe.exec = function (name, args, ctx) {
 
             ctx  = ctx || this;
             args = (getType(args, true) === 'array') ? args : [args];
