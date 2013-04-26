@@ -1,4 +1,4 @@
-// syringe.js v0.1.15
+// syringe.js v0.1.16
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -184,22 +184,36 @@ forin:false, curly:false */
             }
         };
 
-        syringe.get = function (str) {
+        syringe.run = function (name, args, ctx) {
 
-            if (getType(str, true) === 'string') {
-                return (getObj(str, deps) || false);
+            ctx  = ctx || this;
+            args = (getType(args, true) === 'array') ? args : [args];
+
+            var fn = this.get(name);
+
+            if ((getType(name, true) === 'string') && 
+                (getType(fn, true) === 'function')) {
+                return fn.apply(ctx, args);
+            }
+            return false;
+        }, 
+
+        syringe.get = function (name) {
+
+            if (getType(name, true) === 'string') {
+                return (getObj(name, deps) || false);
             }
 
             return deps;
         };
 
-        syringe.set = function (str, value) {
+        syringe.set = function (name, value) {
 
-            var strArr = str.split('.'),
+            var strArr = name.split('.'),
                 objStr = (strArr.length > 1) ? strArr.pop() : false;
 
-            if (!getObj(str, deps)) {
-                throw new Error('Key "' + str + '" does not exist in the map!');
+            if (!getObj(name, deps)) {
+                throw new Error('Key "' + name + '" does not exist in the map!');
             }
             if (objStr) {
                 setObj(strArr.join('.'), deps)[objStr] = value;
@@ -222,7 +236,7 @@ forin:false, curly:false */
                 if (++count === getPropSize(map)) {
                     for (var key in map) {
                         if (!hasProp.call(map, key)) continue;
-                        map[key].bind && self.add(key, getObj(map[key].bind, root));
+                        if (map[key].bind) self.add(key, getObj(map[key].bind, root));
                     }
                     callback.call(self);
                 }
@@ -235,7 +249,7 @@ forin:false, curly:false */
             }
         };
 
-        syringe.VERSION = '0.1.15';
+        syringe.VERSION = '0.1.16';
         return syringe;
     };
 
