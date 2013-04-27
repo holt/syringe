@@ -112,8 +112,10 @@ Name     | Parameters   | Description | Example
 *on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', function (data) {...}, this);`
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
-*exec*    | `name, args, context` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. | `syr.exec('func', ['Mike', '39']);`
+*exec*    | `name, args, context` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. An optional `context` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#asynchronously)
+*wrap*   | `name, wrapper, context` | Wrap an existing method in the repository with another method in order to develop middleware. | [See below](#wrap-example)
+
 
 ### Initialization and Registration
 
@@ -338,4 +340,45 @@ msg('Keep calm and carry on!', 'Amber');
 // Returns:
 //    "Current status on 2013/04/07 at 23:15 is Amber
 //    Message of the day: Keep calm and carry on!"
+```
+
+###  Wrap Example
+
+Repository methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of one or more methods in the repository. Example:
+
+```javascript
+// Generic timer function that will be passed the original repository method, 
+// its name, and an array of its original arguments:
+var timer = function (fn, name, args) {
+    var start, stop, ret;
+    start = start = (new Date()).getTime();
+
+    // At this point you can override the function with different arguments;
+    // if you don't provide any then the orignal arguments are used by default:
+    ret = fn();
+
+    stop = (new Date()).getTime();
+    console.log('The function "' + name + '" took ' + (stop - start) + 'ms');
+    return ret;
+};
+
+var syr = Syringe.create({
+    'utils': {
+        "motd": function (user) {
+            return "Greetings " + user;
+        }
+    }
+});
+
+// Wrap the `utils.motd` method with the `timer` function:
+syr.wrap('utils.motd', timer);
+
+var f = syr.on(function (utils, name) {
+    // ... do stuff
+    return utils.motd(name);
+});
+
+f('Mike'); // log: "The function "utils.motd" took 1ms"
+// Returns: 
+//    "Greetings Mike"
 ```
