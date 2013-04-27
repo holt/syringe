@@ -1,4 +1,4 @@
-// syringe.js v0.1.16
+// syringe.js v0.1.17
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -129,6 +129,7 @@ forin:false, curly:false */
                 }
                 return this;
             }
+
             if (deps[name]) {
                 throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
             } else {
@@ -249,7 +250,25 @@ forin:false, curly:false */
             }
         };
 
-        syringe.VERSION = '0.1.16';
+        syringe.wrap = function (name, wrapper, ctx) {
+        
+            ctx = ctx || this;
+        
+            var fn = this.get(name);
+            if (getType(fn, true) === 'function' &&
+                getType(wrapper, true) === 'function') {
+                return this.set(name, function () {
+                    var args = arguments;                    
+                    return wrapper.apply(this, [function () {
+                        args = arguments.length ? arguments : args;
+                        return fn.apply(ctx, args);
+                    }, name, args]);
+                });
+            }
+            return false;
+        };
+
+        syringe.VERSION = '0.1.17';
         return syringe;
     };
 
