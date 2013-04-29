@@ -153,10 +153,7 @@ syr.add('tzone', {
             'DST': '-3',
             'GMT': '-2'
         }
-    ],
-    'datetime': (function () {
-        return JSON.parse(JSON.stringify(new Date()));
-    }())
+    ]
 });
 ```
 #### Register a Map of Multiple Items
@@ -169,7 +166,10 @@ syr.add({
         };
         return a() + a() + '-' + a() + '-' + a() + '-' + a() + '-' + a() + a() + a();
     },
-    'stat': 0
+    'stat': 0,
+    'date': (function () {
+        return JSON.parse(JSON.stringify(new Date()));
+    }())
 });
 ```
 
@@ -193,7 +193,7 @@ You can bind your methods in a number of different ways.
 ##### Function Expression
 
 ```javascript
-var event = syr.on(['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
+var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, stat, date, props) {
 
     var state = ['Green', 'Amber', 'Orange', 'Red'][(stat = stat+1)];
 
@@ -204,7 +204,7 @@ var event = syr.on(['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props
     if (stat < 4) syr.set('stat', stat); // Change the `stat` value
 
     return {
-        'msg': 'User "' + props.name + '" entered restricted zone at ' + tzone.datetime + ' GMT(' + GMT + ')',
+        'msg': 'User "' + props.name + '" entered restricted zone at ' + date + ' GMT(' + GMT + ')',
         'id': uuid(),
         'stat': state
     };
@@ -355,9 +355,9 @@ var syr = Syringe.create({
 // Wrap the `utils.motd` method with the `timer` function:
 syr.wrap('utils.motd', timer);
 
-var f = syr.on(['utils'], function (utils, name) {
+var f = syr.on(['utils.motd'], function (motd, name) {
     // ... do stuff
-    return utils.motd(name);
+    return motd(name);
 });
 
 f('Mike'); // log: "The function "utils.motd" took 1ms"
