@@ -72,13 +72,13 @@ var myObj = new Obj('Mike');
 //    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
 ```
 
-### Can I smell [curry](https://en.wikipedia.org/wiki/Partial_application)?
+### Aren't we just making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
-Not exactly<sup>+</sup>. When you curry a function you need the parameter values in your hand before you can create a version of that function that has some (or all) of those values partially applied to it. With Syringe however, this binding takes place dynamically at the point of invocation. 
+When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
 
-This is very convenient because you can arbitrarily change the registry definition for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
+This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
 
-<sup>+</sup>Currying _does_ take place, just at a different point; Syringe curries _your_ function into a factory function that examines the passed parameters and applies them to your function when your function is called.
+So currying _does_ take place, just at a different point. Syringe curries _your_ freshly bound function into a factory function that examines the passed parameters and applies the corresponding registry values to your function when it is called.
 
 ### What's this about a "registry"?
 
@@ -104,7 +104,7 @@ f('red', 'blue', 'yellow', 'green'); // All is now well
 //    {"0":"XXX", "1":"YYY", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
 ```
 
-## API and Examples ##
+## API ##
 
 This following table describes the methods provided by a the `Syringe` object:
 
@@ -123,6 +123,10 @@ Name     | Parameters   | Description | Example
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
 *wrap*   | `name, wrapper, ctx` | Wrap an existing method in the repository with another method in order to develop middleware. | [See below](#wrap-example)
 
+
+## Examples ##
+
+The following sections describe how to initialize a new Syringe repository, populate it with data, and bind the data to functions in order to inject dependencies.
 
 ### Initialization and Registration
 
