@@ -31,18 +31,22 @@ Syringe works by examining the parameter definition of a previously bound functi
 Here's a simple example:
 ```javascript
 var syr = Syringe.create({
-    'props': {
+    'age': {
         'Bob': 45,
         'Ted': 55
     }
 });
 
-var msg = syr.on(['props'], function (props, name) {
-    return name + ' is ' + props[name] + ' - Happy Birthday!';
+var msg = syr.on(['age'], function (age, name) {
+    return name + ' is ' + age[name] + ' - Happy Birthday!';
 });
 
 msg('Bob'); // Returns: "Bob is 45 - Happy Birthday!"
 msg('Ted'); // Returns: "Ted is 55 - Happy Birthday!"
+
+syr.set('age.Bob', 50);
+
+msg('Bob'); // Returns: "Bob is 50 - Happy Birthday!"
 ```
 
 Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
