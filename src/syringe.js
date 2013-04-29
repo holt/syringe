@@ -1,4 +1,4 @@
-// syringe.js v0.2.0
+// syringe.js v0.2.1
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false */
@@ -68,7 +68,7 @@ forin:false, curly:false */
             var getDeps = function (arr) {
 
                 return arr.map(function (item) {
-                    return deps[item];
+                    return getObj(item, deps);
                 }, this);
             };
 
@@ -76,7 +76,7 @@ forin:false, curly:false */
             // against the dependency object and then applying any matches
             // directly
             var run = function (arr, fn) {
-                var args = slice.call(arguments);
+                var args = slice.call(arguments);                
                 return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
             };
 
@@ -280,7 +280,7 @@ forin:false, curly:false */
                 return false;
             };
 
-            syringe.VERSION = '0.2.0';
+            syringe.VERSION = '0.2.1';
             return syringe;
         };
 
