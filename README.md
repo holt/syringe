@@ -115,13 +115,13 @@ Name     | Parameters   | Description | Example
 *add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_ | `syr.add('data', function (props) {...}, ['props']);`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'data': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('data');`
-*on*     | `binding, function, context` | Return a bound function that can access the dependency map. An optional `context` parameter make the bound function execute in a specific context. Alias: _bind_ | `var f = syr.on(['data'], function (data) {...});`
-*on*     | `name, binding, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', ['data'], function (data) {...}, this);`
+*on*     | `binding, fn, ctx` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_ | `var f = syr.on(['data'], function (data) {...});`
+*on*     | `name, binding, fn, ctx`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter adds the bound function to a specified context. Alias: _bind_ | ` syr.on('f', ['data'], function (data) {...}, this);`
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
-*exec*    | `name, args, context` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. An optional `context` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
-*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#asynchronously)
-*wrap*   | `name, wrapper, context` | Wrap an existing method in the repository with another method in order to develop middleware. | [See below](#wrap-example)
+*exec*    | `name, args, ctx` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
+*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
+*wrap*   | `name, wrapper, ctx` | Wrap an existing method in the repository with another method in order to develop middleware. | [See below](#wrap-example)
 
 
 ### Initialization and Registration
