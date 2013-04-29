@@ -246,12 +246,13 @@ event({
     'locale': 'America-Montevideo'
 });
 
-// Returns: 
-//    {
-//       "msg" : "User \"Doe, John\" entered restricted zone at 2013-04-03T02:38:49.068Z GMT(-2)",
-//       "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
-//       "cond": "Green"
-//    }
+/* Returns: 
+{
+    "msg" : "User \"Doe, John\" entered restricted zone at 2013-04-03T02:38:49.068Z GMT(-2)",
+    "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
+    "cond": "Green"
+}
+*/
 ```
 Run it again:
 
@@ -261,12 +262,13 @@ event({
     'locale': 'America-Sao_Paulo'
 });
 
-// Returns: 
-//    {
-//       "msg" : "User \"Smith, Alice\" entered restricted zone at 2013-04-03T02:44:13.196Z GMT(-2)",
-//       "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
-//       "cond": "Amber"
-//    }
+/* Returns: 
+{
+    "msg" : "User \"Smith, Alice\" entered restricted zone at 2013-04-03T02:44:13.196Z GMT(-2)",
+    "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
+    "cond": "Amber"
+}
+*/
 ```
 
 ###  Register and Bind Example
@@ -313,15 +315,17 @@ var msg = syr.on( ['condition'], function (condition, motd, stat) {
 
 // Call the bound function with a message of the day:
 msg('All is well.');
-// Returns:
-//    "Current status on 2013/04/07 at 23:15 is Green
-//    Message of the day: All is well."
+/* Returns:
+    "Current status on 2013/04/07 at 23:15 is Green
+    Message of the day: All is well."
+*/
 
 // Call the bound function with a status level and message of the day:
 msg('Keep calm and carry on!', 'Amber');
-// Returns:
-//    "Current status on 2013/04/07 at 23:15 is Amber
-//    Message of the day: Keep calm and carry on!"
+/* Returns:
+    "Current status on 2013/04/07 at 23:15 is Amber
+     Message of the day: Keep calm and carry on!"
+*/
 ```
 
 ###  Wrap Example
@@ -335,8 +339,9 @@ var timer = function (fn, name, args) {
     var start, stop, ret;
     start = start = (new Date()).getTime();
 
-    // At this point you can override the function with different arguments;
-    // if you don't provide any then the orignal arguments are used by default:
+    // At this point you can override the wrapped function `fn` with different 
+    // arguments. Note that the orignal arguments (which are mirrored by the 
+    // `args` parameter) are used by default:
     ret = fn();
 
     stop = (new Date()).getTime();
@@ -361,6 +366,7 @@ var f = syr.on(['utils.motd'], function (motd, name) {
 });
 
 f('Mike'); // log: "The function "utils.motd" took 1ms"
-// Returns: 
-//    "Greetings Mike"
+/* Returns: 
+    "Greetings Mike"
+*/
 ```
