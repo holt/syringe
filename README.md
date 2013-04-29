@@ -11,7 +11,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 Just add `syringe.min.js` to your environment.
 
-**Note:** Syringe requires the following ECMAScript 5 / JavaScript 1.6 methods:  
+**Note:** Syringe uses the following ECMAScript 5 / JavaScript 1.6 methods:  
 
 - `Array.filter` 
 - `Array.map`
@@ -32,16 +32,17 @@ Here's a simple example:
 ```javascript
 var syr = Syringe.create({
     'props': {
-        'name': 'Mike',
-        'age': 39
+        'Bob': 45,
+        'Ted': 55
     }
 });
 
-var f = syr.on(function (props, msg) {
-    return props.name + ' is ' + props.age + ' - ' + msg + '!';
+var msg = syr.on(['props'], function (props, name) {
+    return name + ' is ' + props[name] + ' - Happy Birthday!';
 });
 
-f('Happy Birthday'); // Returns: "Mike is 39 - Happy Birthday!"
+msg('Bob'); // Returns: "Bob is 45 - Happy Birthday!"
+msg('Ted'); // Returns: "Ted is 55 - Happy Birthday!"
 ```
 
 Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
@@ -55,7 +56,7 @@ var syr = Syringe.create({
     }
 });
 
-var Obj = syr.on(function (proto, data) {
+var Obj = syr.on(['proto'], function (proto, data) {
     for (var key in proto) {
         this.constructor.prototype[key] = proto[key];
     }
@@ -82,21 +83,22 @@ The registry is a closured map unique to each Syringe object instance that holds
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, _the bound parameters must exist in the registry when the bound function is invoked_:
 
 ```javascript
-var syr = Syringe.create({'data1': {}});
+var syr = Syringe.create({'data1': 'XXX'});
 
-var f = syr.on(function (/* Bound: */ data1, data2, /* Free: */ color1, color2) { console.log(arguments) });
+var f = syr.on(['data1', 'data2'], function (/* Bound: */ data1, data2, /* Free: */ color1, color2) {
+    console.log(JSON.stringify(arguments));
+});
 
-f('red', 'blue', 'yellow', 'green'); // This won't work as expected because `data2` isn't in the registry!
+f('red', 'blue', 'yellow', 'green'); // This may not work as expected because `data2` isn't in the registry!
 // Returns:
-//    {"0":{},"1":"red","2":"blue","3":"yellow","4":"green"}
+//    {"0":"XXX", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
 
-syr.add({'data2': {}});
+syr.add({'data2': 'YYY'});
 
 f('red', 'blue', 'yellow', 'green'); // All is now well
 // Returns:
-//    {"0":{},"1":{},"2":"red","3":"blue","4":"yellow","5":"green"}
+//    {"0":"XXX", "1":"YYY", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
 ```
-Without duck-typing the bound parameter names it isn't possible for Syringe to disambiguate bound parameters from free ones at runtime. It's fine to pass too many (or too few) _free_ arguments on invocation, just as long as `data1` and `data2` exist in the registry when you call the function. If bound data is missing, the other arguments will shift over to fill the space of the missing bound argument (and weirdness may ensue). 
 
 ## API and Examples ##
 
@@ -105,11 +107,12 @@ This following table describes the methods provided by a the `Syringe` object:
 Name     | Parameters   | Description | Example
 ---------|--------------|-------------|---------
 *create* | `map` (optional) | Create a new syringe object. | `var syr = Syringe.create();`
-*add*    | `name, value, bind` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Set `bind` to `true` if the value is a function that you want to automatically bind as a Syringe method. Alias: _register_ | `syr.add('data', {'name': 'Mike'});`
+*add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_ | `syr.add('data', {'name': 'Mike'});`
+*add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_ | `syr.add('data', function (props) {...}, ['props']);`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'data': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('data');`
-*on*     | `function`               | Return a bound function that can access the dependency map. Alias: _bind_ | `var f = syr.on(function (data) {...});`
-*on*     | `name, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', function (data) {...}, this);`
+*on*     | `binding, function, context` | Return a bound function that can access the dependency map. An optional `context` parameter make the bound function execute in a specific context. Alias: _bind_ | `var f = syr.on(['data'], function (data) {...});`
+*on*     | `name, binding, function, context`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `context` parameter adds the bound function to a context. Alias: _bind_ | ` syr.on('f', ['data'], function (data) {...}, this);`
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, context` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. An optional `context` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
@@ -130,7 +133,7 @@ var syr = Syringe.create({
    '$': window.jQuery || window.Zepto
 });
 ```
-Register an additional item:
+#### Register a Single Item
 ```javascript
 syr.add('tzone', {
     'result': [{
@@ -138,16 +141,8 @@ syr.add('tzone', {
             'DST': '-3',
             'GMT': '-2'
         }, {
-            'TimeZoneId': 'America-Noronha',
-            'DST': '-2',
-            'GMT': '-2'
-        }, {
             'TimeZoneId': 'America-Sao_Paulo',
             'DST': '-3',
-            'GMT': '-2'
-        }, {
-            'TimeZoneId': 'Atlantic-South_Georgia',
-            'DST': '-2',
             'GMT': '-2'
         }
     ],
@@ -156,7 +151,7 @@ syr.add('tzone', {
     }())
 });
 ```
-... or a map of multiple items:
+#### Register a Map of Multiple Items
 
 ```javascript
 syr.add({
@@ -170,16 +165,29 @@ syr.add({
 });
 ```
 
-### Binding
+#### Register Asynchronous Items
+
+```javascript
+syr.fetch({
+    '_': {
+        'path': 'http://underscorejs.org/underscore-min.js',
+        'bind': '_'
+    }
+}, function () {
+    console.log(this.get());
+});
+```
+
+### Binding Methods
 
 You can bind your methods in a number of different ways. 
 
 ##### Function Expression
 
 ```javascript
-var event = syr.on(function (uuid, tzone, stat, props) {
+var event = syr.on(['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
 
-    var state = ['Green', 'Amber', 'Orange', 'Red'][stat++];
+    var state = ['Green', 'Amber', 'Orange', 'Red'][(stat = stat+1)];
 
     var GMT = tzone.result.filter(function (item) {
         return item.TimeZoneId === props.locale;
@@ -198,60 +206,26 @@ var event = syr.on(function (uuid, tzone, stat, props) {
 ##### Object Reference
 
 ```javascript
-syr.on('event', function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-syr.on('security.access.event', function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ });
 ```
 ... or as an object reference within a provided context:
 
 ```javascript
-syr.on('event', function (uuid, tzone, stat, props) { /* as above */ }, security.access);
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ }, security.access);
 ```
 
-##### Map
-
-```javascript
-syr.on({
-    'event': function (uuid, tzone, stat, props) { /* as above  */ },
-    'func1': function ($, props) { /* ... */ },
-    'func2': function ($, props) { /* ... */ }
-});
-```
-##### Chain
+The object reference form returns the Syringe object, so you can create a chain of binding operations:
 
 ```javascript
 syr
-    .on('event', function (uuid, tzone, stat, props) { /* as above  */ })
-    .on('func1', function ($, props) { /* ... */ })
-    .on('func2', function ($, props) { /* ... */ });
-```
-
-##### Asynchronously
-
-```javascript
-var scripts = {
-    'first': {
-        '_': {
-            'path': 'http://underscorejs.org/underscore-min.js',
-            'bind': '_'
-        }
-    },
-    'second': {
-        'bb': {
-            'path': 'http://backbonejs.org/backbone-min.js',
-            'bind': 'Backbone'
-        }
-    }
-};
-
-syr.fetch(scripts.first, function () {
-    syr.fetch(scripts.second, this.bind(function (_, bb) {
-        console.log(arguments);
-    }));
-});
+    .on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above  */ })
+    .on('func1', ['_'], function (_, props) { /* ... */ })
+    .on('func2', ['_'], function (_, props) { /* ... */ });
 ```
 
 ### Execution
@@ -320,12 +294,12 @@ var syr = Syringe.create({
 });
 
 // Register a "condition" function that itself is bound and uses the date and time functions:
-syr.register('condition', function (date, time, stat) {
+syr.add('condition', function (date, time, stat) {
     return 'Current status on ' + date() + ' at ' + time() + ' is ' + (stat || 'Green');
-}, true); // Registration binds the passed function
+}, ['date', 'time']); // Registration binds the passed function
 
 // Create a bound function that gets passed the "condition" function:
-var msg = syr.on(function (condition, motd, stat) {
+var msg = syr.on( ['condition'], function (condition, motd, stat) {
     return condition(stat) + '\nMessage of the day: ' + motd;
 });
 
@@ -373,7 +347,7 @@ var syr = Syringe.create({
 // Wrap the `utils.motd` method with the `timer` function:
 syr.wrap('utils.motd', timer);
 
-var f = syr.on(function (utils, name) {
+var f = syr.on(['utils'], function (utils, name) {
     // ... do stuff
     return utils.motd(name);
 });
