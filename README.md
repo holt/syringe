@@ -243,7 +243,7 @@ Run the function:
 ```javascript
 event({
     'name': 'Doe, John',
-    'locale': 'America-Sao_Paulo'
+    'locale': 'America-Montevideo'
 });
 
 // Returns: 
@@ -271,7 +271,7 @@ event({
 
 ###  Register and Bind Example
 
-If you pass `true` as the third argument when you register a function, syringe will automatically bind the function before addding it to the map:
+If you pass an array of repository properties as the third argument when you register a function, syringe will automatically bind the function before addding it to the repository:
 
 ```javascript
 // Define a function for getting the current date:
