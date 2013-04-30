@@ -132,6 +132,7 @@ Name     | Parameters   | Description | Example
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
 *wrap*   | `name, wrapper, ctx` | Wrap an existing method in the registry with another method in order to develop middleware. | [See below](#wrap-example)
+*boost*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.boost(['data2'], f);`
 
 
 ## Examples ##
