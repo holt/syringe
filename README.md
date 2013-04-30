@@ -35,24 +35,27 @@ Here's a simple example:
 var syr = Syringe.create({
     'age': {
         'Bob': 45,
-        'Ted': 55
+        'Ted': 55,
+        'Ann': 65
     }
 });
 
-// Create a bound function that references the items within the registry:
-var msg = syr.on(['age'], function (age, name) {
-    return name + ' is ' + age[name] + ' - Happy Birthday!';
-});
+// Create a function:
+var msg = function (age, name) {
+    return name + ' is ' + age[name];
+};
+
+// Bind the function so that it references an item within the Syringe registry:
+msg = syr.on(['age'], msg);
 
 // Call the function:
-msg('Bob'); // Returns: "Bob is 45 - Happy Birthday!"
-msg('Ted'); // Returns: "Ted is 55 - Happy Birthday!"
+msg('Bob'); // Returns: "Bob is 45"
 
 // Change the registry data for one of the items:
 syr.set('age.Bob', 50);
 
-// Call the `msg` function again:
-msg('Bob'); // Returns: "Bob is 50 - Happy Birthday!"
+// Call the function again:
+msg('Bob'); // Returns: "Bob is 50"
 ```
 
 Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
@@ -93,7 +96,7 @@ The registry is a closured map unique to each Syringe object instance that holds
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked:
 
 ```javascript
-var syr = Syringe.create({'data1': 'XXX'});
+var syr = Syringe.create({'data1': 'ABC'});
 
 var f = syr.on(['data1', 'data2'], function (/* Bound: */ data1, data2, /* Free: */ color1, color2) {
     return JSON.stringify(arguments);
@@ -101,14 +104,14 @@ var f = syr.on(['data1', 'data2'], function (/* Bound: */ data1, data2, /* Free:
 
 f('red', 'blue', 'yellow', 'green'); // This may not work as expected because `data2` isn't in the registry!
 /* Returns:
-    {"0":"XXX", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
+    {"0":"ABC", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
 */
 
-syr.add({'data2': 'YYY'});
+syr.add({'data2': 'DEF'});
 
 f('red', 'blue', 'yellow', 'green'); // All is now well
 /* Returns:
-    {"0":"XXX", "1":"YYY", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
+    {"0":"ABC", "1":"DEF", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
 */
 ```
 
