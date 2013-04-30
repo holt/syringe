@@ -131,7 +131,7 @@ Name     | Parameters   | Description | Example
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
-*wrap*   | `name, wrapper, ctx` | Wrap an existing method in the registry with another method in order to develop middleware. | [See below](#wrap-example)
+*wrap*   | `fn, wrapper, ctx` | Wrap a bound method another method in order to develop middleware. | [See below](#wrap-example)
 *boost*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.boost(['data2'], f);`
 
 
@@ -341,22 +341,20 @@ msg('Keep calm and carry on!', 'Amber');
 
 ###  Wrap Example
 
-Registry methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of one or more methods in the registry. Example:
+Bound methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of a bound method. Example:
 
 ```javascript
 // Generic timer function that will be passed the original registry method, 
 // its name, and an array of its original arguments:
-var timer = function (fn, name, args) {
+var timer = function (fn, name, funcname) {
+
     var start, stop, ret;
-    start = start = (new Date()).getTime();
-
-    // At this point you can override the wrapped function `fn` with different 
-    // arguments. Note that the orignal arguments (which are mirrored by the 
-    // `args` parameter) are used by default:
-    ret = fn();
-
-    stop = (new Date()).getTime();
-    console.log('The function "' + name + '" took ' + (stop - start) + 'ms');
+    
+    start   = (new Date()).getTime();
+    ret     = fn();
+    stop    = (new Date()).getTime();
+    
+    console.log('The function "' + funcname + '" took ' + (stop - start) + 'ms');
     return ret;
 };
 
@@ -368,15 +366,15 @@ var syr = Syringe.create({
     }
 });
 
-// Wrap the `utils.motd` method with the `timer` function:
-syr.wrap('utils.motd', timer);
-
 var f = syr.on(['utils.motd'], function (motd, name) {
     // ... do stuff
     return motd(name);
 });
 
-f('Mike'); // log: "The function "utils.motd" took 1ms"
+// Wrap the `f` method with the `timer` function:
+f = syr.wrap(f, timer);
+
+f('Mike', 'msg'); // log: "The function "utils.motd" took 1ms"
 /* Returns: 
     "Greetings Mike"
 */
