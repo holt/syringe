@@ -162,7 +162,7 @@ forin:false, curly:false */
                     }
                     // Anonymous function, with context
                     else {
-                        return run.bind(ctx[2], args[0], args[1]);
+                        return run.bind(args[2], args[0], args[1]);
                     }
                     break;
 
