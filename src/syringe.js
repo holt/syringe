@@ -1,4 +1,4 @@
-// syringe.js v0.2.3
+// syringe.js v0.2.4
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false */
@@ -104,7 +104,7 @@ forin:false, curly:false */
 
             // --------------------------- Start Public API ---------------------------
 
-            syringe.register = syringe.add = function (name, dep, bindings) {
+            syringe.register = syringe.add = function (name, value, bindings) {
 
                 if (getType(name, true) === 'object') {
                     for (var key in name) {
@@ -118,17 +118,17 @@ forin:false, curly:false */
                     throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
                 } else {
                     
-                    if (getType(dep, true) === 'function' && bindings) {
-                        dep = this.on(bindings, dep);
+                    if (getType(value, true) === 'function' && bindings) {
+                        value = this.on(bindings, value);
                     }
 
                     var strArr = name.split('.'),
                         objStr = (strArr.length > 1) ? strArr.pop() : false;
     
                     if (objStr) {
-                        setObj(strArr.join('.'), deps)[objStr] = dep;
+                        setObj(strArr.join('.'), deps)[objStr] = value;
                     } else {
-                        deps[strArr.toString()] = dep;
+                        deps[strArr.toString()] = value;
                     }
 
 
@@ -291,7 +291,7 @@ forin:false, curly:false */
                 return false;
             };
 
-            syringe.VERSION = '0.2.3';
+            syringe.VERSION = '0.2.4';
             return syringe;
         };
 
