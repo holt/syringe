@@ -328,7 +328,7 @@ forin:false, curly:false */
                         var args = [].slice.call(arguments);
                         return wrapper.apply(ctx, [function () {
                             return match.bind.apply(ctx, args);
-                        }, args]);
+                        }].concat(args));
                     };
                 }
 
