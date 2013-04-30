@@ -131,7 +131,7 @@ Name     | Parameters   | Description | Example
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
-*wrap*   | `fn, wrapper, ctx` | Wrap a bound method another method in order to develop middleware. | [See below](#wrap-example)
+*wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. | [See below](#wrap-example)
 *boost*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.boost(['data2'], f);`
 
 
@@ -374,7 +374,7 @@ var f = syr.on(['utils.motd'], function (motd, name) {
 // Wrap the `f` method with the `timer` function:
 f = syr.wrap(f, timer);
 
-f('Mike', 'msg'); // log: "The function "utils.motd" took 1ms"
+f('Mike', 'msg'); // log: "The function "msg" took 1ms"
 /* Returns: 
     "Greetings Mike"
 */
