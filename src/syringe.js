@@ -1,4 +1,4 @@
-// syringe.js v0.2.4
+// syringe.js v0.2.5
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false */
@@ -14,6 +14,7 @@ forin:false, curly:false */
             , deps      = {}
             , hasProp   = {}.hasOwnProperty
             , slice     = [].slice
+            , cabinet   = []
             , toString  = Object.prototype.toString;
 
             // Get the number of "own" properties in an object
@@ -72,14 +73,6 @@ forin:false, curly:false */
                 }, this);
             };
 
-            // Execute a passed function by first reconciling its arguments
-            // against the dependency object and then applying any matches
-            // directly
-            var run = function (arr, fn) {
-                var args = slice.call(arguments);                
-                return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
-            };
-
             // Asynch script loader
             var addScript = function (src, callback) {
 
@@ -98,6 +91,14 @@ forin:false, curly:false */
                     }
                 };
                 head.insertBefore(node, head.firstChild);
+            };
+
+            // Execute a passed function by first reconciling its arguments
+            // against the dependency object and then applying any matches
+            // directly
+            var run = function (arr, fn) {
+                var args = slice.call(arguments);                
+                return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
             };
 
             deps = (props && getType(props, true) === 'object') ? props : deps;
@@ -153,16 +154,24 @@ forin:false, curly:false */
 
                 ctx = root;
 
-                var args, isNamed, name, arr, fn, ctx;
+                var args, isNamed, name, arr, fn, ctx, obj;
 
                 args = [].slice.call(arguments);
                 isNamed = (getType(args[0]) === 'String') ? true : false;
 
                 switch (args.length) {
 
-                    // Anonymous function, no context
+                // Anonymous function, no context
                 case 2:
-                    return run.bind(ctx, args[0], args[1]);
+
+                    obj = {
+                        fn  : args[1],
+                        ctx : ctx,
+                        bind: run.bind(ctx, args[0], args[1])
+                    };
+
+                    cabinet.push(obj);
+                    return obj.bind;
 
                 case 3:
                     // Named function, no context
@@ -170,26 +179,45 @@ forin:false, curly:false */
                         name    = args[0];
                         arr     = args[1];
                         fn      = args[2];
+
+                        obj = {
+                            fn  : args[2],
+                            ctx : ctx,
+                        };
+
                     }
                     // Anonymous function, with context
                     else {
-                        return run.bind(args[2], args[0], args[1]);
+                        obj = {
+                            fn  : args[1],
+                            ctx : args[2],
+                            bind: run.bind(args[2], args[0], args[1])
+                        };
+                        cabinet.push(obj);
+                        return obj.bind;   
                     }
                     break;
 
-                    // Named function, with context
+                // Named function, with context
                 case 4:
                     name    = args[0];
                     arr     = args[1];
                     fn      = args[2];
                     ctx     = args[3];
+                    
+                    obj = {
+                        fn  : args[2],
+                        ctx : args[3]
+                    };                    
+                    
                     break;
                 }
 
                 var strArr  = name.split('.')
                 , objStr    = (strArr.length > 1) ? strArr.pop() : false;
 
-                fn = run.bind(ctx, arr, fn);
+                obj.bind = fn = run.bind(ctx, arr, fn);
+                cabinet.push(obj);
 
                 if (objStr) {
                     setObj(strArr.join('.'), ctx)[objStr] = fn;
@@ -291,7 +319,20 @@ forin:false, curly:false */
                 return false;
             };
 
-            syringe.VERSION = '0.2.4';
+            syringe.boost = function (bindings, fn) {
+
+                var match = cabinet.filter(function (item) {
+                    return item.bind === fn;
+                })[0];
+
+                if (match) {
+                    return run.bind(match.ctx, bindings, match.fn);
+                }
+
+                return false;  
+            };
+
+            syringe.VERSION = '0.2.5';
             return syringe;
         };
 
