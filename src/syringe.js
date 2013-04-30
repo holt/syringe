@@ -1,4 +1,4 @@
-// syringe.js v0.2.5
+// syringe.js v0.2.6
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false */
@@ -96,10 +96,27 @@ forin:false, curly:false */
             // Execute a passed function by first reconciling its arguments
             // against the dependency object and then applying any matches
             // directly
+            /*
             var run = function (arr, fn) {
-                var args = slice.call(arguments);                
+                var args = slice.call(arguments);
                 return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
             };
+            */
+
+            var run = function (arr, fn) {
+
+                var args  = slice.call(arguments);                
+                var match = cabinet.filter(function (item) {
+                    return item.fn === fn;
+                })[0];
+
+                fn = match ? match.fn : fn;
+
+                return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
+            };
+
+
+
 
             deps = (props && getType(props, true) === 'object') ? props : deps;
 
@@ -182,7 +199,7 @@ forin:false, curly:false */
 
                         obj = {
                             fn  : args[2],
-                            ctx : ctx,
+                            ctx : ctx
                         };
 
                     }
@@ -298,24 +315,23 @@ forin:false, curly:false */
                 }
             };
 
-            syringe.wrap = function (name, wrapper, ctx) {
+            syringe.wrap = function (fn, wrapper, ctx) {
 
                 ctx = ctx || this;
 
-                var fn = this.get(name);
-                if (getType(fn, true) === 'function' &&
-                    getType(wrapper, true) === 'function') {
-                    return this.set(name, function () {
-                        var args = arguments;
-                        return wrapper.apply(this, [
-                            function () {
-                                args = arguments.length ? arguments : args;
-                                return fn.apply(ctx, args);
-                            },
-                            name, args
-                        ]);
-                    });
+                var match = cabinet.filter(function (item) {
+                    return item.bind === fn;
+                })[0];
+
+                if (match) {
+                    return  function () {
+                        var args = [].slice.call(arguments);
+                        return wrapper.apply(ctx, [function () {
+                            return match.bind.apply(ctx, args);
+                        }, args]);
+                    };
                 }
+
                 return false;
             };
 
@@ -332,7 +348,7 @@ forin:false, curly:false */
                 return false;  
             };
 
-            syringe.VERSION = '0.2.5';
+            syringe.VERSION = '0.2.6';
             return syringe;
         };
 
