@@ -39,7 +39,7 @@ var syr = Syringe.create({
     }
 });
 
-// Create a bound function that references the items within the repository:
+// Create a bound function that references the items within the registry:
 var msg = syr.on(['age'], function (age, name) {
     return name + ' is ' + age[name] + ' - Happy Birthday!';
 });
@@ -48,7 +48,7 @@ var msg = syr.on(['age'], function (age, name) {
 msg('Bob'); // Returns: "Bob is 45 - Happy Birthday!"
 msg('Ted'); // Returns: "Ted is 55 - Happy Birthday!"
 
-// Change the repository data for one of the items:
+// Change the registry data for one of the items:
 syr.set('age.Bob', 50);
 
 // Call the `msg` function again:
@@ -127,14 +127,14 @@ Name     | Parameters   | Description | Example
 *on*     | `name, binding, fn, ctx`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter adds the bound function to a specified context. Alias: _bind_ | ` syr.on('f', ['data'], function (data) {...}, this);`
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
-*exec*    | `name, args, ctx` | Directly execute a method within the repository. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
+*exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
-*wrap*   | `name, wrapper, ctx` | Wrap an existing method in the repository with another method in order to develop middleware. | [See below](#wrap-example)
+*wrap*   | `name, wrapper, ctx` | Wrap an existing method in the registry with another method in order to develop middleware. | [See below](#wrap-example)
 
 
 ## Examples ##
 
-The following sections describe how to initialize a new Syringe repository, populate it with data, and bind the data to functions in order to inject dependencies.
+The following sections describe how to initialize a new Syringe registry, populate it with data, and bind the data to functions in order to inject dependencies.
 
 ### Initialization and Registration
 
@@ -281,7 +281,7 @@ event({
 
 ###  Register and Bind Example
 
-If you pass an array of repository properties as the third argument when you register a function, syringe will automatically bind the function before addding it to the repository:
+If you pass an array of registry properties as the third argument when you register a function, syringe will automatically bind the function before addding it to the registry:
 
 ```javascript
 // Define a function for getting the current date:
@@ -338,10 +338,10 @@ msg('Keep calm and carry on!', 'Amber');
 
 ###  Wrap Example
 
-Repository methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of one or more methods in the repository. Example:
+Registry methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of one or more methods in the registry. Example:
 
 ```javascript
-// Generic timer function that will be passed the original repository method, 
+// Generic timer function that will be passed the original registry method, 
 // its name, and an array of its original arguments:
 var timer = function (fn, name, args) {
     var start, stop, ret;
