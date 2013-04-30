@@ -93,16 +93,6 @@ forin:false, curly:false */
                 head.insertBefore(node, head.firstChild);
             };
 
-            // Execute a passed function by first reconciling its arguments
-            // against the dependency object and then applying any matches
-            // directly
-            /*
-            var run = function (arr, fn) {
-                var args = slice.call(arguments);
-                return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
-            };
-            */
-
             var run = function (arr, fn) {
 
                 var args  = slice.call(arguments);                
@@ -114,9 +104,6 @@ forin:false, curly:false */
 
                 return fn.apply(this, getDeps(arr).concat(args.slice(2, args.length)));
             };
-
-
-
 
             deps = (props && getType(props, true) === 'object') ? props : deps;
 
