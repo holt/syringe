@@ -1,7 +1,9 @@
-// syringe.js v0.2.7
+// syringe.js v0.2.8. Copyright (c) 2013 Michael Holt, holt.org. Licensed under the MIT License
+
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false */
+
 (function () {
 
     "use strict";
@@ -284,7 +286,7 @@ forin:false, curly:false */
                 return false;
             };
 
-            syringe.VERSION = '0.2.7';
+            syringe.VERSION = '0.2.8';
             return syringe;
         };
 
