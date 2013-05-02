@@ -17,7 +17,7 @@ Just add `syringe.min.js` to your environment.
 - `Array.reduce`
 - `Function.bind`
 
-For your convenience, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided as part of the Syringe deliverable (they don't execute if your environment indicates the methods are already available). Take them out if you know you won't need them or have provided your own implementations.
+If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
 ### Browser Compatibility / Unit Tests
 
