@@ -27,37 +27,59 @@ In progress.
 
 Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with any _corresponding_ data items located inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
 
-Here's a simple example:
+Let's see what this looks like using a simple example. Initialize a new Syringe object instance:
 ```javascript
-
-// Initialize a new Syringe object instance:
 var syr = Syringe.create({
     'age': {
         'Bob': 45,
-        'Ted': 55,
-        'Ann': 65
-    }
+        'Ted': 55
+    },
+    'nationality': {
+        'Bob': 'British',
+        'Ted': 'American'
+    }    
 });
+```
+Create a trivial function:
 
-// Create a function:
-var msg = function (age, name) {
-    return name + ' is ' + age[name];
+```javascript
+var msg = function (data, name) {
+    return name + ' is ' + data[name];
 };
+```
+Bind the function so that it references an item within the Syringe registry:
 
-// Bind the function so that it references an item within the Syringe registry:
+```javascript
 msg = syr.on(['age'], msg);
-
-// Call the function:
+```
+Call the function:
+```javascript
 msg('Bob'); // Returns: "Bob is 45"
-
-// Change the registry data for one of the items:
+msg('Ted'); // Returns: "Ted is 55"
+```
+Change the registry data for one of the items:
+```javascript
 syr.set('age.Bob', 50);
-
-// Call the function again:
+```
+Call the function again:
+```javascript
 msg('Bob'); // Returns: "Bob is 50"
 ```
+Copy the bound item, but use a different registry reference:
+```javascript
+msg = syr.copy(['nationality'], msg);
+msg('Bob'); // Returns: "Bob is British"
+```
 
-Here's a slightly more sophisticated example, this time showing how data can be just as easily injected into a constructor function:
+Wrap an item:
+```javascript
+msg = syr.wrap(msg, function (fn, name) {
+    return 'Status report: ' + fn() + ' and is ' + this.get('age.' + name);
+});
+msg('Bob'); // Returns "Status report: Bob is British and is 50"
+```
+
+Here's a slightly different example, this time showing how data can be just as easily injected into a constructor function:
 
 ```javascript
 var syr = Syringe.create({
@@ -80,7 +102,7 @@ var myObj = new Obj('Mike');
 //    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
 ```
 
-### Aren't we just making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
+### Aren't we just making a tasty [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
 When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
 
@@ -132,10 +154,10 @@ Name     | Parameters   | Description | Example
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
 *wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. | [See below](#wrap-example)
-*boost*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.boost(['data2'], f);`
+*copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.copy(['data2'], f);`
 
 
-## Examples ##
+## Additional Examples ##
 
 The following sections describe how to initialize a new Syringe registry, populate it with data, and bind the data to functions in order to inject dependencies.
 
