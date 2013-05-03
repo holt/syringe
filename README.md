@@ -25,9 +25,9 @@ In progress.
 
 ## Overview ##
 
-Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with one or more pointers to any corresponding data items located inside a predefined registry. That is, when a Syringe-bound function executes, the parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
+Syringe works by taking a function and inoculating it with deep or shallow _references_ to data items located inside a predefined data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically. This is best illustrated with a simple example. 
 
-Let's see what this looks like using a simple example. Initialize a new Syringe object instance:
+Initialize a new Syringe object instance:
 ```javascript
 var syr = Syringe.create({
     'age': {
