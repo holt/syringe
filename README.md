@@ -25,7 +25,7 @@ In progress.
 
 ## Overview ##
 
-Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with any _corresponding_ data items located inside a predefined registry. That is, when a Syringe-bound function executes, the expected parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
+Syringe works by examining the parameter definition of a previously bound function and then _inoculating_ that function with one or more pointers to any corresponding data items located inside a predefined registry. That is, when a Syringe-bound function executes, the parameters are reconciled against a registry of data objects and are passed in automatically. If the arguments aren't found in the registry then they will be treated like ordinary passed parameters. 
 
 Let's see what this looks like using a simple example. Initialize a new Syringe object instance:
 ```javascript
@@ -102,13 +102,13 @@ var myObj = new Obj('Mike');
 //    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
 ```
 
-### Aren't we just making a tasty [curry](https://en.wikipedia.org/wiki/Partial_application)?
+### Aren't we just making [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
 When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
 
-This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the influenza vaccine you received last Winter could be remotely updated throughout the year.
+This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the flu shot you received last Winter could be remotely updated throughout the year.
 
-So currying _does_ take place, just at a different point. Syringe curries _your_ freshly bound function into a factory function that examines the passed parameters and applies the corresponding registry values to your function when it is called.
+So currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
 
 ### What's this about a "registry"?
 
