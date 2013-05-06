@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>syringe.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>syringe.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <blockquote>
+<p><a href="http://syringejs.org">http://syringejs.org</a>
+syringe.js v0.2.9. Copyright (c) 2013 Michael Holt
+holt.org. Distributed under the MIT License</p>
+</blockquote>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="comment">/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
+undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
+forin:false, curly:false */</span>
+
+(<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+
+    <span class="string">"use strict"</span>;
+
+    <span class="keyword">var</span> root = <span class="keyword">this</span>,
+        syringe = <span class="function"><span class="keyword">function</span> <span class="params">(props)</span> {</span>
+
+            <span class="keyword">var</span> hasProp     = {}.hasOwnProperty,
+                toString    = Object.prototype.toString,
+                slice       = [].slice;
+
+            <span class="keyword">var</span> syringe     = {}, 
+                registry    = {}, 
+                cabinet     = [];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Get the number of &quot;own&quot; properties in an object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> getPropSize = <span class="function"><span class="keyword">function</span> <span class="params">(obj)</span> {</span>
+                <span class="keyword">var</span> size = <span class="number">0</span>,
+                    key;
+                <span class="keyword">for</span> (key <span class="keyword">in</span> obj) {
+                    <span class="keyword">if</span> (hasProp.call(obj, key)) size++;
+                }
+                <span class="keyword">return</span> size;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Get the object type as a string. If <code>lc</code> is <code>true</code> the comparison
+is with the lowercase form.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> getType = <span class="function"><span class="keyword">function</span> <span class="params">(obj, lc)</span> {</span>
+                <span class="keyword">var</span> str = toString.call(obj).slice(<span class="number">8</span>, -<span class="number">1</span>);
+                <span class="keyword">return</span> (lc &amp;&amp; str.toLowerCase()) || str;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Get an object from an (optional) context <code>ctx</code> using delimited
+string notation. The <code>sep</code> parameter determines the delimiter 
+(a period <code>.</code> by default).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> getObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
+                ctx = ctx || <span class="keyword">this</span>;
+                str = str.split(sep || <span class="string">'.'</span>);
+                <span class="keyword">return</span> str.filter(<span class="function"><span class="keyword">function</span> <span class="params">(num)</span> {</span>
+                    <span class="keyword">return</span> num.length;
+                }).reduce(<span class="function"><span class="keyword">function</span> <span class="params">(prev, curr, index, list)</span> {</span>
+                    <span class="keyword">if</span> (prev) {
+                        <span class="keyword">return</span> prev[list[index]];
+                    }
+                }, ctx);
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Create an object within an (optional) context <code>ctx</code> using 
+delimited string notation. The <code>sep</code> parameter determines
+the delimiter (period by default).            </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> setObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
+                ctx = ctx || <span class="keyword">this</span>;
+                str = str.split(sep || <span class="string">'.'</span>);
+                <span class="keyword">var</span> obj, _i, _len;
+                <span class="keyword">for</span> (_i = <span class="number">0</span>, _len = str.length; _i &lt; _len; _i++) {
+                    obj = str[_i];
+                    ctx = (ctx[obj] = ctx[obj] || {});
+                }
+                <span class="keyword">return</span> ctx;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Return a map of any items in the passed array that match items
+in the registry object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> getRegistry = <span class="function"><span class="keyword">function</span> <span class="params">(arr)</span> {</span>
+                <span class="keyword">return</span> arr.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                    <span class="keyword">return</span> getObj(item, registry);
+                }, <span class="keyword">this</span>);
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Asynch script loader. Note that this is used in a browser context
+only.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> addScript = <span class="function"><span class="keyword">function</span> <span class="params">(src, callback)</span> {</span>
+                <span class="keyword">var</span> doc = window ? window.document : <span class="literal">false</span>;
+
+                <span class="keyword">if</span> (doc) {
+                    <span class="keyword">var</span> head = doc.getElementsByTagName(<span class="string">"head"</span>)[<span class="number">0</span>] || doc.documentElement,
+                        node = doc.createElement(<span class="string">"script"</span>),
+                        done = <span class="literal">false</span>;
+                    node.src = src;
+                    node.onload = node.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                        <span class="keyword">if</span> (!done &amp;&amp; (!<span class="keyword">this</span>.readyState || <span class="keyword">this</span>.readyState === <span class="string">"loaded"</span> || <span class="keyword">this</span>.readyState === <span class="string">"complete"</span>)) {
+                            done = <span class="literal">true</span>;
+                            node.onload = node.onreadystatechange = <span class="literal">null</span>;
+                            <span class="keyword">if</span> (head &amp;&amp; node.parentNode) head.removeChild(node);
+                            <span class="keyword">if</span> (getType(callback, <span class="literal">true</span>) === <span class="string">'function'</span>) callback();
+                        }
+                    };
+                    head.insertBefore(node, head.firstChild);
+                }
+                <span class="keyword">else</span> {
+                    <span class="keyword">return</span> <span class="literal">false</span>;
+                }
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>The <code>run</code> function resolves the dependencies of a bound method.
+When it executes is retrieves the original <code>fn</code> method from the 
+<code>cabinet</code> object, and applies both the injected and free arguments
+to it. </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> run = <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn)</span> {</span>
+                <span class="keyword">var</span> args = slice.call(arguments),
+                    match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                    <span class="keyword">return</span> item.fn === fn;
+                })[<span class="number">0</span>];     
+                fn = match ? match.fn : fn;
+                <span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, getRegistry(arr).concat(args.slice(<span class="number">2</span>, args.length)));
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Initialize the <code>registry</code> object with any properties that were
+passed in, or just start with the empty object.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            registry = (props &amp;&amp; getType(props, <span class="literal">true</span>) === <span class="string">'object'</span>) ? props : registry;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <h2>Public Methods</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Add a new item to the Syringe registry. The name can be provided 
+in dot-notation, in which case a deep reference is built within
+the registry. If <code>value</code> is a function, the optional <code>bindings</code> 
+parameter can contain an array of all the registry properties 
+with which to bind this function. In this way, registry methods
+can be automatically bound to other registry methods.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.register = syringe.add = <span class="function"><span class="keyword">function</span> <span class="params">(name, value, bindings)</span> {</span>
+                <span class="keyword">if</span> (getType(name, <span class="literal">true</span>) === <span class="string">'object'</span>) {
+                    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> name) {
+                        <span class="keyword">if</span> (!hasProp.call(name, key)) <span class="keyword">continue</span>;
+                        <span class="keyword">this</span>.add.apply(<span class="keyword">this</span>, [key, name[key]]);
+                    }
+                    <span class="keyword">return</span> <span class="keyword">this</span>;
+                }
+                <span class="keyword">if</span> (getObj(name, registry)) {
+                    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + <span class="string">'" already exists in the map; use .remove() to unregister it first!'</span>);
+                } <span class="keyword">else</span> {
+                    <span class="keyword">if</span> (getType(value, <span class="literal">true</span>) === <span class="string">'function'</span> &amp;&amp; bindings) {
+                        value = <span class="keyword">this</span>.on(bindings, value);
+                    }
+                    <span class="keyword">var</span> strArr = name.split(<span class="string">'.'</span>),
+                        objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
+                    <span class="keyword">if</span> (objStr) {
+                        setObj(strArr.join(<span class="string">'.'</span>), registry)[objStr] = value;
+                    } <span class="keyword">else</span> {
+                        registry[strArr.toString()] = value;
+                    }
+                }
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Remove a named item from the registry.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.unregister = syringe.remove = <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
+                <span class="keyword">var</span> newregistry = {};
+                <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> registry) {
+                    <span class="keyword">if</span> (!hasProp.call(registry, key) || (hasProp.call(registry, name) &amp;&amp; key === name)) <span class="keyword">continue</span>;
+                    newregistry[key] = registry[key];
+                }
+                registry = newregistry;
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Bind a method to the dependency registry. This function accepts
+a variety of different arguments, the formulation of which 
+determine what type of binding takes place. The variations are
+described below.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.bind = syringe.on = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                ctx = root;
+                <span class="keyword">var</span> args, isNamed, name, arr, fn, ctx, obj;
+                args = [].slice.call(arguments);
+                isNamed = (getType(args[<span class="number">0</span>]) === <span class="string">'String'</span>) ? <span class="literal">true</span> : <span class="literal">false</span>;
+                <span class="keyword">switch</span> (args.length) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
+<code>args[1]</code>. No name or context object is provided. The 
+bound function will be returned as an anonymous function.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">case</span> <span class="number">2</span>:
+                    obj = {
+                        fn  : args[<span class="number">1</span>],
+                        ctx : ctx,
+                        bind: run.bind(ctx, args[<span class="number">0</span>], args[<span class="number">1</span>])
+                    };
+                    cabinet.push(obj);
+                    <span class="keyword">return</span> obj.bind;
+                <span class="keyword">case</span> <span class="number">3</span>:
+
+                    <span class="keyword">if</span> (isNamed) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p><strong>Three</strong> parameters: a name <code>args[0]</code>, the registry array 
+<code>args[1]</code>, and method <code>args[2]</code>. No context object
+is provided. The bound function will be assigned to 
+whatever the root object is.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        name    = args[<span class="number">0</span>];
+                        arr     = args[<span class="number">1</span>];
+                        fn      = args[<span class="number">2</span>];
+                        obj     = {
+                            fn : args[<span class="number">2</span>],
+                            ctx: ctx
+                        };
+                    }
+                    <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p><strong>Three</strong> parameters: the registry array <code>args[0]</code>, the
+method <code>args[1]</code>, and a context object <code>args[2]</code>.
+When the bound method executes the provided context
+will be used.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        obj = {
+                            fn  : args[<span class="number">1</span>],
+                            ctx : args[<span class="number">2</span>],
+                            bind: run.bind(args[<span class="number">2</span>], args[<span class="number">0</span>], args[<span class="number">1</span>])
+                        };
+                        cabinet.push(obj);
+                        <span class="keyword">return</span> obj.bind;
+                    }
+                    <span class="keyword">break</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array 
+<code>args[1]</code>, the method <code>args[2]</code>, and a context object
+<code>args[3]</code>. When the bound method executes the provided
+context will be used.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">case</span> <span class="number">4</span>:
+                    name    = args[<span class="number">0</span>];
+                    arr     = args[<span class="number">1</span>];
+                    fn      = args[<span class="number">2</span>];
+                    ctx     = args[<span class="number">3</span>];
+                    obj     = {
+                        fn  : args[<span class="number">2</span>],
+                        ctx : args[<span class="number">3</span>]
+                    };
+                    <span class="keyword">break</span>;
+                }
+
+                <span class="keyword">var</span> strArr = name.split(<span class="string">'.'</span>),
+                    objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
+                obj.bind = fn = run.bind(ctx, arr, fn);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Store a copy of this binding in the <code>cabinet</code> object.
+This is useful if we want to copy an existing bound
+function but use new registry items. </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                cabinet.push(obj);
+                <span class="keyword">if</span> (objStr) {
+                    setObj(strArr.join(<span class="string">'.'</span>), ctx)[objStr] = fn;
+                } <span class="keyword">else</span> {
+                    ctx[strArr.join(<span class="string">'.'</span>)] = fn;
+                }
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Sometimes you need to call an executable registry item directly.
+You can use this method to do just that. You can also (optionally) 
+pass an array of arguments and a context.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.exec = <span class="function"><span class="keyword">function</span> <span class="params">(name, args, ctx)</span> {</span>
+                ctx = ctx || <span class="keyword">this</span>;
+                args = (getType(args, <span class="literal">true</span>) === <span class="string">'array'</span>) ? args : [args];
+                <span class="keyword">var</span> fn = <span class="keyword">this</span>.get(name);
+                <span class="keyword">if</span> ((getType(name, <span class="literal">true</span>) === <span class="string">'string'</span>) &amp;&amp;
+                    (getType(fn, <span class="literal">true</span>) === <span class="string">'function'</span>)) {
+                    <span class="keyword">return</span> fn.apply(ctx, args);
+                }
+                <span class="keyword">return</span> <span class="literal">false</span>;
+            },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Retrieve a named item from the registry. You can use dot-notation
+in the passed string. The method will return <code>false</code> if the item
+does not exist.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.get = <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
+                <span class="keyword">if</span> (getType(name, <span class="literal">true</span>) === <span class="string">'string'</span>) {
+                    <span class="keyword">var</span> obj = getObj(name, registry);
+                    <span class="keyword">if</span> (getType(obj, <span class="literal">true</span>) !== <span class="string">'undefined'</span>) {
+                        <span class="keyword">return</span> obj;
+                    }
+                    <span class="keyword">return</span> <span class="literal">false</span>;
+                }
+                <span class="keyword">return</span> registry;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Set a named item from the registry. As with <code>get</code>, you can 
+use dot-notation in the passed string. The method will throw
+an exception if you try to set something that doesn&#39;t
+exist.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.set = <span class="function"><span class="keyword">function</span> <span class="params">(name, value)</span> {</span>
+                <span class="keyword">var</span> strArr = name.split(<span class="string">'.'</span>),
+                    objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
+                <span class="keyword">if</span> ((getType(getObj(name, registry), <span class="literal">true</span>) === <span class="string">'undefined'</span>)) {
+                    <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + <span class="string">'" does not exist in the map!'</span>);
+                }
+                <span class="keyword">if</span> (objStr) {
+                    setObj(strArr.join(<span class="string">'.'</span>), registry)[objStr] = value;
+                } <span class="keyword">else</span> {
+                    registry[strArr.toString()] = value;
+                }
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            };
+
+            syringe.fetch = <span class="function"><span class="keyword">function</span> <span class="params">(map, callback)</span> {</span>
+                <span class="keyword">var</span> self = <span class="keyword">this</span>,
+                    count = <span class="number">0</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Keep a count of the script load events and reconcile it
+against the length of the script list.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">var</span> stack = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                    <span class="keyword">if</span> (++count === getPropSize(map)) {
+                        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> map) {
+                            <span class="keyword">if</span> (!hasProp.call(map, key)) <span class="keyword">continue</span>;
+                            <span class="keyword">if</span> (map[key].bind) self.add(key, getObj(map[key].bind, root));
+                        }
+                        callback.call(self);
+                    }
+                };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Loop that adds a new script element for each list item.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> map) {
+                    <span class="keyword">if</span> (!hasProp.call(map, key)) <span class="keyword">continue</span>;
+                    addScript(map[key].path, stack);
+                }
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Wrap a previously bound method in another <code>wrapper</code> function.
+The original function is passed as the first argument to the
+wrapper.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.wrap = <span class="function"><span class="keyword">function</span> <span class="params">(fn, wrapper, ctx)</span> {</span>
+                ctx = ctx || <span class="keyword">this</span>;
+                <span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                    <span class="keyword">return</span> item.bind === fn;
+                })[<span class="number">0</span>];
+                <span class="keyword">if</span> (match) {
+                    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                        <span class="keyword">var</span> args = [].slice.call(arguments);
+                        <span class="keyword">return</span> wrapper.apply(ctx, [
+                            <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+                                <span class="keyword">return</span> match.bind.apply(ctx, args);
+                            }
+                        ].concat(args));
+                    };
+                }
+                <span class="keyword">return</span> <span class="literal">false</span>;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Copy an existing bound function <code>fn</code> where the copy
+has different registry bindings, provided by the
+<code>bindings</code> argument. You can also provide an optional
+execute context.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.copy = <span class="function"><span class="keyword">function</span> <span class="params">(bindings, fn, ctx)</span> {</span>
+                ctx = ctx || <span class="keyword">this</span>;
+                <span class="keyword">var</span> args = [].slice.call(arguments);
+                <span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                    <span class="keyword">return</span> item.bind === fn;
+                })[<span class="number">0</span>];
+                <span class="keyword">if</span> (match) {
+                    <span class="keyword">var</span> obj = {
+                        fn: fn,
+                        ctx: args[<span class="number">0</span>],
+                        bind: run.bind(match.ctx, bindings, match.fn)
+                    };
+                    cabinet.push(obj);
+                    <span class="keyword">return</span> obj.bind;
+                }
+                <span class="keyword">return</span> <span class="literal">false</span>;
+            };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Current version.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            syringe.VERSION = <span class="string">'0.2.9'</span>;
+            <span class="keyword">return</span> syringe;
+        };
+
+    root.Syringe = syringe();
+    root.Syringe.create = syringe;
+
+}.call(<span class="keyword">this</span>));</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
