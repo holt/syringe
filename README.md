@@ -114,27 +114,7 @@ So currying _does_ take place, just at a different point. Syringe curries _your_
 
 The registry is a closured map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
-**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked:
-
-```javascript
-var syr = Syringe.create({'data1': 'ABC'});
-
-var f = syr.on(['data1', 'data2'], function (/* Bound: */ data1, data2, /* Free: */ color1, color2) {
-    return JSON.stringify(arguments);
-});
-
-f('red', 'blue', 'yellow', 'green'); // This may not work as expected because `data2` isn't in the registry!
-/* Returns:
-    {"0":"ABC", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
-*/
-
-syr.add({'data2': 'DEF'});
-
-f('red', 'blue', 'yellow', 'green'); // All is now well
-/* Returns:
-    {"0":"ABC", "1":"DEF", "2":"red", "3":"blue", "4":"yellow", "5":"green"}
-*/
-```
+**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
 ## API ##
 
