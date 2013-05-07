@@ -19,9 +19,13 @@ Just add `syringe.min.js` to your environment.
 
 If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
-### Browser Compatibility / Unit Tests
+### Browser Compatibility
 
-In progress.
+- Firefox 12+
+- Chrome 18+
+- Safari 5+
+- Opera 9+
+- IE8+
 
 ## Overview ##
 
