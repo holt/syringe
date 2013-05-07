@@ -127,8 +127,8 @@ $(document).ready(function () {
             'data2': {}
         });
         syr.remove('data');
-        strictEqual(syr.get('data.first.second'), false, 'targetted data should be removed.');
-        equal(typeof syr.get('data2'), 'object', 'siblings of targetted data should not be removed.');
+        strictEqual(syr.get('data'), false, 'targeted data should be removed.');
+        equal(typeof syr.get('data2'), 'object', 'siblings of targeted data should not be removed.');
     });
 
     test("remove deep props", 3, function () {
@@ -142,9 +142,9 @@ $(document).ready(function () {
             'data2': {}
         });
         syr.remove('data.first');
-        strictEqual(syr.get('data.first'), false, 'targetted deep data should be removed.');
-        equal(typeof syr.get('data.other'), 'object', 'siblings of targetted data should not be removed.');
-        equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targetted data should not be removed.');
+        strictEqual(syr.get('data.first'), false, 'targeted deep data should be removed.');
+        equal(typeof syr.get('data.other'), 'object', 'siblings of targeted data should not be removed.');
+        equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targeted data should not be removed.');
     });
 
     module("Bind");
