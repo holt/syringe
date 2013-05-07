@@ -16,16 +16,19 @@ Just add `syringe.min.js` to your environment.
 - `Array.map`
 - `Array.reduce`
 - `Function.bind`
+- `String.trim`
 
 If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
 ### Browser Compatibility
 
-- Firefox 12+
-- Chrome 18+
-- Safari 5+
+Syringe has been tested on the following browsers:
+
+- Firefox 2+
+- Chrome 11+
+- Safari 3+
 - Opera 9+
-- IE8+
+- Internet Explorer 6+
 
 ## Overview ##
 
