@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.1. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.2. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -13,12 +13,13 @@ forin:false, curly:false */
     var root = this,
         syringe = function (props) {
 
+            // Utilities from core prototypes.
             var hasProp     = {}.hasOwnProperty,
-                toString    = Object.prototype.toString,
                 slice       = [].slice;
 
+            // Global containers.
             var syringe     = {}, 
-                registry    = {}, 
+                registry    = {},
                 cabinet     = [];
 
             // Get the number of "own" properties in an object.
@@ -34,8 +35,15 @@ forin:false, curly:false */
             // Get the object type as a string. If `lc` is `true` the comparison
             // is with the lowercase form.
             var getType = function (obj, lc) {
-                var str = toString.call(obj).slice(8, -1);
-                return (lc && str.toLowerCase()) || str;
+                var a;
+                try {
+                    var b = /function (.{1,})\(/.exec(obj.constructor.toString());
+                    a = b && 1 < b.length ? b[1] : '';
+                } catch (e) {
+                    a = (null === obj) ? 'aNull' : 'Undefined';
+                } finally {
+                    return lc ? a.toLowerCase() : a;
+                }
             };
 
             // Get an object from an (optional) context `ctx` using delimited
@@ -172,7 +180,6 @@ forin:false, curly:false */
                 if (splitname) this.set(splitname, newregistry);
                 // Shallow removal (non-delimited name)
                 else registry = newregistry;
-
                 return this;
             };
 
@@ -180,10 +187,10 @@ forin:false, curly:false */
             // a variety of different arguments, the formulation of which 
             // determine what type of binding takes place. The variations are
             // described below.
-            syringe.bind = syringe.on = function () {
+            syringe.bind = syringe.on = function (/* 2, 3, or 4 params */) {
                 ctx = root;
                 var args, isNamed, name, arr, fn, ctx, obj;
-                args = [].slice.call(arguments);
+                args = slice.call(arguments);
                 isNamed = (getType(args[0]) === 'String') ? true : false;
                 switch (args.length) {
 
@@ -283,6 +290,8 @@ forin:false, curly:false */
                     if (getType(obj, true) !== 'undefined') {
                         return obj;
                     }
+
+
                     return false;
                 }
                 return registry;
@@ -337,7 +346,7 @@ forin:false, curly:false */
                 })[0];
                 if (match) {
                     return function () {
-                        var args = [].slice.call(arguments);
+                        var args = slice.call(arguments);
                         return wrapper.apply(ctx, [
                             function () {
                                 args = arguments.length ? arguments : args;
@@ -355,7 +364,7 @@ forin:false, curly:false */
             // execute context.
             syringe.copy = function (bindings, fn, ctx) {
                 ctx = ctx || this;
-                var args = [].slice.call(arguments);
+                var args = slice.call(arguments);
                 var match = cabinet.filter(function (item) {
                     return item.bind === fn;
                 })[0];
@@ -372,7 +381,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.3.1';
+            syringe.VERSION = '0.3.2';
             return syringe;
         };
 
