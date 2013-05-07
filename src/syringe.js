@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.0. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.1. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -340,7 +340,8 @@ forin:false, curly:false */
                         var args = [].slice.call(arguments);
                         return wrapper.apply(ctx, [
                             function () {
-                                return match.bind.apply(ctx, arguments);
+                                args = arguments.length ? arguments : args;
+                                return match.bind.apply(ctx, args);                            
                             }
                         ].concat(args));
                     };
@@ -371,7 +372,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.3.0';
+            syringe.VERSION = '0.3.1';
             return syringe;
         };
 
