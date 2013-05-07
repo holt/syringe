@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.2.9. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.0. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -153,12 +153,26 @@ forin:false, curly:false */
 
             // Remove a named item from the registry.
             syringe.unregister = syringe.remove = function (name) {
-                var newregistry = {};
-                for (var key in registry) {
-                    if (!hasProp.call(registry, key) || (hasProp.call(registry, name) && key === name)) continue;
-                    newregistry[key] = registry[key];
+
+                var newregistry = {},
+                    obj         = {},
+                    splitname   = name.trim().split('.'),
+                    splitlast   = splitname.pop();
+
+                splitname   = splitname.join('.');
+                obj         = splitname ? getObj(splitname, registry) : registry;
+                name        = splitlast || splitname;
+
+                for (var key in obj) {
+                    if (!hasProp.call(obj, key) || (hasProp.call(obj, name) && key === name)) continue;
+                    newregistry[key] = obj[key];
                 }
-                registry = newregistry;
+                
+                // Deep removal (delimited name)
+                if (splitname) this.set(splitname, newregistry);
+                // Shallow removal (non-delimited name)
+                else registry = newregistry;
+
                 return this;
             };
 
@@ -326,7 +340,7 @@ forin:false, curly:false */
                         var args = [].slice.call(arguments);
                         return wrapper.apply(ctx, [
                             function () {
-                                return match.bind.apply(ctx, args);
+                                return match.bind.apply(ctx, arguments);
                             }
                         ].concat(args));
                     };
@@ -357,7 +371,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.2.9';
+            syringe.VERSION = '0.3.0';
             return syringe;
         };
 
