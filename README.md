@@ -86,27 +86,79 @@ msg = syr.wrap(msg, function (fn, name) {
 msg('Bob'); // Returns "Status report: Bob is British and is 50"
 ```
 
-Here's a slightly different example, this time showing how data can be just as easily injected into a constructor function:
+### Constructors
+
+Here's a slightly different example, this time showing how data can be just as easily injected into a constructor function. First we set up our constructor functions:
 
 ```javascript
+// Build a registry of dialog behaviors
 var syr = Syringe.create({
-    'proto': {
-        'stamp': function (arg) {
-            return ('Created by ' + arg + ' on ' + new Date);
+    'dialog': {
+        'valid': function () {
+            console.log('Data is valid...');
+        },
+        'invalid': function () {
+            console.log('Data is invalid...');
         }
     }
 });
 
-var Obj = syr.on(['proto'], function (proto, data) {
-    for (var key in proto) {
-        this.constructor.prototype[key] = proto[key];
-    }
-    data && (this.stamp = this.stamp(data));
+// Create a "Dialog" constructor
+var Dialog = function (dialogtype, type) {
+    this.dialogtype = dialogtype;
+    this.type = type;
+};
+
+// Extend the "Dialog" prototype
+Dialog.prototype.show = function () {
+    var type = this.dialogtype[this.type] || 'No dialog found to handle this...';
+    console.log(typeof type === 'function' ? type.call(this) : type);
+};
+
+// Add "Dialog" to the registry
+syr.add('dialog.Base', Dialog, ['dialog']);
+
+// Create a "SearchComponent" constructor
+var SearchComponent = function (dialog) {
+    this.state = 'valid';
+    this.Dialog = dialog.Base;
+};
+
+// Extend the "SearchComponent" prototype
+SearchComponent.prototype.validateSearch = function () {
+    var dialog = new this.Dialog(this.state);
+    dialog.show();
+};
+
+// Bind the "SearchComponent"
+SearchComponent = syr.on(['dialog'], SearchComponent);
+```
+
+Now we do stuff with them:
+
+```javascript
+// Create a search component instance
+var search = new SearchComponent();
+
+// Execute validateSearch
+search.validateSearch(); // log: "Data is valid..."
+
+// Change the search state
+search.state = 'invalid';
+
+// Execute validateSearch
+search.validateSearch(); // log: "Data is invalid..."
+
+// Add another dialog behavior
+syr.add('dialog.other', function () {
+    console.log('Data is... hmm... not sure...');
 });
 
-var myObj = new Obj('Mike');
-// myObj looks like this: 
-//    {"stamp":"Created by Mike on Wed Apr 10 2013 22:16:07 GMT-0400 (Eastern Daylight Time)"}
+// Change the search state
+search.state = 'other';
+
+// Execute validateSearch
+search.validateSearch(); // log: "Data is... hmm... not sure..."
 ```
 
 ### Aren't we just making [curry](https://en.wikipedia.org/wiki/Partial_application)?
