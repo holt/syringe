@@ -85,7 +85,6 @@ $(document).ready(function () {
         equal(syr.exec('func', ['hello world']), 'hello world - done', 'data from bound method should be returned.');
     });
 
-
     test("add deep constructor function with binding", 1, function () {
         var syr = Syringe.create();
         syr.add({
@@ -110,10 +109,6 @@ $(document).ready(function () {
 
         equal('hello world - done', f.say(), 'data from bound method should be returned.');
     });
-
-
-
-
 
     module("Set");
 
@@ -265,7 +260,6 @@ $(document).ready(function () {
         });
 
         equal(f2('woo'), 'foo bar woo test', 'wrapped function returns injected data and expected arguments.');
-
     });
 
     module("Copy");
@@ -287,7 +281,6 @@ $(document).ready(function () {
         f2 = syr.copy(['data2'], f);
 
         equal(f2('woo'), 'bar', 'bound function returns injected data.');
-
     });
 
 });
