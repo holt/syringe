@@ -88,10 +88,10 @@ msg('Bob'); // Returns "Status report: Bob is British and is 50"
 
 ### Constructors
 
-Here's a slightly different example, this time showing how data can be just as easily injected into a constructor function. First we set up our constructor functions:
+Here's a slightly different example, this time showing how data can be just as easily injected into constructor functions. First, we build a registry of useful dialog behaviors:
 
 ```javascript
-// Build a registry of dialog behaviors
+// Build a registry of dialog behaviors:
 var syr = Syringe.create({
     'dialog': {
         'valid': function () {
@@ -102,62 +102,70 @@ var syr = Syringe.create({
         }
     }
 });
+```
 
-// Create a "Dialog" constructor
+Next, we define a couple of constructors; one for a dialog and one for search component:
+
+```javascript
+// Create a `Dialog` constructor:
 var Dialog = function (dialogtype, type) {
     this.dialogtype = dialogtype;
     this.type = type;
 };
 
-// Extend the "Dialog" prototype
+// Extend the `Dialog` prototype:
 Dialog.prototype.show = function () {
     var type = this.dialogtype[this.type] || 'No dialog found to handle this...';
     console.log(typeof type === 'function' ? type.call(this) : type);
 };
 
-// Add "Dialog" to the registry
-syr.add('dialog.Base', Dialog, ['dialog']);
-
-// Create a "SearchComponent" constructor
+// Create a `SearchComponent` constructor:
 var SearchComponent = function (dialog) {
     this.state = 'valid';
     this.Dialog = dialog.Base;
 };
 
-// Extend the "SearchComponent" prototype
+// Extend the `SearchComponent` prototype:
 SearchComponent.prototype.validateSearch = function () {
     var dialog = new this.Dialog(this.state);
     dialog.show();
 };
+```
 
-// Bind the "SearchComponent"
+Add the `Dialog` constructor to the registry as `dialog.Base`, and create a bound version of `SearchComponent`:
+
+```javascript
+// Add `Dialog` to the registry:
+syr.add('dialog.Base', Dialog, ['dialog']);
+
+// Bind `SearchComponent`:
 SearchComponent = syr.on(['dialog'], SearchComponent);
 ```
 
 Now we do stuff with them:
 
 ```javascript
-// Create a search component instance
+// Create a new `SearchComponent` object instance:
 var search = new SearchComponent();
 
-// Execute validateSearch
+// Execute `validateSearch`:
 search.validateSearch(); // log: "Data is valid..."
 
-// Change the search state
+// Change the search state:
 search.state = 'invalid';
 
-// Execute validateSearch
+// Execute `validateSearch`:
 search.validateSearch(); // log: "Data is invalid..."
 
-// Add another dialog behavior
+// Add another dialog behavior:
 syr.add('dialog.other', function () {
     console.log('Data is... hmm... not sure...');
 });
 
-// Change the search state
+// Change the search state:
 search.state = 'other';
 
-// Execute validateSearch
+// Execute `validateSearch`:
 search.validateSearch(); // log: "Data is... hmm... not sure..."
 ```
 
