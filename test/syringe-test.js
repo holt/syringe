@@ -72,6 +72,49 @@ $(document).ready(function () {
         equal(typeof syr.get('data2'), 'object', 'object should be returned.');
     });
 
+    test("add deep method with binding", 1, function () {
+        var syr = Syringe.create();
+        syr.add({
+            'first': {
+                'second': 'done'
+            }
+        });
+        syr.add('func', function (data, msg) {
+            return msg + ' - ' + data;
+        }, ['first.second']);
+        equal(syr.exec('func', ['hello world']), 'hello world - done', 'data from bound method should be returned.');
+    });
+
+
+    test("add deep constructor function with binding", 1, function () {
+        var syr = Syringe.create();
+        syr.add({
+            'first': {
+                'second': 'done'
+            }
+        });
+        
+        var Func = function (data, msg) {
+            this.data = data;
+            this.msg = msg;
+        }
+
+        Func.prototype.say = function () {
+            return this.msg + ' - ' + this.data;
+        };
+
+        syr.add('Func', Func, ['first.second']);
+
+        var F = (syr.get('Func'));
+        var f = new F('hello world');
+
+        equal('hello world - done', f.say(), 'data from bound method should be returned.');
+    });
+
+
+
+
+
     module("Set");
 
     test("set shallow props of non-existant item", 1, function () {
@@ -99,19 +142,6 @@ $(document).ready(function () {
         });
         syr.set('data.first.second', 'ok');
         equal(syr.get('data.first.second'), 'ok', 'deep data should be set correctly.');
-    });
-
-    test("set deep method with binding", 1, function () {
-        var syr = Syringe.create();
-        syr.add({
-            'first': {
-                'second': 'done'
-            }
-        });
-        syr.add('func', function (data, msg) {
-            return msg + ' - ' + data;
-        }, ['first.second']);
-        equal('hello world - done', syr.exec('func', ['hello world']), 'data from bound method should be returned.');
     });
 
     module("Remove");
