@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.4. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.5. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -35,15 +35,14 @@ forin:false, curly:false */
             // Get the object type as a string. If `lc` is `true` the comparison
             // is with the lowercase form.
             var getType = function (obj, lc) {
-                var a;
-                try {
-                    var b = /function (.{1,})\(/.exec(obj.constructor.toString());
-                    a = b && 1 < b.length ? b[1] : '';
-                } catch (e) {
-                    a = (null === obj) ? 'Null' : 'Undefined';
-                } finally {
-                    return lc ? a.toLowerCase() : a;
+                var ret;
+                if (obj) {
+                    ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
                 }
+                else {
+                    ret = (obj === null) ? 'Null' : 'Undefined';
+                }
+                return (lc ? ret.toLowerCase() : ret);
             };
 
             // Get an object from an (optional) context `ctx` using delimited
@@ -122,7 +121,6 @@ forin:false, curly:false */
                 // Copy the prototype
                 for (var key in fn.prototype) {
                     this.constructor.prototype[key] = fn.prototype[key];
-
                 }
 
                 return fn.apply(this, getRegistry(arr).concat(args.slice(2, args.length)));
@@ -297,8 +295,6 @@ forin:false, curly:false */
                     if (getType(obj, true) !== 'undefined') {
                         return obj;
                     }
-
-
                     return false;
                 }
                 return registry;
@@ -309,9 +305,10 @@ forin:false, curly:false */
             // an exception if you try to set something that doesn't
             // exist.
             syringe.set = function (name, value) {
-                var strArr = name.split('.'),
+                var strArr = name.split('.'),                    
                     objStr = (strArr.length > 1) ? strArr.pop() : false;
-                if ((getType(getObj(name, registry), true) === 'undefined')) {
+
+                if (getObj(name, registry) === undefined) {
                     throw new Error('Key "' + name + '" does not exist in the map!');
                 }
                 if (objStr) {
