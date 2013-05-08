@@ -91,7 +91,6 @@ msg('Bob'); // Returns "Status report: Bob is British and is 50"
 Here's a slightly different example, this time showing how data can be just as easily injected into constructor functions. First, we build a registry of useful dialog behaviors:
 
 ```javascript
-// Build a registry of dialog behaviors:
 var syr = Syringe.create({
     'dialog': {
         'valid': function () {
@@ -122,7 +121,7 @@ Dialog.prototype.show = function () {
 // Create a `SearchComponent` constructor:
 var SearchComponent = function (dialog) {
     this.state = 'valid';
-    this.Dialog = dialog.Base;
+    this.Dialog = dialog.Dialog;
 };
 
 // Extend the `SearchComponent` prototype:
@@ -132,11 +131,11 @@ SearchComponent.prototype.validateSearch = function () {
 };
 ```
 
-Add the `Dialog` constructor to the registry as `dialog.Base`, and create a bound version of `SearchComponent`:
+Add the `Dialog` constructor to the registry, and create a bound version of `SearchComponent`:
 
 ```javascript
 // Add `Dialog` to the registry:
-syr.add('dialog.Base', Dialog, ['dialog']);
+syr.add('dialog.Dialog', Dialog, ['dialog']);
 
 // Bind `SearchComponent`:
 SearchComponent = syr.on(['dialog'], SearchComponent);
