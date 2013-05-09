@@ -283,4 +283,21 @@ $(document).ready(function () {
         equal(f2('woo'), 'bar', 'bound function returns injected data.');
     });
 
+    module("Fetch");
+
+    asyncTest("fetch and bind an item", 1, function() {
+
+        var syr = Syringe.create();
+
+        syr.fetch({
+            'us': {
+                'path': 'http://underscorejs.org/underscore-min.js',
+                'bind': '_'
+            }
+        }, function () {
+            ok((typeof this.get('us') === 'function'), "asynch data fetched and bound correctly" );
+            start();
+        });
+    });
+
 });
