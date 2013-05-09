@@ -107,14 +107,14 @@ Next, we define a couple of constructors; one for a dialog and one for a search 
 
 ```javascript
 // Create a `Dialog` constructor:
-var Dialog = function (dialogtype, type) {
-    this.dialogtype = dialogtype;
+var Dialog = function (dialogtypes, type) {
+    this.dialogtypes = dialogtypes;
     this.type = type;
 };
 
 // Extend the `Dialog` prototype:
 Dialog.prototype.show = function () {
-    var type = this.dialogtype[this.type] || 'No dialog found to handle this...';
+    var type = this.dialogtypes[this.type] || 'No dialog found to handle this...';
     console.log(typeof type === 'function' ? type.call(this) : type);
 };
 
