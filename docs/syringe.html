@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.3.4. Copyright (c) 2013 Michael Holt
+syringe.js v0.3.6. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -223,7 +223,8 @@ only.</p>
                         done = <span class="literal">false</span>;
                     node.src = src;
                     node.onload = node.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                        <span class="keyword">if</span> (!done &amp;&amp; (!<span class="keyword">this</span>.readyState || <span class="keyword">this</span>.readyState === <span class="string">"loaded"</span> || <span class="keyword">this</span>.readyState === <span class="string">"complete"</span>)) {
+                        <span class="keyword">var</span> rs = <span class="keyword">this</span>.readyState;
+                        <span class="keyword">if</span> (!done &amp;&amp; (!rs || rs === <span class="string">"loaded"</span> || rs === <span class="string">"complete"</span>)) {
                             done = <span class="literal">true</span>;
                             node.onload = node.onreadystatechange = <span class="literal">null</span>;
                             <span class="keyword">if</span> (head &amp;&amp; node.parentNode) head.removeChild(node);
@@ -782,7 +783,7 @@ execute context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            syringe.VERSION = <span class="string">'0.3.4'</span>;
+            <div class="content"><div class='highlight'><pre>            syringe.VERSION = <span class="string">'0.3.6'</span>;
             <span class="keyword">return</span> syringe;
         };
 
