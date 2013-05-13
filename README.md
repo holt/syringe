@@ -32,7 +32,9 @@ Syringe has been tested on the following browsers:
 
 ## Overview ##
 
-Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically. This is best illustrated with a simple example. 
+Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically. This is best illustrated with some simple examples.
+
+### Binding a Function
 
 Initialize a new Syringe object instance:
 ```javascript
@@ -86,7 +88,7 @@ msg = syr.wrap(msg, function (fn, name) {
 msg('Bob'); // Returns "Status report: Bob is British and is 50"
 ```
 
-### Constructors
+### Binding a Constructor Function
 
 Here's a slightly different example, this time showing how data can be just as easily injected into constructor functions. First, we build a registry of useful dialog behaviors:
 
