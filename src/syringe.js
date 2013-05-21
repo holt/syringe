@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.6. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.7. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -331,7 +331,7 @@ forin:false, curly:false */
                             if (!hasProp.call(map, key)) continue;
                             if (map[key].bind) self.add(key, getObj(map[key].bind, root));
                         }
-                        callback.call(self);
+                        if (getType(callback) === 'Function') callback.call(self);
                     }
                 };
                 // Loop that adds a new script element for each list item.
@@ -386,7 +386,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.3.6';
+            syringe.VERSION = '0.3.7';
             return syringe;
         };
 
