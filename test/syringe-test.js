@@ -294,9 +294,11 @@ $(document).ready(function () {
                 'path': 'http://underscorejs.org/underscore-min.js',
                 'bind': '_'
             }
-        }, function () {
-            ok((typeof this.get('us') === 'function'), "asynch data fetched and bound correctly" );
-            start();
+        }, {
+            'success': function () {
+                ok((typeof this.get('us') === 'function'), "asynch data fetched and bound correctly" );
+                start();
+            }
         });
     });
 
