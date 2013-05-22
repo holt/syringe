@@ -180,8 +180,10 @@ syr.fetch({
         'path': 'http://underscorejs.org/underscore-min.js',
         'bind': '_'
     }
-}, function () {
-    console.log(this.get());
+}, {
+    'success': function () {
+        console.log(this.get());
+    }
 });
 ```
 
