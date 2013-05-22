@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.7. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.8. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -21,6 +21,12 @@ forin:false, curly:false */
             var syringe     = {}, 
                 registry    = {},
                 cabinet     = [];
+
+            // Test to see if a passed URL is local.
+            var isLocalURL = function (url) {
+                var regexp = new RegExp("//" + location.host + "($|/)");
+                return "http" === url.substring(0, 4) ? regexp.test(url) : true;
+            };
 
             // Get the number of "own" properties in an object.
             var getPropSize = function (obj) {
@@ -82,16 +88,15 @@ forin:false, curly:false */
                 }, this);
             };
 
-            // Asynch script loader. Note that this is used in a browser context
-            // only.
-            var addScript = function (src, callback) {
+            // Script loader for cross-domain resources.
+            var addScript = function (url, callback) {
                 var doc = window ? window.document : false;
 
                 if (doc) {
                     var head = doc.getElementsByTagName("head")[0] || doc.documentElement,
                         node = doc.createElement("script"),
                         done = false;
-                    node.src = src;
+                    node.src = url;
                     node.onload = node.onreadystatechange = function () {
                         var rs = this.readyState;
                         if (!done && (!rs || rs === "loaded" || rs === "complete")) {
@@ -106,6 +111,47 @@ forin:false, curly:false */
                 else {
                     return false;
                 }
+            };
+
+            // Script loader for local resources.
+            var getData = function (url, callback) {
+                
+                var xhr;
+
+                if (typeof XMLHttpRequest !== 'undefined') {
+                    xhr = new XMLHttpRequest();
+                }
+                else {
+                    [
+                        'MSXML2.XmlHttp.5.0',
+                        'MSXML2.XmlHttp.4.0',
+                        'MSXML2.XmlHttp.3.0',
+                        'MSXML2.XmlHttp.2.0',
+                        'Microsoft.XmlHttp'
+                    ].forEach(function (item) {
+                        try {
+                            xhr = new window.ActiveXObject(item);
+                            return;
+                        } catch (e) {}
+                    });
+                }
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState < 4) {
+                        return;
+                    }
+                    if (xhr.status !== 200) {
+                        return;
+                    }
+                    if (xhr.readyState === 4) {
+                        callback(xhr);
+                    }
+                };
+
+                xhr.open('GET', url, true);
+                xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
+                xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');   
+                xhr.send('');
             };
 
             // The `run` function resolves the dependencies of a bound method.
@@ -320,24 +366,47 @@ forin:false, curly:false */
                 return this;
             };
 
-            syringe.fetch = function (map, callback) {
-                var self = this,
-                    count = 0;
+
+            syringe.fetch = function (map, options) {
+
+                options = options || {};
+
+                var self = this, count = 0, url;
+
                 // Keep a count of the script load events and reconcile it
                 // against the length of the script list.
-                var stack = function () {
+                var stack = function (xhr) {
+
+                    var args = slice.call(arguments);
+
                     if (++count === getPropSize(map)) {
                         for (var key in map) {
                             if (!hasProp.call(map, key)) continue;
-                            if (map[key].bind) self.add(key, getObj(map[key].bind, root));
+
+                            if (xhr && xhr.response) {
+                                var data = eval(xhr.response);
+                                data && self.add(key, data);
+                            }
+                            else if (map[key].bind) {
+                                self.add(key, getObj(map[key].bind, root));
+                            }
                         }
-                        if (getType(callback) === 'Function') callback.call(self);
+                        if (getType(options.success) === 'Function') {
+                            options.success.call(self);
+                        }
                     }
                 };
+
                 // Loop that adds a new script element for each list item.
                 for (var key in map) {
                     if (!hasProp.call(map, key)) continue;
-                    addScript(map[key].path, stack);
+
+                    if (isLocalURL(url = map[key].path)) {
+                        getData(url, stack);
+                    }
+                    else {
+                        addScript(url, stack);
+                    }
                 }
             };
 
@@ -386,7 +455,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.3.7';
+            syringe.VERSION = '0.3.8';
             return syringe;
         };
 
