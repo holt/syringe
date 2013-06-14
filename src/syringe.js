@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.3.8. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.3.9. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -384,12 +384,15 @@ forin:false, curly:false */
                             if (!hasProp.call(map, key)) continue;
 
                             if (xhr && xhr.response) {
+                                
+                                // A rare and (hopefully) legitimate use of eval() 
                                 var data = eval(xhr.response);
                                 data && self.add(key, data);
                             }
                             else if (map[key].bind) {
                                 self.add(key, getObj(map[key].bind, root));
                             }
+
                         }
                         if (getType(options.success) === 'Function') {
                             options.success.call(self);
@@ -408,6 +411,8 @@ forin:false, curly:false */
                         addScript(url, stack);
                     }
                 }
+
+                return this;
             };
 
             // Wrap a previously bound method in another `wrapper` function.
@@ -455,7 +460,7 @@ forin:false, curly:false */
             };
 
             // Current version.
-            syringe.VERSION = '0.3.8';
+            syringe.VERSION = '0.3.9';
             return syringe;
         };
 
