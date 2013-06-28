@@ -294,12 +294,16 @@ var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, sta
 ##### Object Reference
 
 ```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { 
+    /* as above */ 
+});
 ```
 ... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
 
 ```javascript
-syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ });
+syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
+    /* as above */
+});
 ```
 ... or as an object reference within a provided context:
 
