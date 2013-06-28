@@ -134,15 +134,27 @@ log('52775Z');  // Logs:
                 // ...
 ```
 
-Wrap the utility function:
+
+Create a validation function and add it to the registry:
 
 ```javascript
-log = syr.wrap(log, function (fn, id, flag) {
+syr.add('flag', function (data) {
+    return data.division !== 'Research';
+});
+```
+
+
+Wrap the utility function with some enhancements:
+
+```javascript
+log = syr.wrap(log, function (fn, id) {
 
     "use strict";
-    var data = fn();
     
-    if (data && flag && flag(data.division)) {
+    var data = fn(),
+        flag = this.get('flag');
+
+    if (data && flag && flag(data)) {
         data.flagged = true;
         console.warn('This activity has been flagged!');
     } 
@@ -151,12 +163,10 @@ log = syr.wrap(log, function (fn, id, flag) {
 });
 ```
 
-Call the wrapped utility function with an (optional) additional parameter:
+Call the enhanced utility function with an (optional) additional parameter:
 
 ```javascript
-log('52774Y', function (division) {
-    return division !== 'Research';
-});
+log('52774Y');
 
 // Logs: 
 // Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob; 
