@@ -32,60 +32,139 @@ Syringe has been tested on the following browsers:
 
 ## Overview ##
 
-Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically. This is best illustrated with some simple examples.
+Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
 
-### Binding a Function
+### Example
 
 Initialize a new Syringe object instance:
+
 ```javascript
 var syr = Syringe.create({
-    'age': {
-        'Bob': 45,
-        'Ted': 55
-    },
-    'nationality': {
-        'Bob': 'British',
-        'Ted': 'American'
-    }    
+    'data': {
+        '52773X': {
+            'name'      : 'Kane, Alice',
+            'dob'       : '12/09/1973',
+            'locale'    : 'US',
+            'division'  : 'Research'
+        },
+        '52774Y': {
+            'name'      : 'McCaulay, Bob',
+            'dob'       : '04/13/1967',
+            'locale'    : 'GB',
+            'division'  : 'Marketing'
+        },
+        '52775Z': {
+            'name'      : 'Metzger, Ted',
+            'dob'       : '08/23/1959',
+            'locale'    : 'CA',
+            'division'  : 'Facilities'
+        }    
+    }
 });
 ```
-Create a trivial function:
+
+Create a _getter_ function, and add it to the Syringe object registry with a binding to the `data` object:
 
 ```javascript
-var msg = function (data, name) {
-    return name + ' is ' + data[name];
-};
+syr.add('get', function (data, id) {
+
+    "use strict";
+    data = data[id];
+
+    if (data) {
+        var name    = data.name     || 'N/A',
+            div     = data.division || 'N/A',
+            locale  = data.locale   || 'N/A';
+
+        data.msg = '' 
+            + 'Name: '          + name 
+            + '; Division: '    + div 
+            + '; Locale: '      + locale;
+
+    } else {
+        data = false;
+    }
+    return data;
+}, ['data']);
 ```
-Bind the function so that it references an item within the Syringe registry:
+
+Create a simple utility function that is bound to the getter:
 
 ```javascript
-msg = syr.on(['age'], msg);
+syr.on('log', ['get'], function (data, id) {
+
+    "use strict";
+    data = data(id);
+
+    if (data) {
+        console.info('Volatile data accessed by employee ' + id + ' ... ' + data.msg);
+    }
+    
+    return data;
+});
 ```
+
 Call the function:
+
 ```javascript
-msg('Bob'); // Returns: "Bob is 45"
-msg('Ted'); // Returns: "Ted is 55"
-```
-Change the registry data for one of the items:
-```javascript
-syr.set('age.Bob', 50);
-```
-Call the function again:
-```javascript
-msg('Bob'); // Returns: "Bob is 50"
-```
-Copy the bound item, but use a different registry reference:
-```javascript
-msg = syr.copy(['nationality'], msg);
-msg('Bob'); // Returns: "Bob is British"
+log('52775Z');  // Logs: 
+                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted; 
+                // Division: Facilities; Locale: CA
+
+                // Returns: 
+                // {
+                //    "name"        : "Metzger, Ted",
+                //    "dob"         : "08/23/1959",
+                //    "division"    : "Facilities",
+                //    "locale"      : "CA",
+                //    "msg"         : "Name: Metzger, Ted; Division: Facilities; Locale: CA"
+                // }
 ```
 
-Wrap an item:
+Change the registry data for one of the items:
+
 ```javascript
-msg = syr.wrap(msg, function (fn, name) {
-    return 'Status report: ' + fn() + ' and is ' + this.get('age.' + name);
+syr.set('data.52775Z.division', 'Development');
+```
+
+Call the function again:
+
+```javascript
+log('52775Z');  // Logs: 
+                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted; 
+                // Division: Development; Locale: CA
+                // ...
+```
+
+Wrap a function:
+
+```javascript
+log = syr.wrap(log, function (fn, id, flag) {
+
+    "use strict";
+    var data = fn();
+    
+    if (data && flag && flag(data.division)) {
+        data.flagged = true;
+        console.warn('This activity has been flagged!');
+    } 
+
+    return data;
 });
-msg('Bob'); // Returns "Status report: Bob is British and is 50"
+```
+
+Call the function with an (optional) new parameter:
+
+```javascript
+log('52774Y', function (division) {
+    return division !== 'Research';
+});
+
+// Logs: 
+// Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob; 
+// Division: Marketing; Locale: GB
+// This activity has been flagged!
+// ...
 ```
 
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
