@@ -308,7 +308,9 @@ syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone
 ... or as an object reference within a provided context:
 
 ```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above */ }, security.access);
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { 
+    /* as above */ 
+}, security.access);
 ```
 
 The object reference form returns the Syringe object, so you can create a chain of binding operations:
