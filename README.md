@@ -63,13 +63,13 @@ var syr = Syringe.create({
 });
 ```
 
-Create a _getter_ function, and add it to the Syringe object registry with a binding to the `data` object:
+Create a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected into the getter when it is invoked:
 
 ```javascript
 syr.add('get', function (data, id) {
 
     "use strict";
-    data = data[id];
+    data = data[id] || false;
 
     if (data) {
         var name    = data.name     || 'N/A',
@@ -80,15 +80,13 @@ syr.add('get', function (data, id) {
             + 'Name: '          + name 
             + '; Division: '    + div 
             + '; Locale: '      + locale;
-
-    } else {
-        data = false;
     }
+
     return data;
 }, ['data']);
 ```
 
-Create a simple utility function that is bound to the getter:
+Create a simple utility function into which, on invocation, the getter is injected:
 
 ```javascript
 syr.on('log', ['get'], function (data, id) {
@@ -104,7 +102,7 @@ syr.on('log', ['get'], function (data, id) {
 });
 ```
 
-Call the function:
+Call the utility function:
 
 ```javascript
 log('52775Z');  // Logs: 
@@ -127,7 +125,7 @@ Change the registry data for one of the items:
 syr.set('data.52775Z.division', 'Development');
 ```
 
-Call the function again:
+Call the utility function again:
 
 ```javascript
 log('52775Z');  // Logs: 
@@ -136,7 +134,7 @@ log('52775Z');  // Logs:
                 // ...
 ```
 
-Wrap the function:
+Wrap the utility function:
 
 ```javascript
 log = syr.wrap(log, function (fn, id, flag) {
@@ -153,7 +151,7 @@ log = syr.wrap(log, function (fn, id, flag) {
 });
 ```
 
-Call the wrapped function with an (optional) additional parameter:
+Call the wrapped utility function with an (optional) additional parameter:
 
 ```javascript
 log('52774Y', function (division) {
@@ -171,9 +169,9 @@ log('52774Y', function (division) {
 
 When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
 
-This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. In medical terms, it's as if the flu shot you received last Winter could be remotely updated throughout the year.
+This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. To further labor the medical theme, it's as if the flu shot you received last Winter could be remotely updated throughout the year. Only minus the Nobel Prize, obviously.
 
-So currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
+Currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
 
 ### What's this about a "registry"?
 
