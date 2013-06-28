@@ -2,7 +2,7 @@
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="Just a little pin prick... there'll be no more AAAAAAAAH!"/>
 
-Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to dynamically assign data contracts to your functions and methods. No more worrying about passing data directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to dynamically assign data contracts to your functions and methods. No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -104,23 +104,23 @@ The registry is a closured map unique to each Syringe object instance that holds
 
 ## API ##
 
-This following table describes the methods provided by a the `Syringe` object:
+This following table describes the methods provided by the `Syringe` object:
 
-Name     | Parameters   | Description | Example
----------|--------------|-------------|---------
-*create* | `map` (optional) | Create a new syringe object. | `var syr = Syringe.create();`
-*add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_ | `syr.add('data', {'name': 'Mike'});`
-*add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_ | `syr.add('data', function (props) {...}, ['props']);`
-*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_ | `syr.add({'data': {'name': 'Mike'}});`
-*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_ |  `syr.remove('data');`
-*on*     | `binding, fn, ctx` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_ | `var f = syr.on(['data'], function (data) {...});`
-*on*     | `name, binding, fn, ctx`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter adds the bound function to a specified context. Alias: _bind_ | ` syr.on('f', ['data'], function (data) {...}, this);`
-*get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. | `syr.get('data');`
-*set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. | `syr.set('data.name', 'Bob');`
-*exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. | `syr.exec('func', ['Mike', '39']);`
-*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. | [See below](#register-asynchronous-items)
-*wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. | [See below](#wrap-example)
-*copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. | `var f2 = syr.copy(['data2'], f);`
+Name     | Parameters   | Description |
+---------|--------------|-------------|
+*create* | `map` (optional) | Create a new syringe object. Example: `var syr = Syringe.create();`
+*add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`
+*add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
+*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
+*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
+*on*     | `binding, fn, ctx` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});`
+*on*     | `name, binding, fn, ctx`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter adds the bound function to a specified context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
+*get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. Example: `syr.get('data');`
+*set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`
+*exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('func', ['Mike', '39']);`
+*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. <br/><br/>**Example**: [See below](#register-asynchronous-items)
+*wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. <br/><br/>**Example**: [See below](#wrap-example)
+*copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 
 
 ## Additional Examples ##
