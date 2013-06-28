@@ -136,7 +136,7 @@ log('52775Z');  // Logs:
                 // ...
 ```
 
-Wrap a function:
+Wrap the function:
 
 ```javascript
 log = syr.wrap(log, function (fn, id, flag) {
@@ -153,7 +153,7 @@ log = syr.wrap(log, function (fn, id, flag) {
 });
 ```
 
-Call the function with an (optional) new parameter:
+Call the wrapped function with an (optional) additional parameter:
 
 ```javascript
 log('52774Y', function (division) {
