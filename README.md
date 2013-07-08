@@ -1,6 +1,6 @@
 # syringe.js #
 
-<img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="Just a little pin prick... there'll be no more AAAAAAAAH!"/>
+<img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
 Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) framework that allows you to dynamically assign data contracts to your functions and methods. No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
@@ -9,9 +9,9 @@ Now, let's roll up our sleeves and begin shall we?
 ## Installation
 
 
-### NodeJS
+### Node
 
-Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the follwing from the command prompt:
+Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
 
 `npm install syringejs`
 
@@ -29,7 +29,7 @@ Just add `syringe.min.js` to your environment.
 
 If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
-#### Browser Compatibility
+#### Compatibility
 
 Syringe has been tested on the following browsers:
 
@@ -41,7 +41,7 @@ Syringe has been tested on the following browsers:
 
 ## Overview ##
 
-Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a Syringe-bound function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
+Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
 
 ### Example
 
@@ -175,13 +175,11 @@ log = syr.wrap(log, function (fn, id) {
 Call the enhanced utility function with an (optional) additional parameter:
 
 ```javascript
-log('52774Y');
-
-// Logs: 
-// Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob; 
-// Division: Marketing; Locale: GB
-// This activity has been flagged!
-// ...
+log('52774Y');  // Logs: 
+                // Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob; 
+                // Division: Marketing; Locale: GB
+                // This activity has been flagged!
+                // ...
 ```
 
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
@@ -214,7 +212,7 @@ Name     | Parameters   | Description |
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. Example: `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('func', ['Mike', '39']);`
-*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key. <br/><br/>**Example**: [See below](#register-asynchronous-items)
+*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-items)
 *wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. <br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 
@@ -334,7 +332,7 @@ The object reference form returns the Syringe object, so you can create a chain 
 
 ```javascript
 syr
-    .on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above  */ })
+    .on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above  */})
     .on('func1', ['_'], function (_, props) { /* ... */ })
     .on('func2', ['_'], function (_, props) { /* ... */ });
 ```
