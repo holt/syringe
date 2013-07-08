@@ -8,6 +8,15 @@ Now, let's roll up our sleeves and begin shall we?
 
 ## Installation
 
+
+### NodeJS
+
+Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the follwing from the command prompt:
+
+`npm install syringejs`
+
+### Browser
+
 Just add `syringe.min.js` to your environment.
 
 **Note:** Syringe uses the following ECMAScript 5 / JavaScript 1.6 methods:  
@@ -20,7 +29,7 @@ Just add `syringe.min.js` to your environment.
 
 If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
-### Browser Compatibility
+#### Browser Compatibility
 
 Syringe has been tested on the following browsers:
 
