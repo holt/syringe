@@ -299,7 +299,7 @@ var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, sta
     if (stat < 4) syr.set('stat', stat); // Change the `stat` value
 
     return {
-        'msg': 'User "' + props.name + '" entered restricted zone at ' + date + ' GMT(' + GMT + ')',
+        'msg': 'User "' + props.name + '" entered forbidden zone at ' + date + ' GMT(' + GMT + ')',
         'id': uuid(),
         'stat': state
     };
@@ -349,7 +349,7 @@ event({
 
 /* Returns: 
 {
-    "msg" : "User \"Doe, John\" entered restricted zone at 2013-04-03T02:38:49.068Z GMT(-2)",
+    "msg" : "User \"Doe, John\" entered forbidden zone at 2013-04-03T02:38:49.068Z GMT(-2)",
     "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
     "cond": "Green"
 }
@@ -365,7 +365,7 @@ event({
 
 /* Returns: 
 {
-    "msg" : "User \"Smith, Alice\" entered restricted zone at 2013-04-03T02:44:13.196Z GMT(-2)",
+    "msg" : "User \"Smith, Alice\" entered forbidden zone at 2013-04-03T02:44:13.196Z GMT(-2)",
     "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
     "cond": "Amber"
 }
