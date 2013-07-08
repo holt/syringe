@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.0. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.2. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -83,70 +83,6 @@ forin:false, curly:false, evil: true */
             ctx = (ctx[obj] = ctx[obj] || {});
         }
         return ctx;
-    };
-
-    // Script loader for cross-domain resources.
-    var addScript = function (url, callback) {
-        var doc = window ? window.document : false;
-
-        if (doc) {
-            var head = doc.getElementsByTagName("head")[0] || doc.documentElement,
-                node = doc.createElement("script"),
-                done = false;
-            node.src = url;
-            node.onload = node.onreadystatechange = function () {
-                var rs = this.readyState;
-                if (!done && (!rs || rs === "loaded" || rs === "complete")) {
-                    done = true;
-                    node.onload = node.onreadystatechange = null;
-                    if (head && node.parentNode) head.removeChild(node);
-                    if (getType(callback, true) === 'function') callback();
-                }
-            };
-            head.insertBefore(node, head.firstChild);
-        } else {
-            return false;
-        }
-    };
-
-    // Script loader for local resources.
-    var getData = function (url, callback) {
-
-        var xhr;
-
-        if (typeof XMLHttpRequest !== 'undefined') {
-            xhr = new XMLHttpRequest();
-        } else {
-            [
-                'MSXML2.XmlHttp.5.0',
-                'MSXML2.XmlHttp.4.0',
-                'MSXML2.XmlHttp.3.0',
-                'MSXML2.XmlHttp.2.0',
-                'Microsoft.XmlHttp'
-            ].forEach(function (item) {
-                try {
-                    xhr = new window.ActiveXObject(item);
-                    return;
-                } catch (e) {}
-            });
-        }
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState < 4) {
-                return;
-            }
-            if (xhr.status !== 200) {
-                return;
-            }
-            if (xhr.readyState === 4) {
-                callback(xhr);
-            }
-        };
-
-        xhr.open('GET', url, true);
-        xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
-        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-        xhr.send('');
     };
 
     // Return a map of any items in the passed array that match items
@@ -282,8 +218,8 @@ forin:false, curly:false, evil: true */
                 // bound function will be returned as an anonymous function.
             case 2:
                 obj = {
-                    fn: args[1],
-                    ctx: ctx,
+                    fn  : args[1],
+                    ctx : ctx,
                     bind: run.bind(ctx, args[0], args[1], this.id)
                 };
                 cabinet.push(obj);
@@ -296,11 +232,12 @@ forin:false, curly:false, evil: true */
                     // `args[1]`, and method `args[2]`. No context object
                     // is provided. The bound function will be assigned to 
                     // whatever the root object is.
-                    name = args[0];
-                    arr = args[1];
-                    fn = args[2];
+                    name    = args[0];
+                    arr     = args[1];
+                    fn      = args[2];
+
                     obj = {
-                        fn: args[2],
+                        fn : args[2],
                         ctx: ctx
                     };
                 } else {
@@ -309,8 +246,8 @@ forin:false, curly:false, evil: true */
                     // When the bound method executes the provided context
                     // will be used.
                     obj = {
-                        fn: args[1],
-                        ctx: args[2],
+                        fn  : args[1],
+                        ctx : args[2],
                         bind: run.bind(args[2], args[0], args[1], this.id)
                     };
                     cabinet.push(obj);
@@ -323,12 +260,13 @@ forin:false, curly:false, evil: true */
                 // `args[3]`. When the bound method executes the provided
                 // context will be used.
             case 4:
-                name = args[0];
-                arr = args[1];
-                fn = args[2];
-                ctx = args[3];
+                name    = args[0];
+                arr     = args[1];
+                fn      = args[2];
+                ctx     = args[3];
+
                 obj = {
-                    fn: args[2],
+                    fn : args[2],
                     ctx: args[3]
                 };
                 break;
@@ -407,57 +345,6 @@ forin:false, curly:false, evil: true */
             return this;
         },
 
-        fetch: function (map, options) {
-
-            options         = options || {};
-            options.script  = options.script || false;
-
-            var self = this,
-                count = 0,
-                url;
-
-            // Keep a count of the script load events and reconcile it
-            // against the length of the script list.
-            var stack = function (xhr) {
-
-                if (++count === getPropSize(map)) {
-                    for (var key in map) {
-                        if (!hasProp.call(map, key)) continue;
-
-                        if (xhr && xhr.response) {
-
-                            // A rare and (hopefully) legitimate use of eval() 
-                            var data = eval(xhr.response);
-                            if (data) self.add(key, data);
-                        } else if (map[key].bind) {
-                            self.add(key, getObj(map[key].bind, root));
-                        }
-
-                    }
-                    if (getType(options.success) === 'Function') {
-                        options.success.call(self);
-                    }
-                }
-            };
-
-            // Loop that adds a new script element for each list item.
-            for (var key in map) {
-                if (!hasProp.call(map, key)) continue;
-
-                if (isLocalURL(url = map[key].path)) {
-                    if (options.script) {
-                        addScript(url, stack);
-                    } else {
-                        getData(url, stack);
-                    }
-                } else {
-                    addScript(url, stack);
-                }
-            }
-
-            return this;
-        },
-
         // Wrap a previously bound method in another `wrapper` function.
         // The original function is passed as the first argument to the
         // wrapper.
@@ -524,9 +411,130 @@ forin:false, curly:false, evil: true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.0';
+    proto.VERSION = '0.4.2';
 
-    // Return a fresh empty Syringe object
-    root.Syringe = new Syringe();
+    if (typeof module !== 'undefined' && module.exports) {
+        exports = module.exports = new Syringe();
+    }
+    else {
 
-}.call(this));
+        // Script loader for cross-domain resources.
+        var addScript = function (url, callback) {
+            var doc = window ? window.document : false;
+
+            if (doc) {
+                var head = doc.getElementsByTagName("head")[0] || doc.documentElement,
+                    node = doc.createElement("script"),
+                    done = false;
+                node.src = url;
+                node.onload = node.onreadystatechange = function () {
+                    var rs = this.readyState;
+                    if (!done && (!rs || rs === "loaded" || rs === "complete")) {
+                        done = true;
+                        node.onload = node.onreadystatechange = null;
+                        if (head && node.parentNode) head.removeChild(node);
+                        if (getType(callback, true) === 'function') callback();
+                    }
+                };
+                head.insertBefore(node, head.firstChild);
+            } else {
+                return false;
+            }
+        };
+
+        // Script loader for local resources.
+        var getData = function (url, callback) {
+
+            var xhr;
+
+            if (typeof XMLHttpRequest !== 'undefined') {
+                xhr = new XMLHttpRequest();
+            } else {
+                [
+                    'MSXML2.XmlHttp.5.0',
+                    'MSXML2.XmlHttp.4.0',
+                    'MSXML2.XmlHttp.3.0',
+                    'MSXML2.XmlHttp.2.0',
+                    'Microsoft.XmlHttp'
+                ].forEach(function (item) {
+                    try {
+                        xhr = new window.ActiveXObject(item);
+                        return;
+                    } catch (e) {}
+                });
+            }
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState < 4) {
+                    return;
+                }
+                if (xhr.status !== 200) {
+                    return;
+                }
+                if (xhr.readyState === 4) {
+                    callback(xhr);
+                }
+            };
+
+            xhr.open('GET', url, true);
+            xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            xhr.send('');
+        };
+
+        // Asynch fetch is only needed on the browser
+        proto.fetch = function (map, options) {
+
+            options         = options || {};
+            options.script  = options.script || false;
+
+            var self = this,
+                count = 0,
+                url;
+
+            // Keep a count of the script load events and reconcile it
+            // against the length of the script list.
+            var stack = function (xhr) {
+
+                if (++count === getPropSize(map)) {
+                    for (var key in map) {
+                        if (!hasProp.call(map, key)) continue;
+
+                        if (xhr && xhr.response) {
+
+                            // A rare and (hopefully) legitimate use of eval() 
+                            var data = eval(xhr.response);
+                            if (data) self.add(key, data);
+                        } else if (map[key].bind) {
+                            self.add(key, getObj(map[key].bind, root));
+                        }
+
+                    }
+                    if (getType(options.success) === 'Function') {
+                        options.success.call(self);
+                    }
+                }
+            };
+
+            // Loop that adds a new script element for each list item.
+            for (var key in map) {
+                if (!hasProp.call(map, key)) continue;
+
+                if (isLocalURL(url = map[key].path)) {
+                    if (options.script) {
+                        addScript(url, stack);
+                    } else {
+                        getData(url, stack);
+                    }
+                } else {
+                    addScript(url, stack);
+                }
+            }
+
+            return this;
+        };
+
+        root.Syringe = new Syringe();
+    }
+
+}.call(this, module));
