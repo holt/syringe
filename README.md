@@ -98,16 +98,16 @@ syr.add('get', function (data, id) {
 Create a simple utility function into which, on invocation, the getter is injected:
 
 ```javascript
-syr.on('log', ['get'], function (data, id) {
+syr.on('log', ['get'], function (get, id) {
 
     "use strict";
-    data = data(id);
+    get = get(id);
 
-    if (data) {
-        console.info('Volatile data accessed by employee ' + id + ' ... ' + data.msg);
+    if (get) {
+        console.info('Volatile data accessed by employee ' + id + ' ... ' + get.msg);
     }
     
-    return data;
+    return get;
 });
 ```
 
@@ -212,7 +212,7 @@ Name     | Parameters   | Description |
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. Example: `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('func', ['Mike', '39']);`
-*fetch*  | `map, callback` | Retrieve mapped items asynchronously. In order to the do this each map entry requires a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-items)
+*fetch*  | `array, callback` | Retrieve array-defined items asynchronously. In order to the do this each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. <br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 
@@ -266,17 +266,19 @@ syr.add({
 });
 ```
 
-#### Register Asynchronous Items
+#### Register Asynchronous Objects
 
 ```javascript
 syr.fetch({
-    '_': {
-        'path': 'http://underscorejs.org/underscore-min.js',
-        'bind': '_'
-    }
+    path: '/syringe/test1',
+    bind: 'data1'
+}, {
+    path: '/syringe/test2',
+    bind: 'data2'
 }, {
     'success': function () {
-        console.log(this.get());
+        console.log(this.get('data1'));
+        console.log(this.get('data2'));
     }
 });
 ```
