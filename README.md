@@ -45,7 +45,7 @@ Syringe works by taking a function and inoculating it with deep or shallow refer
 
 ### Example
 
-Initialize a new Syringe object instance:
+First, create a new `Syringe` object instance:
 
 ```javascript
 var syr = Syringe.create({
@@ -72,7 +72,7 @@ var syr = Syringe.create({
 });
 ```
 
-Create a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected into the getter when it is invoked:
+Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected into the getter when it is invoked:
 
 ```javascript
 syr.add('get', function (data, id) {
@@ -94,8 +94,9 @@ syr.add('get', function (data, id) {
     return data;
 }, ['data']);
 ```
+**Note:** The `data` _parameter_ could actually be called anything (for example, `d` or `staff`) - it doesn't have to match the name of the injected object.
 
-Create a simple utility function into which, on invocation, the getter is injected:
+Let's create a simple utility function into which, on invocation, the getter is injected:
 
 ```javascript
 syr.on('log', ['get'], function (get, id) {
@@ -111,7 +112,7 @@ syr.on('log', ['get'], function (get, id) {
 });
 ```
 
-Call the utility function:
+Now call the utility function with Ted's ID:
 
 ```javascript
 log('52775Z');  // Logs: 
@@ -128,13 +129,14 @@ log('52775Z');  // Logs:
                 // }
 ```
 
-Change the registry data for one of the items:
+The logging utility returns some useful information and logs out a messsage to the console.
+
+Now we change the registry data for one of the items ...
 
 ```javascript
 syr.set('data.52775Z.division', 'Development');
 ```
-
-Call the utility function again:
+... and call the utility function again:
 
 ```javascript
 log('52775Z');  // Logs: 
@@ -143,8 +145,9 @@ log('52775Z');  // Logs:
                 // ...
 ```
 
+Ted's division has changed from `Facilities` to `Development` (quite the career move).
 
-Create a validation function and add it to the registry:
+We'll take things up a notch. Create a simple validation function and add it to the registry:
 
 ```javascript
 syr.add('flag', function (data) {
@@ -152,16 +155,14 @@ syr.add('flag', function (data) {
 });
 ```
 
-
-Wrap the utility function with some enhancements:
+Wrap the utility function with some enhancements ...
 
 ```javascript
 log = syr.wrap(log, function (fn, id) {
 
     "use strict";
     
-    var data = fn(),
-        flag = this.get('flag');
+    var data = fn(), flag = this.get('flag');
 
     if (data && flag && flag(data)) {
         data.flagged = true;
@@ -172,7 +173,7 @@ log = syr.wrap(log, function (fn, id) {
 });
 ```
 
-Call the enhanced utility function with an (optional) additional parameter:
+... and call the enhanced utility function with Bob's ID:
 
 ```javascript
 log('52774Y');  // Logs: 
@@ -181,6 +182,8 @@ log('52774Y');  // Logs:
                 // This activity has been flagged!
                 // ...
 ```
+
+A condition in the base data triggers the warning logger we placed in the wrapper, and a `flagged` property is added to the data entry.
 
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
