@@ -102,13 +102,10 @@ Let's create a simple utility function into which, on invocation, the getter is 
 syr.on('log', ['get'], function (get, id) {
 
     "use strict";
-    get = get(id);
 
-    if (get) {
-        console.info('Volatile data accessed by employee ' + id + ' ... ' + get.msg);
-    }
-    
-    return get;
+    return (get = get(id)) 
+        ? (console.info('Volatile data accessed by employee ' + id + ' ... ' + get.msg), get)
+        : false;
 });
 ```
 
