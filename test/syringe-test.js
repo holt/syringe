@@ -283,23 +283,35 @@ $(document).ready(function () {
         equal(f2('woo'), 'bar', 'bound function returns injected data.');
     });
 
-    module("Fetch");
+    module("Faking response data", {
+        setup: function () {
+            var testData = { foo: 'bar' };
+            this.server = sinon.fakeServer.create();
+            this.server.respondWith("GET", "/syringe/fetch1", [200, { "Content-Type": "application/json" }, JSON.stringify(testData)]);
+            this.server.autoRespond = true;
+        },
+        teardown: function () {
+            this.server.restore();
+        }
+    });
 
     asyncTest("fetch and bind an item", 1, function() {
 
         var syr = Syringe.create();
 
-        syr.fetch({
-            'us': {
-                'path': 'http://underscorejs.org/underscore-min.js',
-                'bind': '_'
-            }
+        syr.fetch([{
+            path: '/syringe/fetch2',
+            bind: 'data2'
         }, {
+            path: '/syringe/fetch1',
+            bind: 'data1'
+        }], {
             'success': function () {
-                ok((typeof this.get('us') === 'function'), "asynch data fetched and bound correctly" );
+                ok((typeof this.get('data1') === 'object' && this.get('data1.foo') === 'bar'), "asynch data fetched and bound correctly");
                 start();
             }
         });
+
     });
 
 });
