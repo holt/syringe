@@ -19,7 +19,7 @@ Ensure that you have installed the latest version of [node.js](http://nodejs.org
 
 Just add `syringe.min.js` to your environment.
 
-**Note:** Syringe uses the following ECMAScript 5 / JavaScript 1.6 methods:  
+**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:  
 
 - `Array.filter` 
 - `Array.map`
@@ -27,7 +27,7 @@ Just add `syringe.min.js` to your environment.
 - `Function.bind`
 - `String.trim`
 
-If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
+If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for all these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
 #### Compatibility
 
@@ -37,7 +37,7 @@ Syringe has been tested on the following browsers:
 - Chrome 11+
 - Safari 3+
 - Opera 9+
-- Internet Explorer 6+
+- Internet Explorer 7+
 
 ## Overview ##
 
@@ -212,7 +212,7 @@ Name     | Parameters   | Description |
 *get*    | `name` (optional) | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. Example: `syr.get('data');`
 *set*    | `name, value` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`
 *exec*    | `name, args, ctx` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('func', ['Mike', '39']);`
-*fetch*  | `array, callback` | Retrieve array-defined items asynchronously. In order to the do this each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the HTTP path to the resource. The `bind` property indicates the value you want to ultimately associate with this key.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
+*fetch*  | `array, callback` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. <br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 
