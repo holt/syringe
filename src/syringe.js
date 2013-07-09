@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.3. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.4. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -24,25 +24,6 @@ forin:false, curly:false, evil: true */
             return 's' + (++count);
         };
     }.call(root);
-
-    // Test to see if a passed URL is local.
-    var isLocalURL = function (url) {
-        var regexp = new RegExp("//" + location.host + "($|/)");
-        return "http" === url.substring(0, 4) ? regexp.test(url) : true;
-    };
-
-    // Get the number of "own" properties in an object.
-    var getPropSize = function (obj) {
-
-        var size = 0,
-            key;
-
-        for (key in obj) {
-            if (hasProp.call(obj, key)) size++;
-        }
-
-        return size;
-    };
 
     // Get the object type as a string. If `lc` is `true` the comparison
     // is with the lowercased name.
@@ -88,9 +69,7 @@ forin:false, curly:false, evil: true */
     // Return a map of any items in the passed array that match items
     // in the registry object.
     var getReg = function (arr, id) {
-
         var registry = _registry[id];
-
         return arr.map(function (item) {
             return getObj(item, registry);
         }, this);
@@ -101,7 +80,6 @@ forin:false, curly:false, evil: true */
     // `cabinet` object, and applies both the injected and free arguments
     // to it. 
     var run = function (arr, fn, id) {
-
         var cabinet = _cabinet[id],
             args    = slice.call(arguments);
         
@@ -123,7 +101,6 @@ forin:false, curly:false, evil: true */
     };
 
     var Syringe = function (props) {
-        
         this.id             = makeId();
         _registry[this.id]  = {};
         _cabinet[this.id]   = [];
@@ -142,9 +119,7 @@ forin:false, curly:false, evil: true */
         // with which to bind this function. In this way, registry methods
         // can be automatically bound to other registry methods.
         add: function (name, value, bindings) {
-
             var registry = _registry[this.id];
-
             if (getType(name, true) === 'object') {
                 for (var key in name) {
                     if (!hasProp.call(name, key)) continue;
@@ -152,7 +127,6 @@ forin:false, curly:false, evil: true */
                 }
                 return this;
             }
-
             if (getObj(name, registry)) {
                 throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
             } else {
@@ -167,13 +141,11 @@ forin:false, curly:false, evil: true */
                     registry[strArr.toString()] = value;
                 }
             }
-
             return this;
         },
 
         // Remove a named item from the registry.
         remove: function (name) {
-
             var registry    = _registry[this.id],
                 newregistry = {},
                 obj         = {},
@@ -411,38 +383,20 @@ forin:false, curly:false, evil: true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.3';
+    proto.VERSION = '0.4.4';
 
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = new Syringe();
     }
     else {
 
-        // Script loader for cross-domain resources.
-        var addScript = function (url, callback) {
-            var doc = window ? window.document : false;
-
-            if (doc) {
-                var head = doc.getElementsByTagName("head")[0] || doc.documentElement,
-                    node = doc.createElement("script"),
-                    done = false;
-                node.src = url;
-                node.onload = node.onreadystatechange = function () {
-                    var rs = this.readyState;
-                    if (!done && (!rs || rs === "loaded" || rs === "complete")) {
-                        done = true;
-                        node.onload = node.onreadystatechange = null;
-                        if (head && node.parentNode) head.removeChild(node);
-                        if (getType(callback, true) === 'function') callback();
-                    }
-                };
-                head.insertBefore(node, head.firstChild);
-            } else {
-                return false;
-            }
+        // Test to see if a passed URL is local.
+        var isLocalURL = function (url) {
+            var regexp = new RegExp("//" + location.host + "($|/)");
+            return "http" === url.substring(0, 4) ? regexp.test(url) : true;
         };
 
-        // Script loader for local resources.
+        // Standard ajax retrieval operation
         var getData = function (url, callback) {
 
             var xhr;
@@ -463,75 +417,55 @@ forin:false, curly:false, evil: true */
                     } catch (e) {}
                 });
             }
-
+ 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState < 4) {
                     return;
                 }
                 if (xhr.status !== 200) {
-                    return;
+                    callback(null, false);
                 }
-                if (xhr.readyState === 4) {
-                    callback(xhr);
+                else if (xhr.readyState === 4) {
+                    callback(xhr, true);
                 }
             };
-
+        
             xhr.open('GET', url, true);
             xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
             xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
             xhr.send('');
         };
 
-        // Asynch fetch is only needed on the browser
-        proto.fetch = function (map, options) {
+        // Asynch fetch is only present on the browser
+        proto.fetch = function (arr, options) {
 
-            options         = options || {};
-            options.script  = options.script || false;
+            options.jsonp = options.jsonp || false;
 
-            var self = this,
-                count = 0,
+            var self    = this,
+                count   = 0,
                 url;
 
             // Keep a count of the script load events and reconcile it
             // against the length of the script list.
-            var stack = function (xhr) {
+            var stack = function (xhr, state) {
 
-                if (++count === getPropSize(map)) {
-                    for (var key in map) {
-                        if (!hasProp.call(map, key)) continue;
+                if (state && xhr && xhr.responseText) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data) self.add(arr[count].bind, data);
+                }                        
 
-                        if (xhr && xhr.response) {
-
-                            // A rare and (hopefully) legitimate use of eval() 
-                            var data = eval(xhr.response);
-                            if (data) self.add(key, data);
-                        } else if (map[key].bind) {
-                            self.add(key, getObj(map[key].bind, root));
-                        }
-
-                    }
-                    if (getType(options.success) === 'Function') {
+                if (++count === arr.length) {
+                    if (getType(options.success, true) === 'function') {
                         options.success.call(self);
                     }
                 }
+
             };
 
-            // Loop that adds a new script element for each list item.
-            for (var key in map) {
-                if (!hasProp.call(map, key)) continue;
+            arr.forEach(function (item) {
+                if (isLocalURL(url = item.path)) getData(item.path, stack);
+            });
 
-                if (isLocalURL(url = map[key].path)) {
-                    if (options.script) {
-                        addScript(url, stack);
-                    } else {
-                        getData(url, stack);
-                    }
-                } else {
-                    addScript(url, stack);
-                }
-            }
-
-            return this;
         };
 
         root.Syringe = new Syringe();
