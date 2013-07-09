@@ -196,6 +196,10 @@ The registry is a closured map unique to each Syringe object instance that holds
 
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
+### Does this work with constructor functions?
+
+Indeed it does. [Here's an example.](http://goo.gl/NburJ)
+
 ## API ##
 
 This following table describes the methods provided by the `Syringe` object:
