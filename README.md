@@ -243,12 +243,12 @@ var syr = Syringe.create({
 syr.add('tzone', {
     'result': [{
             'TimeZoneId': 'America-Montevideo',
-            'DST': '-3',
-            'GMT': '-2'
+            'DST'       : '-3',
+            'GMT'       : '-2'
         }, {
             'TimeZoneId': 'America-Sao_Paulo',
-            'DST': '-3',
-            'GMT': '-2'
+            'DST'       : '-3',
+            'GMT'       : '-2'
         }
     ]
 });
@@ -386,7 +386,7 @@ If you pass an array of registry properties as the third argument when you regis
 // Define a function for getting the current date:
 var getDate = function () {
 
-    var a = new Date,
+    var a = new Date(),
         b = a.getDate(),
         c = a.getMonth() + 1,
         a = a.getFullYear();
@@ -397,7 +397,7 @@ var getDate = function () {
 // Define a function for getting the current time:
 var getTime = function () {
 
-    var a = new Date,
+    var a = new Date(),
         b = a.getMinutes(),
         a = a.getHours();
 
