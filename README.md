@@ -6,8 +6,9 @@ Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dep
 
 Now, let's roll up our sleeves and begin shall we?
 
-## Installation
+[![Build Status](https://travis-ci.org/holt/syringe.png)](https://travis-ci.org/holt/syringe)
 
+## Installation
 
 ### Node
 
