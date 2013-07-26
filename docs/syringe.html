@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.4. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.7. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -44,7 +44,7 @@ forin:false, curly:false, evil: true */</span>
 
     <span class="string">"use strict"</span>;
 
-    <span class="keyword">var</span> root = <span class="keyword">this</span>,
+    <span class="keyword">var</span> root        = <span class="keyword">this</span>,
         _registry   = {},
         _cabinet    = {};</pre></div></div>
             
@@ -394,7 +394,8 @@ bound function will be returned as an anonymous function.</p>
                 obj = {
                     fn  : args[<span class="number">1</span>],
                     ctx : ctx,
-                    bind: run.bind(ctx, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>.id)
+                    bind: run.bind(ctx, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>.id),
+                    args: args
                 };
                 cabinet.push(obj);
                 <span class="keyword">return</span> obj.bind;
@@ -424,7 +425,8 @@ whatever the root object is.</p>
 
                     obj = {
                         fn : args[<span class="number">2</span>],
-                        ctx: ctx
+                        ctx: ctx,
+                        args: args
                     };
                 } <span class="keyword">else</span> {</pre></div></div>
             
@@ -447,6 +449,7 @@ will be used.</p>
             <div class="content"><div class='highlight'><pre>                    obj = {
                         fn  : args[<span class="number">1</span>],
                         ctx : args[<span class="number">2</span>],
+                        args: args,
                         bind: run.bind(args[<span class="number">2</span>], args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>.id)
                     };
                     cabinet.push(obj);
@@ -477,14 +480,16 @@ context will be used.</p>
                 ctx     = args[<span class="number">3</span>];
 
                 obj = {
-                    fn : args[<span class="number">2</span>],
-                    ctx: args[<span class="number">3</span>]
+                    fn  : args[<span class="number">2</span>],
+                    ctx : args[<span class="number">3</span>],
+                    args: args
                 };
                 <span class="keyword">break</span>;
             }
 
             <span class="keyword">var</span> strArr = name.split(<span class="string">'.'</span>),
                 objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
+            
             obj.bind = fn = run.bind(ctx, arr, fn, <span class="keyword">this</span>.id);</pre></div></div>
             
         </li>
@@ -503,11 +508,13 @@ function but use new registry items. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>            cabinet.push(obj);
+            
             <span class="keyword">if</span> (objStr) {
                 setObj(strArr.join(<span class="string">'.'</span>), ctx)[objStr] = fn;
             } <span class="keyword">else</span> {
                 ctx[strArr.join(<span class="string">'.'</span>)] = fn;
             }
+
             <span class="keyword">return</span> <span class="keyword">this</span>;
         },</pre></div></div>
             
@@ -530,14 +537,25 @@ pass an array of arguments and a context.</p>
 
             ctx = ctx || <span class="keyword">this</span>;
             
+            <span class="keyword">var</span> cabinet = _cabinet[<span class="keyword">this</span>.id],
+                fn      = <span class="keyword">this</span>.get(name);
+                
+            <span class="keyword">var</span> _fn = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                <span class="keyword">return</span> item.bind === fn;
+            })[<span class="number">0</span>];                
+
             args = (getType(args, <span class="literal">true</span>) === <span class="string">'array'</span>) 
                 ? args 
                 : [args];
 
-            <span class="keyword">var</span> fn = <span class="keyword">this</span>.get(name);
-            
             <span class="keyword">if</span> ((getType(name, <span class="literal">true</span>) === <span class="string">'string'</span>) &amp;&amp;
                 (getType(fn, <span class="literal">true</span>) === <span class="string">'function'</span>)) {
+
+                <span class="keyword">if</span> (_fn) {
+                    <span class="keyword">var</span> fn = _fn ? _fn.fn : fn;
+                    <span class="keyword">return</span> run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>.id].concat(args));
+                }
+
                 <span class="keyword">return</span> fn.apply(ctx, args);
             }
             <span class="keyword">return</span> <span class="literal">false</span>;
@@ -730,7 +748,7 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    proto.VERSION = <span class="string">'0.4.4'</span>;
+            <div class="content"><div class='highlight'><pre>    proto.VERSION = <span class="string">'0.4.7'</span>;
 
     <span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
         exports = module.exports = <span class="keyword">new</span> Syringe();
@@ -794,10 +812,10 @@ execution context.</p>
                     <span class="keyword">return</span>;
                 }
                 <span class="keyword">if</span> (xhr.status !== <span class="number">200</span>) {
-                    callback(<span class="literal">null</span>, <span class="literal">false</span>);
+                    callback(<span class="literal">null</span>);
                 }
                 <span class="keyword">else</span> <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
-                    callback(xhr, <span class="literal">true</span>);
+                    callback(xhr);
                 }
             };
         
@@ -820,13 +838,13 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        proto.fetch = <span class="function"><span class="keyword">function</span> <span class="params">(arr, options)</span> {</span>
+            <div class="content"><div class='highlight'><pre>        proto.fetch = <span class="function"><span class="keyword">function</span> <span class="params">(arr, options, ctx)</span> {</span>
 
-            options.jsonp = options.jsonp || <span class="literal">false</span>;
+            options.success = options.success || <span class="literal">false</span>;
 
             <span class="keyword">var</span> self    = <span class="keyword">this</span>,
                 count   = <span class="number">0</span>,
-                url;</pre></div></div>
+                url     = <span class="string">''</span>;</pre></div></div>
             
         </li>
         
@@ -842,16 +860,16 @@ against the length of the script list.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> stack = <span class="function"><span class="keyword">function</span> <span class="params">(xhr, state)</span> {</span>
-
-                <span class="keyword">if</span> (state &amp;&amp; xhr &amp;&amp; xhr.responseText) {
+            <div class="content"><div class='highlight'><pre>            <span class="keyword">var</span> stack = <span class="function"><span class="keyword">function</span> <span class="params">(xhr)</span> {</span>
+                
+                <span class="keyword">if</span> (xhr &amp;&amp; xhr.responseText) {
                     <span class="keyword">var</span> data = JSON.parse(xhr.responseText);
                     <span class="keyword">if</span> (data) self.add(arr[count].bind, data);
                 }                        
 
                 <span class="keyword">if</span> (++count === arr.length) {
                     <span class="keyword">if</span> (getType(options.success, <span class="literal">true</span>) === <span class="string">'function'</span>) {
-                        options.success.call(self);
+                        options.success.call(self, (ctx || self));
                     }
                 }
 
