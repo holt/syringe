@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.4. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.7. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -10,7 +10,7 @@ forin:false, curly:false, evil: true */
 
     "use strict";
 
-    var root = this,
+    var root        = this,
         _registry   = {},
         _cabinet    = {};
 
@@ -192,7 +192,8 @@ forin:false, curly:false, evil: true */
                 obj = {
                     fn  : args[1],
                     ctx : ctx,
-                    bind: run.bind(ctx, args[0], args[1], this.id)
+                    bind: run.bind(ctx, args[0], args[1], this.id),
+                    args: args
                 };
                 cabinet.push(obj);
                 return obj.bind;
@@ -210,7 +211,8 @@ forin:false, curly:false, evil: true */
 
                     obj = {
                         fn : args[2],
-                        ctx: ctx
+                        ctx: ctx,
+                        args: args
                     };
                 } else {
                     // __Three__ parameters: the registry array `args[0]`, the
@@ -220,6 +222,7 @@ forin:false, curly:false, evil: true */
                     obj = {
                         fn  : args[1],
                         ctx : args[2],
+                        args: args,
                         bind: run.bind(args[2], args[0], args[1], this.id)
                     };
                     cabinet.push(obj);
@@ -238,25 +241,29 @@ forin:false, curly:false, evil: true */
                 ctx     = args[3];
 
                 obj = {
-                    fn : args[2],
-                    ctx: args[3]
+                    fn  : args[2],
+                    ctx : args[3],
+                    args: args
                 };
                 break;
             }
 
             var strArr = name.split('.'),
                 objStr = (strArr.length > 1) ? strArr.pop() : false;
+            
             obj.bind = fn = run.bind(ctx, arr, fn, this.id);
 
             // Store a copy of this binding in the `cabinet` object.
             // This is useful if we want to copy an existing bound
             // function but use new registry items. 
             cabinet.push(obj);
+            
             if (objStr) {
                 setObj(strArr.join('.'), ctx)[objStr] = fn;
             } else {
                 ctx[strArr.join('.')] = fn;
             }
+
             return this;
         },
 
@@ -267,14 +274,25 @@ forin:false, curly:false, evil: true */
 
             ctx = ctx || this;
             
+            var cabinet = _cabinet[this.id],
+                fn      = this.get(name);
+                
+            var _fn = cabinet.filter(function (item) {
+                return item.bind === fn;
+            })[0];                
+
             args = (getType(args, true) === 'array') 
                 ? args 
                 : [args];
 
-            var fn = this.get(name);
-            
             if ((getType(name, true) === 'string') &&
                 (getType(fn, true) === 'function')) {
+
+                if (_fn) {
+                    var fn = _fn ? _fn.fn : fn;
+                    return run.apply(ctx, [_fn.args[0], fn, this.id].concat(args));
+                }
+
                 return fn.apply(ctx, args);
             }
             return false;
@@ -383,7 +401,7 @@ forin:false, curly:false, evil: true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.4';
+    proto.VERSION = '0.4.7';
 
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = new Syringe();
@@ -423,10 +441,10 @@ forin:false, curly:false, evil: true */
                     return;
                 }
                 if (xhr.status !== 200) {
-                    callback(null, false);
+                    callback(null);
                 }
                 else if (xhr.readyState === 4) {
-                    callback(xhr, true);
+                    callback(xhr);
                 }
             };
         
@@ -437,26 +455,26 @@ forin:false, curly:false, evil: true */
         };
 
         // Asynch fetch is only present on the browser
-        proto.fetch = function (arr, options) {
+        proto.fetch = function (arr, options, ctx) {
 
-            options.jsonp = options.jsonp || false;
+            options.success = options.success || false;
 
             var self    = this,
                 count   = 0,
-                url;
+                url     = '';
 
             // Keep a count of the script load events and reconcile it
             // against the length of the script list.
-            var stack = function (xhr, state) {
-
-                if (state && xhr && xhr.responseText) {
+            var stack = function (xhr) {
+                
+                if (xhr && xhr.responseText) {
                     var data = JSON.parse(xhr.responseText);
                     if (data) self.add(arr[count].bind, data);
                 }                        
 
                 if (++count === arr.length) {
                     if (getType(options.success, true) === 'function') {
-                        options.success.call(self);
+                        options.success.call(self, (ctx || self));
                     }
                 }
 
