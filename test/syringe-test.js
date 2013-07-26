@@ -239,6 +239,49 @@ $(document).ready(function () {
         }), 'test process is done', 'executed function returns data.');
     });
 
+    test("directly execute a registry method with context but no arguments", 1, function () {
+
+        var syr = Syringe.create({
+            'f': function () {
+                return this.example
+            }
+        });
+
+        equal(syr.exec('f', [], {
+            'example': 'test'
+        }), 'test', 'executed function returns data.');
+    });
+
+    test("directly execute a registry with injected propeties", 1, function () {
+
+        var syr = Syringe.create({
+            'data': 'test'
+        });
+
+        syr.add('f', function (d, arg1, arg2) {
+           return d + ' ' + arg1 + ' is ' + arg2;
+        }, ['data']);
+
+        equal(syr.exec('f', ['process', 'done']), 'test process is done', 'executed function returns data.');
+
+    });
+
+    test("directly execute a registry with injected propeties and context", 1, function () {
+
+        var syr = Syringe.create({
+            'data': 'binding'
+        });
+
+        syr.add('f', function (d, arg1, arg2) {
+           return this.example + ' ' + arg1 + ' is ' + arg2 + ' with ' + d;
+        }, ['data']);
+
+        equal(syr.exec('f', ['process', 'done'], {
+            'example': 'test'
+        }), 'test process is done with binding', 'executed function returns data.');
+
+    });
+
     module("Wrap");
 
     test("wrap an existing method", 1, function () {
