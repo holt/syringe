@@ -214,7 +214,7 @@ This following table describes the methods provided by the `Syringe` object:
 
 Name     | Parameters   | Description |
 ---------|--------------|-------------|
-*create* | `map` (optional) | Create a new syringe object. Example: `var syr = Syringe.create();`
+*create* | `map` (optional) | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
 *add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`
 *add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
@@ -281,13 +281,13 @@ syr.add({
 #### Register Asynchronous Objects
 
 ```javascript
-syr.fetch({
+syr.fetch([{
     path: '/syringe/test1',
     bind: 'data1'
 }, {
     path: '/syringe/test2',
     bind: 'data2'
-}, {
+}], {
     'success': function () {
         console.log(this.get('data1'));
         console.log(this.get('data2'));
