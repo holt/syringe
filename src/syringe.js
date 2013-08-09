@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.7. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.8. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
@@ -100,6 +100,7 @@ forin:false, curly:false, evil: true */
         return fn.apply(this, getReg(arr, id).concat(args.slice(2, args.length)));
     };
 
+    // Syringe base constructor
     var Syringe = function (props) {
         this.id             = makeId();
         _registry[this.id]  = {};
@@ -110,6 +111,7 @@ forin:false, curly:false, evil: true */
             : _registry[this.id];
     };
 
+    // Syringe object prototype methods
     var proto = Syringe.prototype = {
 
         // Add a new item to the Syringe registry. The name can be provided 
@@ -120,6 +122,7 @@ forin:false, curly:false, evil: true */
         // can be automatically bound to other registry methods.
         add: function (name, value, bindings) {
             var registry = _registry[this.id];
+
             if (getType(name, true) === 'object') {
                 for (var key in name) {
                     if (!hasProp.call(name, key)) continue;
@@ -127,6 +130,7 @@ forin:false, curly:false, evil: true */
                 }
                 return this;
             }
+            
             if (getObj(name, registry)) {
                 throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
             } else {
@@ -210,8 +214,8 @@ forin:false, curly:false, evil: true */
                     fn      = args[2];
 
                     obj = {
-                        fn : args[2],
-                        ctx: ctx,
+                        fn  : fn,
+                        ctx : ctx,
                         args: args
                     };
                 } else {
@@ -241,8 +245,8 @@ forin:false, curly:false, evil: true */
                 ctx     = args[3];
 
                 obj = {
-                    fn  : args[2],
-                    ctx : args[3],
+                    fn  : fn,
+                    ctx : ctx,
                     args: args
                 };
                 break;
@@ -401,7 +405,7 @@ forin:false, curly:false, evil: true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.7';
+    proto.VERSION = '0.4.8';
 
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = new Syringe();
@@ -457,7 +461,9 @@ forin:false, curly:false, evil: true */
         // Asynch fetch is only present on the browser
         proto.fetch = function (arr, options, ctx) {
 
-            options.success = options.success || false;
+            options         = options           || {};
+            options.success = options.success   || false;
+            options.xss     = options.xss       || false;
 
             var self    = this,
                 count   = 0,
@@ -470,7 +476,7 @@ forin:false, curly:false, evil: true */
                 if (xhr && xhr.responseText) {
                     var data = JSON.parse(xhr.responseText);
                     if (data) self.add(arr[count].bind, data);
-                }                        
+                }
 
                 if (++count === arr.length) {
                     if (getType(options.success, true) === 'function') {
@@ -481,7 +487,9 @@ forin:false, curly:false, evil: true */
             };
 
             arr.forEach(function (item) {
-                if (isLocalURL(url = item.path)) getData(item.path, stack);
+                if (isLocalURL(url = item.path) || options.xss === true) {
+                    getData(item.path, stack);
+                }
             });
 
         };
