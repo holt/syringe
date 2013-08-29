@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.8. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.9. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -38,15 +38,11 @@ holt.org. Distributed under the MIT License</p>
             <div class="content"><div class='highlight'><pre>
 <span class="comment">/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
-forin:false, curly:false, evil: true */</span>
+forin:false, curly:false, evil: true, laxbreak:true */</span>
 
 (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 
-    <span class="string">"use strict"</span>;
-
-    <span class="keyword">var</span> root        = <span class="keyword">this</span>,
-        _registry   = {},
-        _cabinet    = {};</pre></div></div>
+    <span class="string">"use strict"</span>;</pre></div></div>
             
         </li>
         
@@ -56,6 +52,23 @@ forin:false, curly:false, evil: true */</span>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Globals</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> root        = <span class="keyword">this</span>,
+        _registry   = {},
+        _cabinet    = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p>Utilities from core prototypes.</p>
 
@@ -74,11 +87,11 @@ forin:false, curly:false, evil: true */</span>
         </li>
         
         
-        <li id="section-3">
+        <li id="section-4">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-3">&#182;</a>
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>Get the object type as a string. If <code>lc</code> is <code>true</code> the comparison
 is with the lowercased name.</p>
@@ -98,11 +111,11 @@ is with the lowercased name.</p>
         </li>
         
         
-        <li id="section-4">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>Get an object from an (optional) context <code>ctx</code> using delimited
 string notation. The <code>sep</code> parameter determines the delimiter 
@@ -125,11 +138,11 @@ string notation. The <code>sep</code> parameter determines the delimiter
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Create an object within an (optional) context <code>ctx</code> using 
 delimited string notation. The <code>sep</code> parameter determines
@@ -151,11 +164,11 @@ the delimiter (period by default).            </p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Return a map of any items in the passed array that match items
 in the registry object.</p>
@@ -164,19 +177,90 @@ in the registry object.</p>
             
             <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> getReg = <span class="function"><span class="keyword">function</span> <span class="params">(arr, id)</span> {</span>
         <span class="keyword">var</span> registry = _registry[id];
-        <span class="keyword">return</span> arr.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
-            <span class="keyword">return</span> getObj(item, registry);
+        <span class="keyword">return</span> arr.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>            
+            <span class="keyword">return</span> (item === <span class="string">''</span>) ? <span class="literal">undefined</span> : (item === <span class="string">'*'</span>) 
+                ? registry : getObj(item, registry);
         }, <span class="keyword">this</span>);
     };</pre></div></div>
             
         </li>
         
         
-        <li id="section-7">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Test to see if a passed URL is local.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> isLocalURL = <span class="function"><span class="keyword">function</span> <span class="params">(url)</span> {</span>
+        <span class="keyword">var</span> regexp = <span class="keyword">new</span> RegExp(<span class="string">"//"</span> + location.host + <span class="string">"($|/)"</span>);
+        <span class="keyword">return</span> <span class="string">"http"</span> === url.substring(<span class="number">0</span>, <span class="number">4</span>) ? regexp.test(url) : <span class="literal">true</span>;
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Standard ajax retrieval operation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">var</span> getData = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
+
+        <span class="keyword">var</span> xhr;
+
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">'undefined'</span>) {
+            xhr = <span class="keyword">new</span> XMLHttpRequest();
+        } <span class="keyword">else</span> {
+            [
+                <span class="string">'MSXML2.XmlHttp.5.0'</span>,
+                <span class="string">'MSXML2.XmlHttp.4.0'</span>,
+                <span class="string">'MSXML2.XmlHttp.3.0'</span>,
+                <span class="string">'MSXML2.XmlHttp.2.0'</span>,
+                <span class="string">'Microsoft.XmlHttp'</span>
+            ].forEach(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+                <span class="keyword">try</span> {
+                    xhr = <span class="keyword">new</span> window.ActiveXObject(item);
+                    <span class="keyword">return</span>;
+                } <span class="keyword">catch</span> (e) {}
+            });
+        }
+
+        xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            <span class="keyword">if</span> (xhr.readyState &lt; <span class="number">4</span>) {
+                <span class="keyword">return</span>;
+            }
+            <span class="keyword">if</span> (xhr.status !== <span class="number">200</span>) {
+                callback(<span class="literal">null</span>);
+            }
+            <span class="keyword">else</span> <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
+                callback(xhr);
+            }
+        };
+    
+        xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);
+        xhr.setRequestHeader(<span class="string">'Accept'</span>, <span class="string">'application/json, text/javascript, */*; q=0.01'</span>);
+        xhr.setRequestHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json; charset=utf-8'</span>);
+        xhr.send(<span class="string">''</span>);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>The <code>run</code> function resolves the dependencies of a bound method.
 When it executes is retrieves the original <code>fn</code> method from the 
@@ -192,11 +276,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Remove the id from the arguments</p>
 
@@ -213,11 +297,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Copy the prototype</p>
 
@@ -225,19 +309,32 @@ to it. </p>
             
             <div class="content"><div class='highlight'><pre>        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> fn.prototype) {
             <span class="keyword">this</span>.constructor.prototype[key] = fn.prototype[key];
-        }
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Set array with appropriate registry value</p>
 
-        <span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, getReg(arr, id).concat(args.slice(<span class="number">2</span>, args.length)));
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, getReg(arr, id).concat(args.slice(<span class="number">2</span>, args.length)));
     };</pre></div></div>
             
         </li>
         
         
-        <li id="section-10">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Syringe base constructor</p>
 
@@ -256,11 +353,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-11">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Syringe object prototype methods</p>
 
@@ -271,11 +368,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-12">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Add a new item to the Syringe registry. The name can be provided 
 in dot-notation, in which case a deep reference is built within
@@ -317,11 +414,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Remove a named item from the registry.</p>
 
@@ -346,11 +443,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Deep removal (delimited name)</p>
 
@@ -361,11 +458,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Shallow removal (non-delimited name)</p>
 
@@ -379,11 +476,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Bind a method to the dependency registry. This function accepts
 a variety of different arguments, the formulation of which 
@@ -406,11 +503,11 @@ described below.</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
 <code>args[1]</code>. No name or context object is provided. The 
@@ -434,11 +531,11 @@ bound function will be returned as an anonymous function.</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p><strong>Three</strong> parameters: a name <code>args[0]</code>, the registry array 
 <code>args[1]</code>, and method <code>args[2]</code>. No context object
@@ -461,11 +558,11 @@ whatever the root object is.</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p><strong>Three</strong> parameters: the registry array <code>args[0]</code>, the
 method <code>args[1]</code>, and a context object <code>args[2]</code>.
@@ -488,11 +585,11 @@ will be used.</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array 
 <code>args[1]</code>, the method <code>args[2]</code>, and a context object
@@ -523,11 +620,11 @@ context will be used.</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Store a copy of this binding in the <code>cabinet</code> object.
 This is useful if we want to copy an existing bound
@@ -549,11 +646,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -580,7 +677,7 @@ pass an array of arguments and a context.</p>
                 (getType(fn, <span class="literal">true</span>) === <span class="string">'function'</span>)) {
 
                 <span class="keyword">if</span> (_fn) {
-                    <span class="keyword">var</span> fn = _fn ? _fn.fn : fn;
+                    fn = _fn ? _fn.fn : fn;
                     <span class="keyword">return</span> run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>.id].concat(args));
                 }
 
@@ -592,11 +689,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -621,11 +718,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -653,11 +750,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -692,11 +789,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -731,11 +828,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -749,11 +846,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Some method aliases...</p>
 
@@ -766,17 +863,17 @@ execution context.</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Current version...</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    proto.VERSION = <span class="string">'0.4.8'</span>;
+            <div class="content"><div class='highlight'><pre>    proto.VERSION = <span class="string">'0.4.9'</span>;
 
     <span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
         exports = module.exports = <span class="keyword">new</span> Syringe();
@@ -786,81 +883,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
-              </div>
-              <p>Test to see if a passed URL is local.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> isLocalURL = <span class="function"><span class="keyword">function</span> <span class="params">(url)</span> {</span>
-            <span class="keyword">var</span> regexp = <span class="keyword">new</span> RegExp(<span class="string">"//"</span> + location.host + <span class="string">"($|/)"</span>);
-            <span class="keyword">return</span> <span class="string">"http"</span> === url.substring(<span class="number">0</span>, <span class="number">4</span>) ? regexp.test(url) : <span class="literal">true</span>;
-        };</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-31">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
-              </div>
-              <p>Standard ajax retrieval operation</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> getData = <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
-
-            <span class="keyword">var</span> xhr;
-
-            <span class="keyword">if</span> (<span class="keyword">typeof</span> XMLHttpRequest !== <span class="string">'undefined'</span>) {
-                xhr = <span class="keyword">new</span> XMLHttpRequest();
-            } <span class="keyword">else</span> {
-                [
-                    <span class="string">'MSXML2.XmlHttp.5.0'</span>,
-                    <span class="string">'MSXML2.XmlHttp.4.0'</span>,
-                    <span class="string">'MSXML2.XmlHttp.3.0'</span>,
-                    <span class="string">'MSXML2.XmlHttp.2.0'</span>,
-                    <span class="string">'Microsoft.XmlHttp'</span>
-                ].forEach(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
-                    <span class="keyword">try</span> {
-                        xhr = <span class="keyword">new</span> window.ActiveXObject(item);
-                        <span class="keyword">return</span>;
-                    } <span class="keyword">catch</span> (e) {}
-                });
-            }
- 
-            xhr.onreadystatechange = <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-                <span class="keyword">if</span> (xhr.readyState &lt; <span class="number">4</span>) {
-                    <span class="keyword">return</span>;
-                }
-                <span class="keyword">if</span> (xhr.status !== <span class="number">200</span>) {
-                    callback(<span class="literal">null</span>);
-                }
-                <span class="keyword">else</span> <span class="keyword">if</span> (xhr.readyState === <span class="number">4</span>) {
-                    callback(xhr);
-                }
-            };
-        
-            xhr.open(<span class="string">'GET'</span>, url, <span class="literal">true</span>);
-            xhr.setRequestHeader(<span class="string">'Accept'</span>, <span class="string">'application/json, text/javascript, */*; q=0.01'</span>);
-            xhr.setRequestHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json; charset=utf-8'</span>);
-            xhr.send(<span class="string">''</span>);
-        };</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-32">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Asynch fetch is only present on the browser</p>
 
@@ -879,11 +906,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Keep a count of the script load events and reconcile it
 against the length of the script list.</p>
@@ -910,7 +937,6 @@ against the length of the script list.</p>
                     getData(item.path, stack);
                 }
             });
-
         };
 
         root.Syringe = <span class="keyword">new</span> Syringe();
