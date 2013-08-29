@@ -225,6 +225,22 @@ $(document).ready(function () {
         equal(obj.first.x.f(), 'process is done', 'bound function returns injected data.');
     });
 
+    test("bind a named method, with context, that contains the entire map", 2, function () {
+        var syr = Syringe.create({
+            'data': 'done'
+        });
+
+        var obj = {
+            'first': {}
+        };
+        syr.bind('x.f', ['*', 'data'], function (map, data, args) {
+            return {data: 'process is ' + data, map: map}
+        }, obj.first);
+
+        equal(obj.first.x.f().data, 'process is done', 'bound function returns injected data.');
+        equal(obj.first.x.f().map, syr.get(), 'bound function returns entire map.');
+    });
+
     module("Exec");
 
     test("directly execute a registry method", 1, function () {
