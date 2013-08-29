@@ -1,15 +1,16 @@
 // > http://syringejs.org
-// > syringe.js v0.4.8. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.9. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
-forin:false, curly:false, evil: true */
+forin:false, curly:false, evil: true, laxbreak:true */
 
 (function () {
 
     "use strict";
 
+    // Globals
     var root        = this,
         _registry   = {},
         _cabinet    = {};
@@ -70,9 +71,56 @@ forin:false, curly:false, evil: true */
     // in the registry object.
     var getReg = function (arr, id) {
         var registry = _registry[id];
-        return arr.map(function (item) {
-            return getObj(item, registry);
+        return arr.map(function (item) {            
+            return (item === '') ? undefined : (item === '*') 
+                ? registry : getObj(item, registry);
         }, this);
+    };
+
+    // Test to see if a passed URL is local.
+    var isLocalURL = function (url) {
+        var regexp = new RegExp("//" + location.host + "($|/)");
+        return "http" === url.substring(0, 4) ? regexp.test(url) : true;
+    };
+
+    // Standard ajax retrieval operation
+    var getData = function (url, callback) {
+
+        var xhr;
+
+        if (typeof XMLHttpRequest !== 'undefined') {
+            xhr = new XMLHttpRequest();
+        } else {
+            [
+                'MSXML2.XmlHttp.5.0',
+                'MSXML2.XmlHttp.4.0',
+                'MSXML2.XmlHttp.3.0',
+                'MSXML2.XmlHttp.2.0',
+                'Microsoft.XmlHttp'
+            ].forEach(function (item) {
+                try {
+                    xhr = new window.ActiveXObject(item);
+                    return;
+                } catch (e) {}
+            });
+        }
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState < 4) {
+                return;
+            }
+            if (xhr.status !== 200) {
+                callback(null);
+            }
+            else if (xhr.readyState === 4) {
+                callback(xhr);
+            }
+        };
+    
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        xhr.send('');
     };
 
     // The `run` function resolves the dependencies of a bound method.
@@ -97,6 +145,7 @@ forin:false, curly:false, evil: true */
             this.constructor.prototype[key] = fn.prototype[key];
         }
 
+        // Set array with appropriate registry value
         return fn.apply(this, getReg(arr, id).concat(args.slice(2, args.length)));
     };
 
@@ -293,7 +342,7 @@ forin:false, curly:false, evil: true */
                 (getType(fn, true) === 'function')) {
 
                 if (_fn) {
-                    var fn = _fn ? _fn.fn : fn;
+                    fn = _fn ? _fn.fn : fn;
                     return run.apply(ctx, [_fn.args[0], fn, this.id].concat(args));
                 }
 
@@ -405,58 +454,12 @@ forin:false, curly:false, evil: true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.8';
+    proto.VERSION = '0.4.9';
 
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = new Syringe();
     }
     else {
-
-        // Test to see if a passed URL is local.
-        var isLocalURL = function (url) {
-            var regexp = new RegExp("//" + location.host + "($|/)");
-            return "http" === url.substring(0, 4) ? regexp.test(url) : true;
-        };
-
-        // Standard ajax retrieval operation
-        var getData = function (url, callback) {
-
-            var xhr;
-
-            if (typeof XMLHttpRequest !== 'undefined') {
-                xhr = new XMLHttpRequest();
-            } else {
-                [
-                    'MSXML2.XmlHttp.5.0',
-                    'MSXML2.XmlHttp.4.0',
-                    'MSXML2.XmlHttp.3.0',
-                    'MSXML2.XmlHttp.2.0',
-                    'Microsoft.XmlHttp'
-                ].forEach(function (item) {
-                    try {
-                        xhr = new window.ActiveXObject(item);
-                        return;
-                    } catch (e) {}
-                });
-            }
- 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState < 4) {
-                    return;
-                }
-                if (xhr.status !== 200) {
-                    callback(null);
-                }
-                else if (xhr.readyState === 4) {
-                    callback(xhr);
-                }
-            };
-        
-            xhr.open('GET', url, true);
-            xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
-            xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-            xhr.send('');
-        };
 
         // Asynch fetch is only present on the browser
         proto.fetch = function (arr, options, ctx) {
@@ -491,7 +494,6 @@ forin:false, curly:false, evil: true */
                     getData(item.path, stack);
                 }
             });
-
         };
 
         root.Syringe = new Syringe();
