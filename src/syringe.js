@@ -1,8 +1,8 @@
 // > http://syringejs.org
-// > syringe.js v0.4.9. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.10. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 
-/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, 
+/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false, evil: true, laxbreak:true */
 
@@ -15,16 +15,17 @@ forin:false, curly:false, evil: true, laxbreak:true */
         _registry   = {},
         _cabinet    = {};
 
-    // Utilities from core prototypes.
+    // Utilities from core prototypes
     var hasProp = {}.hasOwnProperty,
         slice   = [].slice;
 
+    // RFC 4122 GUID generator
     var makeId = function () {
-        var count = 0;
-        return function () {
-            return 's' + (++count);
-        };
-    }.call(root);
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (b) {
+            var a = 16 * Math.random() | 0;
+            return ('x' === b ? a : a & 3 | 8).toString(16);
+        });
+    };
 
     // Get the object type as a string. If `lc` is `true` the comparison
     // is with the lowercased name.
@@ -68,7 +69,7 @@ forin:false, curly:false, evil: true, laxbreak:true */
     };
 
     // Return a map of any items in the passed array that match items
-    // in the registry object.
+    // in the registry object
     var getReg = function (arr, id) {
         var registry = _registry[id];
         return arr.map(function (item) {            
@@ -77,7 +78,7 @@ forin:false, curly:false, evil: true, laxbreak:true */
         }, this);
     };
 
-    // Test to see if a passed URL is local.
+    // Test to see if a passed URL is local
     var isLocalURL = function (url) {
         var regexp = new RegExp("//" + location.host + "($|/)");
         return "http" === url.substring(0, 4) ? regexp.test(url) : true;
@@ -197,7 +198,7 @@ forin:false, curly:false, evil: true, laxbreak:true */
             return this;
         },
 
-        // Remove a named item from the registry.
+        // Remove a named item from the registry
         remove: function (name) {
             var registry    = _registry[this.id],
                 newregistry = {},
@@ -454,7 +455,7 @@ forin:false, curly:false, evil: true, laxbreak:true */
     proto.unregister    = proto.remove;
 
     // Current version...
-    proto.VERSION = '0.4.9';
+    proto.VERSION = '0.4.10';
 
     if (typeof module !== 'undefined' && module.exports) {
         exports = module.exports = new Syringe();
@@ -473,7 +474,7 @@ forin:false, curly:false, evil: true, laxbreak:true */
                 url     = '';
 
             // Keep a count of the script load events and reconcile it
-            // against the length of the script list.
+            // against the length of the script list
             var stack = function (xhr) {
                 
                 if (xhr && xhr.responseText) {
