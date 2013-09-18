@@ -8,6 +8,30 @@ Now, let's roll up our sleeves and begin shall we?
 
 [![Build Status](https://travis-ci.org/holt/syringe.png)](https://travis-ci.org/holt/syringe)
 
+- [Installation](#installation)
+    - [Node](#node)
+    - [NuGet](#nuget)
+    - [Browser](#browser)
+        - [Compatibility](#compatibility)
+- [Overview](#overview)
+    - [Example](#example)
+- [Questions](#questions)
+    - [Does injection work with constructor functions?](#does-injection-work-with-constructor-functions)
+    - [Are we making a curry?](#are-we-making-a-curry)
+    - [What's this about a "registry"?](#what's-this-about-a-registry)
+- [API](#api)
+- [Additional Examples](#additional-examples)
+    - [Initialization and Registration](#initialization-and-registration)
+        - [Register a Single Item](#register-a-single-item)
+        - [Register a Map of Multiple Items](#register-a-map-of-multiple-items)
+        - [Register Asynchronous Objects](#register-asynchronous-objects)
+    - [Binding Methods](#binding-methods)
+        - [Function Expression](#function-expression)
+        - [Object Reference](#object-reference)
+    - [Execution](#execution)
+    - [Register and Bind Example](#register-and-bind-example)
+    - [Wrap Example](#wrap-example)
+
 ## Installation
 
 ### Node
@@ -183,6 +207,8 @@ log('52774Y');  // Logs:
 ```
 
 A condition in the base data triggers the warning logger we placed in the wrapper, and a `flagged` property is added to the data entry.
+
+## Questions
 
 ### Does injection work with constructor functions?
 
