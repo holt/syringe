@@ -200,7 +200,7 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 ### Does injection work with constructor functions?
 
-Indeed it does. [Here's an example](http://goo.gl/2mcEvF) of a todo application (with moody styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+Indeed it does. [Here's an example](http://goo.gl/KFGFQf) of a todo application (with moody styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
 
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
