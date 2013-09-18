@@ -11,10 +11,11 @@ Now, let's roll up our sleeves and begin shall we?
 ## Table of Contents
 
 - [Installation](#installation)
-    - [Node](#node)
-    - [NuGet](#nuget)
     - [Browser](#browser)
         - [Compatibility](#compatibility)
+    - [Node](#node)
+    - [NuGet](#nuget)
+    - [Bower](#bower)
 - [Overview](#overview)
     - [Example](#example)
 - [Questions](#questions)
@@ -35,18 +36,6 @@ Now, let's roll up our sleeves and begin shall we?
     - [Wrap Example](#wrap-example)
 
 ## Installation
-
-### Node
-
-Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
-
-`npm install syringejs`
-
-### NuGet
-
-Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
-
-`Install-Package syringe.js`
 
 ### Browser
 
@@ -71,6 +60,24 @@ Syringe has been tested on the following browsers:
 - Safari 3+
 - Opera 9+
 - Internet Explorer 7+
+
+### Node
+
+Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
+
+`npm install syringejs`
+
+### NuGet
+
+Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
+
+`Install-Package syringe.js`
+
+### Bower
+
+Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:
+
+`bower install syringe`
 
 
 ## Overview ##
