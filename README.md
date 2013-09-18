@@ -184,6 +184,12 @@ log('52774Y');  // Logs:
 
 A condition in the base data triggers the warning logger we placed in the wrapper, and a `flagged` property is added to the data entry.
 
+### Does injection work with constructor functions?
+
+Indeed it does. [Here's an example](http://goo.gl/KFGFQf) of a todo application (CSS styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+
+<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
+
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
 When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
@@ -198,20 +204,12 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
-### Does injection work with constructor functions?
-
-Indeed it does. [Here's an example](http://goo.gl/KFGFQf) of a todo application (with moody styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
-
-
-<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
-
-
 ## API ##
 
 This following table describes the methods provided by the `Syringe` object:
 
-Name     | Parameters   | Description |
----------|--------------|-------------|
+Name     | Parameters   | Description 
+---------|--------------|-------------
 *create* | `map` (optional) | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
 *add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`
 *add*    | `name, value, binding` | If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
