@@ -21,7 +21,7 @@ Now, let's roll up our sleeves and begin shall we?
 - [Questions](#questions)
     - [Does injection work with constructor functions?](#does-injection-work-with-constructor-functions)
     - [Can I see an example?](#can-i-see-an-example)
-    - [Can you prove it?](#can-you-prove-it)
+    - [Got a simpler example?](#got-a-simpler-example)
     - [Are we making a curry?](#are-we-making-a-curry)
     - [What's this about a "registry"?](#what's-this-about-a-registry)
 - [API](#api)
