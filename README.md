@@ -8,6 +8,8 @@ Now, let's roll up our sleeves and begin shall we?
 
 [![Build Status](https://travis-ci.org/holt/syringe.png)](https://travis-ci.org/holt/syringe)
 
+## Table of Contents
+
 - [Installation](#installation)
     - [Node](#node)
     - [NuGet](#nuget)
