@@ -58,15 +58,9 @@ First, create a new `Syringe` object instance:
 ```javascript
 var syr = Syringe.create({
     'data': {
-        '52773X': {
-            'name'      : 'Kane, Alice',
-            'dob'       : '12/09/1973',
-            'locale'    : 'US',
-            'division'  : 'Research'
-        },
         '52774Y': {
             'name'      : 'McCaulay, Bob',
-            'dob'       : '04/13/1967',
+            'dob'       : '04/13/1967'
             'locale'    : 'GB',
             'division'  : 'Marketing'
         },
@@ -207,6 +201,10 @@ The registry is a closured dependency map unique to each Syringe object instance
 ### Does this work with constructor functions?
 
 Indeed it does. [Here's an example.](http://goo.gl/NburJ)
+
+
+<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
+
 
 ## API ##
 
