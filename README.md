@@ -198,12 +198,12 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
-### Does this work with constructor functions?
+### Does injection work with constructor functions?
 
-Indeed it does. [Here's an example.](http://goo.gl/NburJ)
+Indeed it does. [Here's an example](http://goo.gl/2mcEvF) of a todo application (with moody styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
 
-<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
+<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
 
 ## API ##
