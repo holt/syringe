@@ -1,0 +1,8 @@
+{
+  "name": "syringe",
+  "version": "0.4.11",
+  "main": "syringe.min.js",
+  "ignore": [
+    ".travis.yml"
+  ]
+}
