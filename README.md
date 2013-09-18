@@ -41,9 +41,9 @@ Now, let's roll up our sleeves and begin shall we?
 
 Just add `syringe.min.js` to your environment.
 
-**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:  
+**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods: 
 
-- `Array.filter` 
+- `Array.filter`
 - `Array.map`
 - `Array.reduce`
 - `Function.bind`
@@ -102,7 +102,7 @@ var syr = Syringe.create({
             'dob'       : '08/23/1959',
             'locale'    : 'CA',
             'division'  : 'Facilities'
-        }    
+        }   
     }
 });
 ```
@@ -120,9 +120,9 @@ syr.add('get', function (data, id) {
             div     = data.division || 'N/A',
             locale  = data.locale   || 'N/A';
 
-        data.msg = '' 
-            + 'Name: '          + name 
-            + '; Division: '    + div 
+        data.msg = ''
+            + 'Name: '          + name
+            + '; Division: '    + div
             + '; Locale: '      + locale;
     }
 
@@ -138,7 +138,7 @@ syr.on('log', ['get'], function (get, id) {
 
     "use strict";
 
-    return (get = get(id)) 
+    return (get = get(id))
         ? (console.info('Volatile data accessed by employee ' + id + ' ... ' + get.msg), get)
         : false;
 });
@@ -147,11 +147,11 @@ syr.on('log', ['get'], function (get, id) {
 Now call the utility function with Ted's ID:
 
 ```javascript
-log('52775Z');  // Logs: 
-                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted; 
+log('52775Z');  // Logs:
+                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted;
                 // Division: Facilities; Locale: CA
 
-                // Returns: 
+                // Returns:
                 // {
                 //    "name"        : "Metzger, Ted",
                 //    "dob"         : "08/23/1959",
@@ -161,7 +161,7 @@ log('52775Z');  // Logs:
                 // }
 ```
 
-The logging utility returns some useful information and logs out a messsage to the console.
+The logging utility returns some useful information and logs out a message to the console.
 
 Now we change the registry data for one of the items ...
 
@@ -171,8 +171,8 @@ syr.set('data.52775Z.division', 'Development');
 ... and call the utility function again:
 
 ```javascript
-log('52775Z');  // Logs: 
-                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted; 
+log('52775Z');  // Logs:
+                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted;
                 // Division: Development; Locale: CA
                 // ...
 ```
@@ -193,13 +193,13 @@ Wrap the utility function with some enhancements ...
 log = syr.wrap(log, function (fn, id) {
 
     "use strict";
-    
+   
     var data = fn(), flag = this.get('flag');
 
     if (data && flag && flag(data)) {
         data.flagged = true;
         console.warn('This activity has been flagged!');
-    } 
+    }
 
     return data;
 });
@@ -208,8 +208,8 @@ log = syr.wrap(log, function (fn, id) {
 ... and call the enhanced utility function with Bob's ID:
 
 ```javascript
-log('52774Y');  // Logs: 
-                // Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob; 
+log('52774Y');  // Logs:
+                // Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob;
                 // Division: Marketing; Locale: GB
                 // This activity has been flagged!
                 // ...
@@ -221,13 +221,15 @@ A condition in the base data triggers the warning logger we placed in the wrappe
 
 ### Does injection work with constructor functions?
 
-Indeed it does. [Here's an example](http://goo.gl/KFGFQf) of a todo application (CSS styling courtesy of the awesome  [TodoMVC](http://todomvc.com) project) that uses dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+Indeed it does. [Here's an example of a Syringe application](http://goo.gl/KFGFQf)<sup>+</sup> that uses  dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
+<sup>+ CSS and images courtesy of the awesome  [TodoMVC](http://todomvc.com) project</sup>
+
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
-When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked. 
+When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
 
 This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. To further labor the medical theme, it's as if the flu shot you received last Winter could be remotely updated throughout the year. Only minus the Nobel Prize, obviously.
 
@@ -243,7 +245,7 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 This following table describes the methods provided by the `Syringe` object:
 
-Name     | Parameters   | Description 
+Name     | Parameters   | Description
 ---------|--------------|-------------
 *create* | `map` (optional) | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
 *add*    | `name, value` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`
@@ -328,7 +330,7 @@ syr.fetch([{
 
 ### Binding Methods
 
-You can bind your methods in a number of different ways. 
+You can bind your methods in a number of different ways.
 
 ##### Function Expression
 
@@ -354,8 +356,8 @@ var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, sta
 ##### Object Reference
 
 ```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { 
-    /* as above */ 
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
+    /* as above */
 });
 ```
 ... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
@@ -368,8 +370,8 @@ syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone
 ... or as an object reference within a provided context:
 
 ```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { 
-    /* as above */ 
+syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
+    /* as above */
 }, security.access);
 ```
 
@@ -392,7 +394,7 @@ event({
     'locale': 'America-Montevideo'
 });
 
-/* Returns: 
+/* Returns:
 {
     "msg" : "User \"Doe, John\" entered forbidden zone at 2013-04-03T02:38:49.068Z GMT(-2)",
     "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
@@ -408,7 +410,7 @@ event({
     'locale': 'America-Sao_Paulo'
 });
 
-/* Returns: 
+/* Returns:
 {
     "msg" : "User \"Smith, Alice\" entered forbidden zone at 2013-04-03T02:44:13.196Z GMT(-2)",
     "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
@@ -479,16 +481,16 @@ msg('Keep calm and carry on!', 'Amber');
 Bound methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of a bound method. Example:
 
 ```javascript
-// Generic timer function that will be passed the original registry method, 
+// Generic timer function that will be passed the original registry method,
 // its name, and an array of its original arguments:
 var timer = function (fn, name, funcname) {
 
     var start, stop, ret;
-    
+   
     start   = (new Date()).getTime();
     ret     = fn();
     stop    = (new Date()).getTime();
-    
+   
     console.log('The function "' + funcname + '" took ' + (stop - start) + 'ms');
     return ret;
 };
@@ -510,7 +512,7 @@ var f = syr.on(['utils.motd'], function (motd, name) {
 f = syr.wrap(f, timer);
 
 f('Mike', 'msg'); // log: "The function "msg" took 1ms"
-/* Returns: 
+/* Returns:
     "Greetings Mike"
 */
 ```
