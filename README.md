@@ -20,6 +20,8 @@ Now, let's roll up our sleeves and begin shall we?
     - [Example](#example)
 - [Questions](#questions)
     - [Does injection work with constructor functions?](#does-injection-work-with-constructor-functions)
+    - [Can I see an example?](#can-i-see-an-example)
+    - [Can you prove it?](#can-you-prove-it)
     - [Are we making a curry?](#are-we-making-a-curry)
     - [What's this about a "registry"?](#what's-this-about-a-registry)
 - [API](#api)
@@ -221,11 +223,19 @@ A condition in the base data triggers the warning logger we placed in the wrappe
 
 ### Does injection work with constructor functions?
 
-Indeed it does. [Here's an example of a Syringe application](http://goo.gl/KFGFQf)<sup>+</sup> that uses  dependency injection to construct collection and view objects, and conventional injection to manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+Indeed it does. 
+
+### Can I see an example?
+
+[Here's a Todos application](http://goo.gl/KFGFQf)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
 <sup>+ CSS and images courtesy of the awesome  [TodoMVC](http://todomvc.com) project</sup>
+
+### Got a simpler example?
+
+This [jsFiddle](http://jsfiddle.net/zenserve/HfGj4/) shows how Syringe can be used to build a simple form validation component.
 
 ### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
 
