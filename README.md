@@ -9,20 +9,20 @@ Now, let's roll up our sleeves and begin shall we?
 
 ## Table of Contents
 
+- [Overview](#overview)
+    - [A Gentle Example](#a-gentle-example)
+- [Questions](#questions)
+    - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
+    - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
+    - ["Got a simpler example?"](#got-a-simpler-example)
+    - ["Are we making a curry?"](#are-we-making-a-curry)
+    - ["What's this about a registry?"](#what's-this-about-a-registry)
 - [Installation](#installation)
     - [Browser](#browser)
         - [Compatibility](#compatibility)
     - [Node](#node)
     - [Bower](#bower)
     - [NuGet](#nuget)
-- [Overview](#overview)
-    - [A Simple Example](#a-simple-example)
-- [Questions](#questions)
-    - [Does injection work with constructor functions?](#does-injection-work-with-constructor-functions)
-    - [Can I see a more complex example?](#can-i-see-a-more-complex-example)
-    - [Got a simpler example?](#got-a-simpler-example)
-    - [Are we making a curry?](#are-we-making-a-curry)
-    - [What's this about a "registry"?](#what's-this-about-a-registry)
 - [API](#api)
 - [Additional Examples](#additional-examples)
     - [Initialization and Registration](#initialization-and-registration)
@@ -36,57 +36,11 @@ Now, let's roll up our sleeves and begin shall we?
     - [Register and Bind Example](#register-and-bind-example)
     - [Wrap Example](#wrap-example)
 
-## Installation
-
-### Browser
-
-Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
-
-**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods: 
-
-- `Array.filter`
-- `Array.map`
-- `Array.reduce`
-- `Function.bind`
-- `String.trim`
-
-If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
-
-#### Compatibility
-
-Syringe has been tested on the following browsers:
-
-- Firefox 2+
-- Chrome 11+
-- Safari 3+
-- Opera 9+
-- Internet Explorer 7+
-
-### Node
-
-Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
-
-`npm install syringejs`
-
-### Bower
-
-Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:
-
-`bower install syringe`
-
-
-### NuGet
-
-Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
-
-`Install-Package syringe.js`
-
-
 ## Overview ##
 
 Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
 
-### A Simple Example
+### A Gentle Example
 
 First, create a new `Syringe` object instance:
 
@@ -177,11 +131,11 @@ Ted's division has changed from `Facilities` to `Development` (quite the career 
 
 ## Questions
 
-### Does injection work with constructor functions?
+### "Does injection work with constructor functions?"
 
 Indeed it does. 
 
-### Can I see a more complex example?
+### "Can I see a more complex example?"
 
 [Here's a Todos application](http://goo.gl/KFGFQf)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
@@ -189,23 +143,67 @@ Indeed it does.
 
 <sup>+ CSS and images courtesy of the awesome  [TodoMVC](http://todomvc.com) project</sup>
 
-### Got a simpler example?
+### "Got a simpler example?"
 
 This [jsFiddle](http://jsfiddle.net/zenserve/HfGj4/) shows how Syringe can be used to build a simple form validation component.
 
-### Are we making a [curry](https://en.wikipedia.org/wiki/Partial_application)?
+### "Are we making a curry?"
 
-When you curry a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
+When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
 
 This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. To further labor the medical theme, it's as if the flu shot you received last Winter could be remotely updated throughout the year. Only minus the Nobel Prize, obviously.
 
 Currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
 
-### What's this about a "registry"?
+### "What's this about a registry?"
 
 The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
+
+## Installation
+
+### Browser
+
+Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
+
+**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods: 
+
+- `Array.filter`
+- `Array.map`
+- `Array.reduce`
+- `Function.bind`
+- `String.trim`
+
+If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
+
+#### Compatibility
+
+Syringe has been tested on the following browsers:
+
+- Firefox 2+
+- Chrome 11+
+- Safari 3+
+- Opera 9+
+- Internet Explorer 7+
+
+### Node
+
+Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
+
+`npm install syringejs`
+
+### Bower
+
+Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:
+
+`bower install syringe`
+
+### NuGet
+
+Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
+
+`Install-Package syringe.js`
 
 ## API ##
 
@@ -226,7 +224,6 @@ Name     | Parameters   | Description
 *fetch*  | `array, callback` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper, ctx` | Wrap a bound method with another method in order to develop middleware. <br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
-
 
 ## Additional Examples ##
 
