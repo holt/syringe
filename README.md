@@ -1,4 +1,4 @@
-# syringe.js #
+# syringe.js [![Build Status](https://travis-ci.org/holt/syringe.png)](https://travis-ci.org/holt/syringe) #
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
@@ -6,7 +6,6 @@ Syringe is a teeny-tiny [dependency injection](https://en.wikipedia.org/wiki/Dep
 
 Now, let's roll up our sleeves and begin shall we?
 
-[![Build Status](https://travis-ci.org/holt/syringe.png)](https://travis-ci.org/holt/syringe)
 
 ## Table of Contents
 
