@@ -60,7 +60,7 @@ var syr = Syringe.create({
 Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected into the getter when it is invoked:
 
 ```javascript
-syr.add('get', function (data, id) {
+syr.add('utils.get', function (data, id) {
 
     "use strict";
     data = data[id] || false;
@@ -84,7 +84,7 @@ syr.add('get', function (data, id) {
 Let's create a simple utility function into which, on invocation, the getter is injected:
 
 ```javascript
-syr.on('log', ['get'], function (get, id) {
+syr.on('log', ['utils.get'], function (get, id) {
 
     "use strict";
 
@@ -111,9 +111,13 @@ log('52775Z');  // Logs:
                 // }
 ```
 
-The logging utility returns some useful information and logs out a message to the console.
+The logging utility returns some useful information and logs out a message to the console. 
 
-Now we change the registry data for one of the items ...
+#### What Just Happened?
+
+ The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
+
+Loose coupling between the concerns means that we can easily change the registry data for the injected items ...
 
 ```javascript
 syr.set('data.52775Z.division', 'Development');
