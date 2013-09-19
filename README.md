@@ -13,13 +13,13 @@ Now, let's roll up our sleeves and begin shall we?
     - [Browser](#browser)
         - [Compatibility](#compatibility)
     - [Node](#node)
-    - [NuGet](#nuget)
     - [Bower](#bower)
+    - [NuGet](#nuget)
 - [Overview](#overview)
-    - [Example](#example)
+    - [A Simple Example](#a-simple-example)
 - [Questions](#questions)
     - [Does injection work with constructor functions?](#does-injection-work-with-constructor-functions)
-    - [Can I see an example?](#can-i-see-an-example)
+    - [Can I see a more complex example?](#can-i-see-a-more-complex-example)
     - [Got a simpler example?](#got-a-simpler-example)
     - [Are we making a curry?](#are-we-making-a-curry)
     - [What's this about a "registry"?](#what's-this-about-a-registry)
@@ -40,7 +40,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 ### Browser
 
-Just add `syringe.min.js` to your environment.
+Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
 
 **Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods: 
 
@@ -50,7 +50,7 @@ Just add `syringe.min.js` to your environment.
 - `Function.bind`
 - `String.trim`
 
-If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for all these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
+If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
 
 #### Compatibility
 
@@ -68,12 +68,6 @@ Ensure that you have installed the latest version of [node.js](http://nodejs.org
 
 `npm install syringejs`
 
-### NuGet
-
-Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
-
-`Install-Package syringe.js`
-
 ### Bower
 
 Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:
@@ -81,23 +75,24 @@ Ensure that you have installed the latest version of [Bower](http://bower.io/) a
 `bower install syringe`
 
 
+### NuGet
+
+Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
+
+`Install-Package syringe.js`
+
+
 ## Overview ##
 
 Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
 
-### Example
+### A Simple Example
 
 First, create a new `Syringe` object instance:
 
 ```javascript
 var syr = Syringe.create({
     'data': {
-        '52774Y': {
-            'name'      : 'McCaulay, Bob',
-            'dob'       : '04/13/1967'
-            'locale'    : 'GB',
-            'division'  : 'Marketing'
-        },
         '52775Z': {
             'name'      : 'Metzger, Ted',
             'dob'       : '08/23/1959',
@@ -180,51 +175,13 @@ log('52775Z');  // Logs:
 
 Ted's division has changed from `Facilities` to `Development` (quite the career move).
 
-We'll take things up a notch. Create a simple validation function and add it to the registry:
-
-```javascript
-syr.add('flag', function (data) {
-    return data.division !== 'Research';
-});
-```
-
-Wrap the utility function with some enhancements ...
-
-```javascript
-log = syr.wrap(log, function (fn, id) {
-
-    "use strict";
-   
-    var data = fn(), flag = this.get('flag');
-
-    if (data && flag && flag(data)) {
-        data.flagged = true;
-        console.warn('This activity has been flagged!');
-    }
-
-    return data;
-});
-```
-
-... and call the enhanced utility function with Bob's ID:
-
-```javascript
-log('52774Y');  // Logs:
-                // Volatile data accessed by employee 52774Y ... Name: McCaulay, Bob;
-                // Division: Marketing; Locale: GB
-                // This activity has been flagged!
-                // ...
-```
-
-A condition in the base data triggers the warning logger we placed in the wrapper, and a `flagged` property is added to the data entry.
-
 ## Questions
 
 ### Does injection work with constructor functions?
 
 Indeed it does. 
 
-### Can I see an example?
+### Can I see a more complex example?
 
 [Here's a Todos application](http://goo.gl/KFGFQf)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
