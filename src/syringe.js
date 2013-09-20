@@ -1,9 +1,9 @@
 // > http://syringejs.org
-// > syringe.js v0.4.11. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.12. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
-forin:false, curly:false, evil: true, laxbreak:true */
+forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 (function () {
 
 	"use strict";
@@ -71,7 +71,9 @@ forin:false, curly:false, evil: true, laxbreak:true */
 	var getReg = function (arr, id) {
 		var registry = _registry[id];
 		return arr.map(function (item) {
-			return (item === '') ? undefined : (item === '*') ? registry : getObj(item, registry);
+			return (item === '') ? 
+			undefined : (item === '*') ? 
+			registry : getObj(item, registry);
 		}, this);
 	};
 
@@ -120,6 +122,41 @@ forin:false, curly:false, evil: true, laxbreak:true */
 		xhr.send('');
 	};
 
+	// Asynch fetch
+	var fetch = function (arr, options, ctx) {
+
+		options		= options		|| {};
+		options.success = options.success	|| false;
+		options.xss	= options.xss		|| false;
+
+		var self	= this,
+			count	= 0,
+			url	= '';
+
+		// Keep a count of the script load events and reconcile it
+		// against the length of the script list
+		var stack = function (xhr) {
+
+			if (xhr && xhr.responseText) {
+				var data = JSON.parse(xhr.responseText);
+				if (data) self.add(arr[count].bind, data);
+			}
+
+			if (++count === arr.length) {
+				if (getType(options.success, true) === 'function') {
+					options.success.call(self, (ctx || self));
+				}
+			}
+
+		};
+
+		arr.forEach(function (item) {
+			if (isLocalURL(url = item.path) || options.xss === true) {
+				getData(item.path, stack);
+			}
+		});
+	};
+
 	// Test to see if an object is empty
 	var isEmpty = function(obj) {
 		for (var key in obj) {
@@ -149,21 +186,23 @@ forin:false, curly:false, evil: true, laxbreak:true */
 
 		// Assume a constructor function
 		if (!isEmpty(fn.prototype)) {
-			var Ctor = fn.bind.apply(fn, [null].concat(getReg(arr, id).concat(args.slice(2, args.length))));
-			return new Ctor();
+			var Obj = fn.bind.apply(fn, [null]
+				.concat(getReg(arr, id)
+					.concat(args.slice(2, args.length))));
+			return new Obj();
 		}
 		// Assume a regular function
 		else {
-			return fn.apply(this, getReg(arr, id).concat(args.slice(2, args.length)));
+			return fn.apply(this, getReg(arr, id)
+				.concat(args.slice(2, args.length)));
 		}
 	};
 
 	// Syringe base constructor
 	var Syringe = function (props) {
-		this.id = makeId();
-		_registry[this.id]	= {};
+		this.id			= makeId();
 		_cabinet[this.id]	= [];
-		_registry[this.id]	= (props && getType(props, true) === 'object') ? props : _registry[this.id];
+		_registry[this.id]	= (props && getType(props, true) === 'object') ? props : {};
 	};
 
 	// Syringe object prototype methods
@@ -187,7 +226,8 @@ forin:false, curly:false, evil: true, laxbreak:true */
 			}
 
 			if (getObj(name, registry)) {
-				throw new Error('Key "' + name + '" already exists in the map; use .remove() to unregister it first!');
+				throw new Error('Key "' + name + '" already exists in the map; use \
+					.remove() to unregister it first!');
 			} else {
 				if (getType(value, true) === 'function' && bindings) {
 					value = this.on(bindings, value);
@@ -245,9 +285,9 @@ forin:false, curly:false, evil: true, laxbreak:true */
 
 			switch (args.length) {
 
-				// __Two__ parameters: the registry array `args[0]` and method
-				// `args[1]`. No name or context object is provided. The 
-				// bound function will be returned as an anonymous function.
+			// __Two__ parameters: the registry array `args[0]` and method
+			// `args[1]`. No name or context object is provided. The 
+			// bound function will be returned as an anonymous function.
 			case 2:
 				obj = {
 					fn	: args[1],
@@ -290,10 +330,10 @@ forin:false, curly:false, evil: true, laxbreak:true */
 				}
 				break;
 
-				// __Four__ parameters: a name `args[0]`, the registry array 
-				// `args[1]`, the method `args[2]`, and a context object
-				// `args[3]`. When the bound method executes the provided
-				// context will be used.
+			// __Four__ parameters: a name `args[0]`, the registry array 
+			// `args[1]`, the method `args[2]`, and a context object
+			// `args[3]`. When the bound method executes the provided
+			// context will be used.
 			case 4:
 				name	= args[0];
 				arr	= args[1];
@@ -343,14 +383,11 @@ forin:false, curly:false, evil: true, laxbreak:true */
 
 			args = (getType(args, true) === 'array') ? args : [args];
 
-			if ((getType(name, true) === 'string') &&
-				(getType(fn, true) === 'function')) {
-
+			if ((getType(name, true) === 'string') && (getType(fn, true) === 'function')) {
 				if (_fn) {
 					fn = _fn ? _fn.fn : fn;
 					return run.apply(ctx, [_fn.args[0], fn, this.id].concat(args));
 				}
-
 				return fn.apply(ctx, args);
 			}
 			return false;
@@ -377,14 +414,18 @@ forin:false, curly:false, evil: true, laxbreak:true */
 		// use dot-notation in the passed string. The method will throw
 		// an exception if you try to set something that doesn't
 		// exist.
-		set: function (name, value) {
+		set: function (name, value, bindings) {
 
-			var registry = _registry[this.id],
-				strArr = name.split('.'),
-				objStr = (strArr.length > 1) ? strArr.pop() : false;
+			var registry	= _registry[this.id],
+				strArr	= name.split('.'),
+				objStr	= (strArr.length > 1) ? strArr.pop() : false;
 
 			if (getObj(name, registry) === undefined) {
 				throw new Error('Key "' + name + '" does not exist in the map!');
+			}
+
+			if (getType(value, true) === 'function' && bindings) {
+				value = this.on(bindings, value);
 			}
 
 			if (objStr) setObj(strArr.join('.'), registry)[objStr] = value;
@@ -459,48 +500,15 @@ forin:false, curly:false, evil: true, laxbreak:true */
 	proto.unregister	= proto.remove;
 
 	// Current version...
-	proto.VERSION = '0.4.11';
+	proto.VERSION		= '0.4.12';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
 	} else {
 
 		// Asynch fetch is only present on the browser
-		proto.fetch = function (arr, options, ctx) {
-
-			options		= options		|| {};
-			options.success = options.success	|| false;
-			options.xss	= options.xss		|| false;
-
-			var self	= this,
-				count	= 0,
-				url	= '';
-
-			// Keep a count of the script load events and reconcile it
-			// against the length of the script list
-			var stack = function (xhr) {
-
-				if (xhr && xhr.responseText) {
-					var data = JSON.parse(xhr.responseText);
-					if (data) self.add(arr[count].bind, data);
-				}
-
-				if (++count === arr.length) {
-					if (getType(options.success, true) === 'function') {
-						options.success.call(self, (ctx || self));
-					}
-				}
-
-			};
-
-			arr.forEach(function (item) {
-				if (isLocalURL(url = item.path) || options.xss === true) {
-					getData(item.path, stack);
-				}
-			});
-		};
-
-		root.Syringe = new Syringe();
+		proto.fetch	= fetch;
+		root.Syringe	= new Syringe();
 	}
 
 }.call(this));
