@@ -62,7 +62,7 @@ Now define a simple _getter_ method and add it to the Syringe object registry. A
 ```javascript
 syr.add('utils.get', function (data, id) {
 
-    "use strict";
+    'use strict';
     data = data[id] || false;
 
     if (data) {
@@ -86,7 +86,7 @@ Let's create a simple utility function into which, on invocation, the getter is 
 ```javascript
 syr.on('log', ['utils.get'], function (get, id) {
 
-    "use strict";
+    'use strict';
 
     return (get = get(id))
         ? (console.info('Volatile data accessed by employee ' + id + '\n' + get.msg), get)
@@ -134,7 +134,7 @@ syr.add({
 ```javascript
 syr.set('utils.get', function (data, access, id) {
 
-    "use strict";
+    'use strict';
 
     data = data[id] || false;
     
@@ -180,10 +180,9 @@ log('52775Z');  // Logs:
 
 ### "Does injection work with constructor functions?"
 
-Oh indeed:
+Indeed they do. Here'a another simple example - create a data object:
 
 ```javascript
-// Create a data object:
 var syr = Syringe.create({
     'data': {
         '52775Z': {
@@ -194,14 +193,21 @@ var syr = Syringe.create({
         }   
     }
 });
-
-// Create a simple constructor:
+```
+Create a simple constructor:
+```javascript
 var StaffObj = function (data, id) {
-    this.extend(data[id]);
-};
 
-// Add an extend method to the prototype:
+    'use strict';
+    id && data[id] && this.extend(data[id]);
+};
+```
+Add an `extend` method to the prototype:
+```javascript
 StaffObj.prototype.extend = function () {
+
+    'use strict';
+
     [].slice.call(arguments).forEach(function (item) {
         if (item) {
             for (var prop in item) {
@@ -213,12 +219,14 @@ StaffObj.prototype.extend = function () {
     }, this);
     return this;    
 };
-
-// Bind the constructor the data object:
+```
+Bind the `data` object to the constructor:
+```javascript
 syr.on('StaffObj', ['data'], StaffObj);
-
-// Create a new object:
-var ted = new StaffObj('52775Z');   // Returns:
+```
+... and create a new object:
+```javascript
+var ted = new StaffObj('52775Z');   // Creates:
                                     // {
                                     //    "name"        : "Metzger, Ted",
                                     //    "dob"         : "08/23/1959",
@@ -233,7 +241,7 @@ var ted = new StaffObj('52775Z');   // Returns:
 
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
-<sup>+ CSS and images courtesy of the awesome  [TodoMVC](http://todomvc.com) project</sup>
+<sup>+ CSS and images courtesy of the awesome [TodoMVC](http://todomvc.com) project</sup>
 
 ### "Can I see a _less_ complex example?"
 
@@ -267,7 +275,7 @@ Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syring
 - `Function.bind`
 - `String.trim`
 
-If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://github.com/holt/syringe/blob/master/lib/polyfill.min.js)
+If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
 
 #### Compatibility
 
@@ -314,7 +322,7 @@ Name     | Parameters   | Description
 *exec*    | `name, args [, ctx]` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('func', ['Mike', '39']);`
 *fetch*  | `array [, callback]` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#wrap-example)
-*copy*   | `binding, fn` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
+*copy*   | `binding, fn [, ctx]` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 
 ## Additional Examples ##
 
@@ -414,7 +422,7 @@ syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
     /* as above */
 });
 ```
-... or as a _deep_ object reference (which is dynamically constructed if the object doesn't already exist):
+... or as a _deep_ object reference (the object is dynamically constructed if it doesn't already exist):
 
 ```javascript
 syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
