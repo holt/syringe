@@ -6,6 +6,7 @@ Syringe is a teeny-tiny JavaScript [dependency injection](https://en.wikipedia.o
 
 Now, let's roll up our sleeves and begin shall we?
 
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -13,8 +14,8 @@ Now, let's roll up our sleeves and begin shall we?
 - [Questions](#questions)
     - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
     - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
-    - ["Got a simpler example?"](#got-a-simpler-example)
-    - ["Are we making a curry?"](#are-we-making-a-curry)
+    - ["Can I see a less complex example?"](#can-i-see-a-less-complex-example)
+    - ["Aren't we just making a curry?"](#aren-t-we-just-making-a-curry)
     - ["What's this about a registry?"](#what's-this-about-a-registry)
 - [Installation](#installation)
     - [Browser](#browser)
@@ -39,7 +40,7 @@ Now, let's roll up our sleeves and begin shall we?
 
 Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
 
-### A Gentle Example
+### A Simple Example
 
 First, create a new `Syringe` object instance:
 
@@ -88,7 +89,7 @@ syr.on('log', ['utils.get'], function (get, id) {
     "use strict";
 
     return (get = get(id))
-        ? (console.info('Volatile data accessed by employee ' + id + ' ... ' + get.msg), get)
+        ? (console.info('Volatile data accessed by employee ' + id + '\n' + get.msg), get)
         : false;
 });
 ```
@@ -97,8 +98,8 @@ Now call the utility function with Ted's ID:
 
 ```javascript
 log('52775Z');  // Logs:
-                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted;
-                // Division: Facilities; Locale: CA
+                // Volatile data accessed by employee 52775Z
+                // Name: Metzger, Ted; Division: Facilities; Locale: CA
 
                 // Returns:
                 // {
@@ -116,27 +117,115 @@ The logging utility returns some useful information and logs out a message to th
 
  The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
 
-Loose coupling between the concerns means that we can easily change the registry data for the injected items ...
+Loose coupling between the concerns means that we can easily change the registry data for the injected items. Let's add a custom warning message:
+
+```javascript
+syr.add({
+    'warnings': {
+        'access': {
+            'success': 'Employee {0} is A-OK!',
+            'fail': 'Employee {0} does not have the proper authorization!'
+        }
+    }
+});
+```
+... modify the getter to check the data:
+
+```javascript
+syr.set('utils.get', function (data, access, id) {
+
+    "use strict";
+
+    data = data[id] || false;
+    
+    if (data) {
+        data.msg = (data.division !== 'Development') ?
+            access.fail.replace('{0}', '"' + data.name + '"') : 
+            access.success.replace('{0}', '"' + data.name + '"');
+    }
+
+    return data;
+}, ['data', 'warnings.access']);
+
+```
+
+... and call the utility function again:
+
+
+```javascript
+log('52775Z');  // Logs:
+                // Volatile data accessed by employee 52775Z
+                // Employee "Metzger, Ted" does not have the proper authorization!
+                // ...
+```
+
+Change the user data:
 
 ```javascript
 syr.set('data.52775Z.division', 'Development');
 ```
+
 ... and call the utility function again:
+
 
 ```javascript
 log('52775Z');  // Logs:
-                // Volatile data accessed by employee 52775Z ... Name: Metzger, Ted;
-                // Division: Development; Locale: CA
+                // Volatile data accessed by employee 52775Z
+                // Employee "Metzger, Ted" is A-OK!
                 // ...
 ```
 
-Ted's division has changed from `Facilities` to `Development` (quite the career move).
 
 ## Questions
 
 ### "Does injection work with constructor functions?"
 
-Indeed it does. 
+Oh indeed:
+
+```javascript
+// Create a data object:
+var syr = Syringe.create({
+    'data': {
+        '52775Z': {
+            'name'      : 'Metzger, Ted',
+            'dob'       : '08/23/1959',
+            'locale'    : 'CA',
+            'division'  : 'Facilities'
+        }   
+    }
+});
+
+// Create a simple constructor:
+var StaffObj = function (data, id) {
+    this.extend(data[id]);
+};
+
+// Add an extend method to the prototype:
+StaffObj.prototype.extend = function () {
+    [].slice.call(arguments).forEach(function (item) {
+        if (item) {
+            for (var prop in item) {
+                if (item.hasOwnProperty(prop)) {
+                    this[prop] = item[prop];
+                }
+            }
+        }
+    }, this);
+    return this;    
+};
+
+// Bind the constructor the data object:
+syr.on('StaffObj', ['data'], StaffObj);
+
+// Create a new object:
+var ted = new StaffObj('52775Z');   // Returns:
+                                    // {
+                                    //    "name"        : "Metzger, Ted",
+                                    //    "dob"         : "08/23/1959",
+                                    //    "division"    : "Facilities",
+                                    //    "locale"      : "CA"
+                                    // }
+```
 
 ### "Can I see a more complex example?"
 
@@ -146,11 +235,11 @@ Indeed it does.
 
 <sup>+ CSS and images courtesy of the awesome  [TodoMVC](http://todomvc.com) project</sup>
 
-### "Got a simpler example?"
+### "Can I see a _less_ complex example?"
 
 This [jsFiddle](http://jsfiddle.net/zenserve/HfGj4/) shows how Syringe can be used to build a simple form validation component.
 
-### "Are we making a curry?"
+### "Aren't we just making a curry?"
 
 When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
 
