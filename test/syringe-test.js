@@ -190,6 +190,30 @@ $(document).ready(function () {
 		equal(syr.get('data.first.second'), 'ok', 'deep data should be set correctly.');
 	});
 
+	test("add deep method with binding", 2, function () {
+
+		var syr = Syringe.create();
+		syr.add({
+			'first': {
+				'second': 'done'
+			},
+			'third': {
+				'fourth': 'done and done'
+			}			
+		});
+		syr.add('func', function (data, msg) {
+			return msg + ' - ' + data;
+		}, ['first.second']);
+
+		equal(syr.exec('func', ['hello world']), 'hello world - done', 'data from bound method should be returned.');
+
+		syr.set('func', function (data, msg) {
+			return msg + ' - ' + data;
+		}, ['third.fourth']);
+
+		equal(syr.exec('func', ['hello world']), 'hello world - done and done', 'data from bound method should be returned.');
+	});
+
 	module("Remove");
 
 	test("remove shallow props", 2, function () {
