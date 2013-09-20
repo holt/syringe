@@ -10,7 +10,7 @@ Now, let's roll up our sleeves and begin shall we?
 ## Table of Contents
 
 - [Overview](#overview)
-    - [A Gentle Example](#a-gentle-example)
+    - [A Simple Example](#a-simple-example)
 - [Questions](#questions)
     - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
     - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
