@@ -180,7 +180,7 @@ log('52775Z');  // Logs:
 
 ### "Does injection work with constructor functions?"
 
-Indeed they do. Here'a another simple example - create a data object:
+Indeed it does. Here'a another simple example - create a data object:
 
 ```javascript
 var syr = Syringe.create({
