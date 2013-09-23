@@ -6,16 +6,16 @@ Syringe is a teeny-tiny JavaScript [dependency injection](https://en.wikipedia.o
 
 Now, let's roll up our sleeves and begin shall we?
 
-
 ## Table of Contents
 
 - [Overview](#overview)
     - [A Simple Example](#a-simple-example)
+    - [What Just Happened?](#what-just-happened)
 - [Questions](#questions)
     - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
     - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
-    - ["Can I see a less complex example?"](#can-i-see-a-less-complex-example)
-    - ["Aren't we just making a curry?"](#aren-t-we-just-making-a-curry)
+    - ["Can I see a _less_ complex example?"](#can-i-see-a-_less_-complex-example)
+    - ["Aren't we just making a curry?"](#aren't-we-just-making-a-curry)
     - ["What's this about a registry?"](#what's-this-about-a-registry)
 - [Installation](#installation)
     - [Browser](#browser)
@@ -28,7 +28,7 @@ Now, let's roll up our sleeves and begin shall we?
     - [Initialization and Registration](#initialization-and-registration)
         - [Register a Single Item](#register-a-single-item)
         - [Register a Map of Multiple Items](#register-a-map-of-multiple-items)
-        - [Register Asynchronous Objects](#register-asynchronous-objects)
+        - [Register Items Asynchronously ](#register-items-asynchronously)
     - [Binding Methods](#binding-methods)
         - [Function Expression](#function-expression)
         - [Object Reference](#object-reference)
@@ -52,7 +52,7 @@ var syr = Syringe.create({
             'dob'       : '08/23/1959',
             'locale'    : 'CA',
             'division'  : 'Facilities'
-        }   
+        }  
     }
 });
 ```
@@ -111,9 +111,9 @@ log('52775Z');  // Logs:
                 // }
 ```
 
-The logging utility returns some useful information and logs out a message to the console. 
+The logging utility returns some useful information and logs out a message to the console.
 
-#### What Just Happened?
+### What Just Happened?
 
  The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
 
@@ -123,8 +123,8 @@ Loose coupling between the concerns means that we can easily change the registry
 syr.add({
     'warnings': {
         'access': {
-            'success': 'Employee {0} is A-OK!',
-            'fail': 'Employee {0} does not have the proper authorization!'
+            'success'   : 'Employee {0} is A-OK!',
+            'fail'      : 'Employee {0} does not have the proper authorization!'
         }
     }
 });
@@ -136,12 +136,9 @@ syr.set('utils.get', function (data, access, id) {
 
     'use strict';
 
-    data = data[id] || false;
-    
-    if (data) {
-        data.msg = (data.division !== 'Development') ?
-            access.fail.replace('{0}', '"' + data.name + '"') : 
-            access.success.replace('{0}', '"' + data.name + '"');
+    if (data = data[id] || false) {
+        var action = (data.division !== 'Development') ? 'fail' : 'success';
+        data.msg = access[action].replace('{0}', '"' + data.name + '"');
     }
 
     return data;
@@ -175,12 +172,11 @@ log('52775Z');  // Logs:
                 // ...
 ```
 
-
 ## Questions
 
 ### "Does injection work with constructor functions?"
 
-Indeed it does. Here'a another simple example - create a data object:
+Indeed it does, and we'll demonstrate it with another simple example. Create a data object:
 
 ```javascript
 var syr = Syringe.create({
@@ -190,7 +186,7 @@ var syr = Syringe.create({
             'dob'       : '08/23/1959',
             'locale'    : 'CA',
             'division'  : 'Facilities'
-        }   
+        }  
     }
 });
 ```
@@ -217,7 +213,7 @@ StaffObj.prototype.extend = function () {
             }
         }
     }, this);
-    return this;    
+    return this;   
 };
 ```
 Bind the `data` object to the constructor:
@@ -267,7 +263,7 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
 
-**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods: 
+**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:
 
 - `Array.filter`
 - `Array.map`
@@ -373,7 +369,7 @@ syr.add({
 });
 ```
 
-#### Register Asynchronous Objects
+#### Register Items Asynchronously
 
 ```javascript
 syr.fetch([{
@@ -394,7 +390,7 @@ syr.fetch([{
 
 You can bind your methods in a number of different ways.
 
-##### Function Expression
+#### Function Expression
 
 ```javascript
 var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, stat, date, props) {
@@ -415,7 +411,7 @@ var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, sta
 
 });
 ```
-##### Object Reference
+#### Object Reference
 
 ```javascript
 syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
@@ -483,7 +479,7 @@ event({
 
 ###  Register and Bind Example
 
-If you pass an array of registry properties as the third argument when you register a function, syringe will automatically bind the function before addding it to the registry:
+If you pass an array of registry properties as the third argument when you register a function, syringe will automatically bind the function before adding it to the registry:
 
 ```javascript
 // Define a function for getting the current date:
@@ -548,11 +544,11 @@ Bound methods can themselves be wrapped in other methods in order to create tier
 var timer = function (fn, name, funcname) {
 
     var start, stop, ret;
-   
+  
     start   = (new Date()).getTime();
     ret     = fn();
     stop    = (new Date()).getTime();
-   
+  
     console.log('The function "' + funcname + '" took ' + (stop - start) + 'ms');
     return ret;
 };
