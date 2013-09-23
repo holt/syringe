@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.12. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.13. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -11,7 +11,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// Globals
 	var root		= this,
 		_registry	= {},
-		_cabinet	= {};
+		_cabinet	= {},
+		_separator	= {};
 
 	// Utilities from core prototypes
 	var hasProp	= {}.hasOwnProperty,
@@ -73,7 +74,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		return arr.map(function (item) {
 			return (item === '') ? 
 			undefined : (item === '*') ? 
-			registry : getObj(item, registry);
+			registry : getObj(item, registry, _separator[id]);
 		}, this);
 	};
 
@@ -203,10 +204,22 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		this.id			= makeId();
 		_cabinet[this.id]	= [];
 		_registry[this.id]	= (props && getType(props, true) === 'object') ? props : {};
+		_separator[this.id]	= '.';
 	};
 
 	// Syringe object prototype methods
 	var proto = Syringe.prototype = {
+
+		// Set the separator character used for creating, specifying, and
+		// retrieving objects. Whitespace and alphanumeric characters are
+		// not permitted. By default, the period '.' character is used.
+		separator: function (val) {
+			if (getType(val, true) === 'string' && val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1) {
+				_separator[this.id] = val;
+				return this;
+			}
+			return false;
+		},
 
 		// Add a new item to the Syringe registry. The name can be provided 
 		// in dot-notation, in which case a deep reference is built within
@@ -215,7 +228,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// with which to bind this function. In this way, registry methods
 		// can be automatically bound to other registry methods.
 		add: function (name, value, bindings) {
-			var registry = _registry[this.id];
+			var registry		= _registry[this.id],
+				separator	= _separator[this.id];
 
 			if (getType(name, true) === 'object') {
 				for (var key in name) {
@@ -225,18 +239,18 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				return this;
 			}
 
-			if (getObj(name, registry)) {
+			if (getObj(name, registry, separator)) {
 				throw new Error('Key "' + name + '" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (getType(value, true) === 'function' && bindings) {
 					value = this.on(bindings, value);
 				}
-				var strArr = name.split('.'),
+				var strArr = name.split(separator),
 					objStr = (strArr.length > 1) ? strArr.pop() : false;
 
 				if (objStr) {
-					setObj(strArr.join('.'), registry)[objStr] = value;
+					setObj(strArr.join(separator), registry, separator)[objStr] = value;
 				} else {
 					registry[strArr.toString()] = value;
 				}
@@ -247,13 +261,14 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// Remove a named item from the registry
 		remove: function (name) {
 			var registry		= _registry[this.id],
+				separator	= _separator[this.id],
 				newregistry	= {},
 				obj		= {},
-				splitname	= name.trim().split('.'),
+				splitname	= name.trim().split(separator),
 				splitlast	= splitname.pop();
 
-			splitname	= splitname.join('.');
-			obj		= splitname ? getObj(splitname, registry) : registry;
+			splitname	= splitname.join(separator);
+			obj		= splitname ? getObj(splitname, registry, separator) : registry;
 			name		= splitlast || splitname;
 
 			for (var key in obj) {
@@ -278,9 +293,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = root;
 
-			var cabinet	= _cabinet[this.id],
-				args	= slice.call(arguments),
-				isNamed = (getType(args[0]) === 'String') ? true : false,
+			var cabinet		= _cabinet[this.id],
+				separator	= _separator[this.id],
+				args		= slice.call(arguments),
+				isNamed	= (getType(args[0]) === 'String') ? true : false,
 				name, arr, fn, ctx, obj;
 
 			switch (args.length) {
@@ -348,7 +364,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				break;
 			}
 
-			var strArr = name.split('.'),
+			var strArr = name.split(separator),
 				objStr = (strArr.length > 1) ? strArr.pop() : false;
 
 			obj.bind = fn = run.bind(ctx, arr, fn, this.id);
@@ -359,9 +375,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			cabinet.push(obj);
 
 			if (objStr) {
-				setObj(strArr.join('.'), ctx)[objStr] = fn;
+				setObj(strArr.join(separator), ctx, separator)[objStr] = fn;
 			} else {
-				ctx[strArr.join('.')] = fn;
+				ctx[strArr.join(separator)] = fn;
 			}
 
 			return this;
@@ -401,7 +417,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			var registry = _registry[this.id];
 
 			if (getType(name, true) === 'string') {
-				var obj = getObj(name, registry);
+				var obj = getObj(name, registry, _separator[this.id]);
 				if (getType(obj, true) !== 'undefined') {
 					return obj;
 				}
@@ -416,11 +432,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// exist.
 		set: function (name, value, bindings) {
 
-			var registry	= _registry[this.id],
-				strArr	= name.split('.'),
-				objStr	= (strArr.length > 1) ? strArr.pop() : false;
+			var registry		= _registry[this.id],
+				separator	= _separator[this.id],
+				strArr		= name.split(separator),
+				objStr		= (strArr.length > 1) ? strArr.pop() : false;
 
-			if (getObj(name, registry) === undefined) {
+			if (getObj(name, registry, separator) === undefined) {
 				throw new Error('Key "' + name + '" does not exist in the map!');
 			}
 
@@ -428,7 +445,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				value = this.on(bindings, value);
 			}
 
-			if (objStr) setObj(strArr.join('.'), registry)[objStr] = value;
+			if (objStr) setObj(strArr.join(separator), registry, separator)[objStr] = value;
 			else registry[strArr.toString()] = value;
 
 			return this;
@@ -500,7 +517,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Current version...
-	proto.VERSION		= '0.4.12';
+	proto.VERSION		= '0.4.13';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
