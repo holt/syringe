@@ -271,17 +271,17 @@ Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syring
 - `Function.bind`
 - `String.trim`
 
-If you need to support older browsers, the [MDN](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects) polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
+If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
 
 #### Compatibility
 
 Syringe has been tested on the following browsers:
 
-- Firefox 2+
-- Chrome 11+
-- Safari 3+
-- Opera 9+
-- Internet Explorer 7+
+- [x] Firefox 2+
+- [x] Chrome 11+
+- [x] Safari 3+
+- [x] Opera 9+
+- [x] Internet Explorer 7+
 
 ### Node
 
@@ -319,6 +319,8 @@ Name     | Parameters   | Description
 *fetch*  | `array [, callback]` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn [, ctx]` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
+*separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
+
 
 ## Additional Examples ##
 
