@@ -277,11 +277,11 @@ If you need to support older browsers, the polyfills for these methods are provi
 
 Syringe has been tested on the following browsers:
 
-- [x] Firefox 2+
-- [x] Chrome 11+
-- [x] Safari 3+
-- [x] Opera 9+
-- [x] Internet Explorer 7+
+- Firefox 2+
+- Chrome 11+
+- Safari 3+
+- Opera 9+
+- Internet Explorer 7+
 
 ### Node
 
