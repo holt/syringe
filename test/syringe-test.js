@@ -394,6 +394,83 @@ $(document).ready(function () {
 		equal(f2('woo'), 'foo bar woo test', 'wrapped function returns injected data and expected arguments.');
 	});
 
+	module("Separator");
+
+	test("change the separator character to a valid alternative", 3, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.separator('#');
+		equal(syr.get('first#second#third'), 'done', 'executed function returns data');
+
+		syr.separator('/');
+		equal(syr.get('first/second/third'), 'done', 'executed function returns data');
+
+		syr.separator('*');
+		equal(syr.get('first*second*third'), 'done', 'executed function returns data');		
+
+		syr.separator('.');
+	});
+
+	test("change the separator character to an invalid alternative", 4, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+		syr.separator(' ');
+		equal(syr.get('first second third'), false, 'executed function does not return data');
+
+		syr.separator('A');
+		equal(syr.get('firstAsecondAthird'), false, 'executed function does not return data');
+
+		syr.separator('1');
+		equal(syr.get('first1second1third'), false, 'executed function does not return data');		
+
+		syr.separator('##');
+		equal(syr.get('first##second##third'), false, 'executed function does not return data');	
+
+		syr.separator('.');
+	});
+		
+	test("allow different separators between instances", 3, function () {
+
+		var syr1 = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		var syr2 = syr1.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr1.separator('#');
+		syr2.separator('*');
+
+		equal(syr1.get('first#second#third'), 'done', 'executed function returns data');
+		equal(syr2.get('first*second*third'), 'done', 'executed function returns data');
+
+		syr2.separator('.');
+
+		equal(syr2.get('first.second.third'), 'done', 'executed function returns data');
+	});	
+
 	module("Copy");
 
 	test("copy an existing method", 1, function () {
@@ -445,4 +522,4 @@ $(document).ready(function () {
 		});
 	});
 
-});
+});	
