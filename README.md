@@ -35,6 +35,8 @@ Now, let's roll up our sleeves and begin shall we?
     - [Execution](#execution)
     - [Register and Bind Example](#register-and-bind-example)
     - [Wrap Example](#wrap-example)
+- [License](#license)
+
 
 ## Overview ##
 
@@ -319,7 +321,7 @@ Name     | Parameters   | Description
 *fetch*  | `array [, callback]` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-asynchronous-objects)
 *wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#wrap-example)
 *copy*   | `binding, fn [, ctx]` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
-*mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }})`
+*mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
 *separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
 
 ## Additional Examples ##
@@ -576,3 +578,7 @@ f('Mike', 'msg'); // log: "The function "msg" took 1ms"
     "Greetings Mike"
 */
 ```
+
+## License
+
+Syringe is freely distributable under the terms of the MIT license.
