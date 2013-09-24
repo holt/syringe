@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.13. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.14. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -38,6 +38,7 @@ holt.org. Distributed under the MIT License</p>
             <div class="content"><div class='highlight'><pre><span class="comment">/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
+
 (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 
 	<span class="string">"use strict"</span>;</pre></div></div>
@@ -55,10 +56,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> root		= <span class="keyword">this</span>,
-		_registry	= {},
-		_cabinet	= {},
-		_separator	= {};</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> root	= <span class="keyword">this</span>, 
+		store	= {};</pre></div></div>
             
         </li>
         
@@ -110,14 +109,20 @@ is with the lowercased name.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getType = <span class="function"><span class="keyword">function</span> <span class="params">(obj, lc)</span> {</span>
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getType = <span class="function"><span class="keyword">function</span> <span class="params">(obj, istype)</span> {</span>
 		<span class="keyword">var</span> ret;
 		<span class="keyword">if</span> (obj) {
 			ret = ({}).toString.call(obj).match(<span class="regexp">/\s([a-z|A-Z]+)/</span>)[<span class="number">1</span>];
 		} <span class="keyword">else</span> {
 			ret = (obj === <span class="literal">null</span>) ? <span class="string">'Null'</span> : <span class="string">'Undefined'</span>;
 		}
-		<span class="keyword">return</span> (lc === <span class="literal">true</span> ? ret.toLowerCase() : ret);
+		<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {
+			istype = istype.toLowerCase();
+			ret = ret.toLowerCase();
+			<span class="keyword">return</span> (istype === ret);
+		} <span class="keyword">else</span> {
+			<span class="keyword">return</span> ret;
+		}
 	};</pre></div></div>
             
         </li>
@@ -188,11 +193,11 @@ in the registry object</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getReg = <span class="function"><span class="keyword">function</span> <span class="params">(arr, id)</span> {</span>
-		<span class="keyword">var</span> registry = _registry[id];
+		<span class="keyword">var</span> registry = store[id].registry;
 		<span class="keyword">return</span> arr.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 			<span class="keyword">return</span> (item === <span class="string">''</span>) ? 
 			<span class="literal">undefined</span> : (item === <span class="string">'*'</span>) ? 
-			registry : getObj(item, registry, _separator[id]);
+			registry : getObj(item, registry, store[id].separator);
 		}, <span class="keyword">this</span>);
 	};</pre></div></div>
             
@@ -310,7 +315,7 @@ against the length of the script list</p>
 			}
 
 			<span class="keyword">if</span> (++count === arr.length) {
-				<span class="keyword">if</span> (getType(options.success, <span class="literal">true</span>) === <span class="string">'function'</span>) {
+				<span class="keyword">if</span> (getType(options.success, <span class="string">'function'</span>)) {
 					options.success.call(self, (ctx || self));
 				}
 			}
@@ -363,7 +368,7 @@ to it. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> run = <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, id)</span> {</span>
-		<span class="keyword">var</span> cabinet	= _cabinet[id],
+		<span class="keyword">var</span> cabinet	= store[id].cabinet,
 			args	= slice.call(arguments);</pre></div></div>
             
         </li>
@@ -440,10 +445,11 @@ to it. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> Syringe = <span class="function"><span class="keyword">function</span> <span class="params">(props)</span> {</span>
-		<span class="keyword">this</span>.id			= makeId();
-		_cabinet[<span class="keyword">this</span>.id]	= [];
-		_registry[<span class="keyword">this</span>.id]	= (props &amp;&amp; getType(props, <span class="literal">true</span>) === <span class="string">'object'</span>) ? props : {};
-		_separator[<span class="keyword">this</span>.id]	= <span class="string">'.'</span>;
+		store[<span class="keyword">this</span>.id = makeId()] = {
+			cabinet		: [],
+			registry	: (props &amp;&amp; getType(props, <span class="string">'object'</span>)) ? props : {},
+			separator	: <span class="string">'.'</span>
+		};
 	};</pre></div></div>
             
         </li>
@@ -477,8 +483,8 @@ not permitted. By default, the period &#39;.&#39; character is used.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		separator: <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
-			<span class="keyword">if</span> (getType(val, <span class="literal">true</span>) === <span class="string">'string'</span> &amp;&amp; val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length === <span class="number">1</span>) {
-				_separator[<span class="keyword">this</span>.id] = val;
+			<span class="keyword">if</span> (getType(val, <span class="string">'string'</span>) &amp;&amp; val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length === <span class="number">1</span>) {
+				store[<span class="keyword">this</span>.id].separator = val;
 				<span class="keyword">return</span> <span class="keyword">this</span>;
 			}
 			<span class="keyword">return</span> <span class="literal">false</span>;
@@ -503,10 +509,10 @@ can be automatically bound to other registry methods.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		add: function (name, value, bindings) {
-			var registry 		= _registry[this.id],
-				separator 	= _separator[this.id];
+			var registry		= store[this.id].registry,
+				separator	= store[this.id].separator;
 
-			if (getType(name, true) === 'object') {
+			if (getType(name, 'object')) {
 				for (var key in name) {
 					if (!hasProp.call(name, key)) continue;
 					this.add.apply(this, [key, name[key]]);
@@ -518,7 +524,7 @@ can be automatically bound to other registry methods.</p>
 				throw new Error('Key "' + name + '" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
-				if (getType(value, true) === 'function' &amp;&amp; bindings) {
+				if (getType(value, 'function') &amp;&amp; bindings) {
 					value = this.on(bindings, value);
 				}
 				var strArr = name.split(separator),
@@ -547,8 +553,8 @@ can be automatically bound to other registry methods.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		remove: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-			<span class="keyword">var</span> registry		= _registry[<span class="keyword">this</span>.id],
-				separator 	= _separator[<span class="keyword">this</span>.id],
+			<span class="keyword">var</span> registry		= store[<span class="keyword">this</span>.id].registry,
+				separator	= store[<span class="keyword">this</span>.id].separator,
 				newregistry	= {},
 				obj		= {},
 				splitname	= name.trim().split(separator),
@@ -591,7 +597,7 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> _registry[<span class="keyword">this</span>.id] = newregistry;
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> store[<span class="keyword">this</span>.id].registry = newregistry;
 
 			<span class="keyword">return</span> <span class="keyword">this</span>;
 		},</pre></div></div>
@@ -616,10 +622,10 @@ described below.</p>
 
 			ctx = root;
 
-			<span class="keyword">var</span> cabinet		= _cabinet[<span class="keyword">this</span>.id],
-				separator 	= _separator[<span class="keyword">this</span>.id],
+			<span class="keyword">var</span> cabinet		= store[<span class="keyword">this</span>.id].cabinet,
+				separator	= store[<span class="keyword">this</span>.id].separator,
 				args		= slice.call(arguments),
-				isNamed 	= (getType(args[<span class="number">0</span>]) === <span class="string">'String'</span>) ? <span class="literal">true</span> : <span class="literal">false</span>,
+				isNamed		= (getType(args[<span class="number">0</span>], <span class="string">'String'</span>)) ? <span class="literal">true</span> : <span class="literal">false</span>,
 				name, arr, fn, ctx, obj;
 
 			<span class="keyword">switch</span> (args.length) {</pre></div></div>
@@ -786,16 +792,16 @@ pass an array of arguments and a context.</p>
 
 			ctx = ctx || <span class="keyword">this</span>;
 
-			<span class="keyword">var</span> cabinet = _cabinet[<span class="keyword">this</span>.id],
+			<span class="keyword">var</span> cabinet = store[<span class="keyword">this</span>.id].cabinet,
 				fn = <span class="keyword">this</span>.get(name);
 
 			<span class="keyword">var</span> _fn = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
 			})[<span class="number">0</span>];
 
-			args = (getType(args, <span class="literal">true</span>) === <span class="string">'array'</span>) ? args : [args];
+			args = (getType(args, <span class="string">'array'</span>)) ? args : [args];
 
-			<span class="keyword">if</span> ((getType(name, <span class="literal">true</span>) === <span class="string">'string'</span>) &amp;&amp; (getType(fn, <span class="literal">true</span>) === <span class="string">'function'</span>)) {
+			<span class="keyword">if</span> ((getType(name, <span class="string">'string'</span>)) &amp;&amp; (getType(fn, <span class="string">'function'</span>))) {
 				<span class="keyword">if</span> (_fn) {
 					fn = _fn ? _fn.fn : fn;
 					<span class="keyword">return</span> run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>.id].concat(args));
@@ -822,11 +828,11 @@ does not exist.</p>
             
             <div class="content"><div class='highlight'><pre>		get: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
 
-			<span class="keyword">var</span> registry = _registry[<span class="keyword">this</span>.id];
+			<span class="keyword">var</span> registry = store[<span class="keyword">this</span>.id].registry;
 
-			<span class="keyword">if</span> (getType(name, <span class="literal">true</span>) === <span class="string">'string'</span>) {
-				<span class="keyword">var</span> obj = getObj(name, registry, _separator[<span class="keyword">this</span>.id]);
-				<span class="keyword">if</span> (getType(obj, <span class="literal">true</span>) !== <span class="string">'undefined'</span>) {
+			<span class="keyword">if</span> (getType(name, <span class="string">'string'</span>)) {
+				<span class="keyword">var</span> obj = getObj(name, registry, store[<span class="keyword">this</span>.id].separator);
+				<span class="keyword">if</span> (!getType(obj, <span class="string">'undefined'</span>)) {
 					<span class="keyword">return</span> obj;
 				}
 				<span class="keyword">return</span> <span class="literal">false</span>;
@@ -852,8 +858,8 @@ exist.</p>
             
             <div class="content"><div class='highlight'><pre>		set: <span class="function"><span class="keyword">function</span> <span class="params">(name, value, bindings)</span> {</span>
 
-			<span class="keyword">var</span> registry		= _registry[<span class="keyword">this</span>.id],
-				separator 	= _separator[<span class="keyword">this</span>.id],
+			<span class="keyword">var</span> registry		= store[<span class="keyword">this</span>.id].registry,
+				separator	= store[<span class="keyword">this</span>.id].separator,
 				strArr		= name.split(separator),
 				objStr		= (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
 
@@ -861,7 +867,7 @@ exist.</p>
 				<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + <span class="string">'" does not exist in the map!'</span>);
 			}
 
-			<span class="keyword">if</span> (getType(value, <span class="literal">true</span>) === <span class="string">'function'</span> &amp;&amp; bindings) {
+			<span class="keyword">if</span> (getType(value, <span class="string">'function'</span>) &amp;&amp; bindings) {
 				value = <span class="keyword">this</span>.on(bindings, value);
 			}
 
@@ -888,7 +894,7 @@ wrapper.</p>
             
             <div class="content"><div class='highlight'><pre>		wrap: <span class="function"><span class="keyword">function</span> <span class="params">(fn, wrapper, ctx)</span> {</span>
 
-			<span class="keyword">var</span> cabinet = _cabinet[<span class="keyword">this</span>.id];
+			<span class="keyword">var</span> cabinet = store[<span class="keyword">this</span>.id].cabinet;
 
 			ctx = ctx || <span class="keyword">this</span>;
 
@@ -930,7 +936,7 @@ execution context.</p>
 
 			ctx = ctx || <span class="keyword">this</span>;
 
-			<span class="keyword">var</span> cabinet	= _cabinet[<span class="keyword">this</span>.id],
+			<span class="keyword">var</span> cabinet	= store[<span class="keyword">this</span>.id].cabinet,
 				args	= slice.call(arguments);
 
 			<span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
@@ -965,6 +971,7 @@ execution context.</p>
             <div class="content"><div class='highlight'><pre>		create: <span class="function"><span class="keyword">function</span> <span class="params">(props)</span> {</span>
 			<span class="keyword">return</span> <span class="keyword">new</span> Syringe(props);
 		}
+
 	};</pre></div></div>
             
         </li>
@@ -976,13 +983,20 @@ execution context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
-              <p>Some method aliases...</p>
+              <p>Allow mixins to be added to the prototype</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.bind		= proto.on;
-	proto.register		= proto.add;
-	proto.unregister	= proto.remove;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.mixin = <span class="function"><span class="keyword">function</span> <span class="params">(obj)</span> {</span>
+		<span class="keyword">if</span> (getType(obj, <span class="string">'object'</span>)) {
+			<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
+				<span class="keyword">if</span> (!hasProp.call(obj, key)) <span class="keyword">continue</span>;				
+				<span class="keyword">if</span> (getType(obj[key], <span class="string">'function'</span>)) proto[key] = obj[key];
+			}
+			<span class="keyword">return</span> <span class="keyword">this</span>;
+		}
+		<span class="keyword">return</span> <span class="literal">false</span>;
+	};</pre></div></div>
             
         </li>
         
@@ -993,15 +1007,13 @@ execution context.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
-              <p>Current version...</p>
+              <p>Create some method aliases</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION		= <span class="string">'0.4.13'</span>;
-
-	<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
-		exports = module.exports = <span class="keyword">new</span> Syringe();
-	} <span class="keyword">else</span> {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.bind		= proto.on;
+	proto.register		= proto.add;
+	proto.unregister	= proto.remove;</pre></div></div>
             
         </li>
         
@@ -1011,6 +1023,25 @@ execution context.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>Add the current version</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	proto.VERSION		= <span class="string">'0.4.14'</span>;
+
+	<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
+		exports = module.exports = <span class="keyword">new</span> Syringe();
+	} <span class="keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Asynch fetch is only present on the browser</p>
 
