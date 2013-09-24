@@ -522,4 +522,23 @@ $(document).ready(function () {
 		});
 	});
 
+	module("Mixin");
+
+	test("add a mxin to the prototype", 1, function () {
+		var syr = Syringe.create({
+			'data': 'foo',
+			'data2': 'bar'
+		});
+
+		var id = syr.id;
+
+		syr.mixin({
+			'func': function () {
+				return this.get('data');
+			}
+		});
+
+		equal(syr.func(), 'foo', 'mixin returns Syringe object');
+	});
+
 });	
