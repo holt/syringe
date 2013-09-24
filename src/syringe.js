@@ -1,18 +1,17 @@
 // > http://syringejs.org
-// > syringe.js v0.4.13. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.14. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
 forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
+
 (function () {
 
 	"use strict";
 
 	// Globals
-	var root		= this,
-		_registry	= {},
-		_cabinet	= {},
-		_separator	= {};
+	var root	= this, 
+		store	= {};
 
 	// Utilities from core prototypes
 	var hasProp	= {}.hasOwnProperty,
@@ -28,14 +27,20 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 	// Get the object type as a string. If `lc` is `true` the comparison
 	// is with the lowercased name.
-	var getType = function (obj, lc) {
+	var getType = function (obj, istype) {
 		var ret;
 		if (obj) {
 			ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
 		} else {
 			ret = (obj === null) ? 'Null' : 'Undefined';
 		}
-		return (lc === true ? ret.toLowerCase() : ret);
+		if (typeof istype === 'string') {
+			istype = istype.toLowerCase();
+			ret = ret.toLowerCase();
+			return (istype === ret);
+		} else {
+			return ret;
+		}
 	};
 
 	// Get an object from an (optional) context `ctx` using delimited
@@ -70,11 +75,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// Return a map of any items in the passed array that match items
 	// in the registry object
 	var getReg = function (arr, id) {
-		var registry = _registry[id];
+		var registry = store[id].registry;
 		return arr.map(function (item) {
 			return (item === '') ? 
 			undefined : (item === '*') ? 
-			registry : getObj(item, registry, _separator[id]);
+			registry : getObj(item, registry, store[id].separator);
 		}, this);
 	};
 
@@ -144,7 +149,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			}
 
 			if (++count === arr.length) {
-				if (getType(options.success, true) === 'function') {
+				if (getType(options.success, 'function')) {
 					options.success.call(self, (ctx || self));
 				}
 			}
@@ -173,7 +178,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// `cabinet` object, and applies both the injected and free arguments
 	// to it. 
 	var run = function (arr, fn, id) {
-		var cabinet	= _cabinet[id],
+		var cabinet	= store[id].cabinet,
 			args	= slice.call(arguments);
 
 		// Remove the id from the arguments
@@ -201,10 +206,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 	// Syringe base constructor
 	var Syringe = function (props) {
-		this.id			= makeId();
-		_cabinet[this.id]	= [];
-		_registry[this.id]	= (props && getType(props, true) === 'object') ? props : {};
-		_separator[this.id]	= '.';
+		store[this.id = makeId()] = {
+			cabinet		: [],
+			registry	: (props && getType(props, 'object')) ? props : {},
+			separator	: '.'
+		};
 	};
 
 	// Syringe object prototype methods
@@ -214,8 +220,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// retrieving objects. Whitespace and alphanumeric characters are
 		// not permitted. By default, the period '.' character is used.
 		separator: function (val) {
-			if (getType(val, true) === 'string' && val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1) {
-				_separator[this.id] = val;
+			if (getType(val, 'string') && val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1) {
+				store[this.id].separator = val;
 				return this;
 			}
 			return false;
@@ -228,10 +234,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// with which to bind this function. In this way, registry methods
 		// can be automatically bound to other registry methods.
 		add: function (name, value, bindings) {
-			var registry		= _registry[this.id],
-				separator	= _separator[this.id];
+			var registry		= store[this.id].registry,
+				separator	= store[this.id].separator;
 
-			if (getType(name, true) === 'object') {
+			if (getType(name, 'object')) {
 				for (var key in name) {
 					if (!hasProp.call(name, key)) continue;
 					this.add.apply(this, [key, name[key]]);
@@ -243,7 +249,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				throw new Error('Key "' + name + '" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
-				if (getType(value, true) === 'function' && bindings) {
+				if (getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
 				}
 				var strArr = name.split(separator),
@@ -260,8 +266,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 		// Remove a named item from the registry
 		remove: function (name) {
-			var registry		= _registry[this.id],
-				separator	= _separator[this.id],
+			var registry		= store[this.id].registry,
+				separator	= store[this.id].separator,
 				newregistry	= {},
 				obj		= {},
 				splitname	= name.trim().split(separator),
@@ -280,7 +286,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			if (splitname) this.set(splitname, newregistry);
 
 			// Shallow removal (non-delimited name)
-			else _registry[this.id] = newregistry;
+			else store[this.id].registry = newregistry;
 
 			return this;
 		},
@@ -293,10 +299,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = root;
 
-			var cabinet		= _cabinet[this.id],
-				separator	= _separator[this.id],
+			var cabinet		= store[this.id].cabinet,
+				separator	= store[this.id].separator,
 				args		= slice.call(arguments),
-				isNamed	= (getType(args[0]) === 'String') ? true : false,
+				isNamed		= (getType(args[0], 'String')) ? true : false,
 				name, arr, fn, ctx, obj;
 
 			switch (args.length) {
@@ -390,16 +396,16 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet = _cabinet[this.id],
+			var cabinet = store[this.id].cabinet,
 				fn = this.get(name);
 
 			var _fn = cabinet.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
-			args = (getType(args, true) === 'array') ? args : [args];
+			args = (getType(args, 'array')) ? args : [args];
 
-			if ((getType(name, true) === 'string') && (getType(fn, true) === 'function')) {
+			if ((getType(name, 'string')) && (getType(fn, 'function'))) {
 				if (_fn) {
 					fn = _fn ? _fn.fn : fn;
 					return run.apply(ctx, [_fn.args[0], fn, this.id].concat(args));
@@ -414,11 +420,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// does not exist.
 		get: function (name) {
 
-			var registry = _registry[this.id];
+			var registry = store[this.id].registry;
 
-			if (getType(name, true) === 'string') {
-				var obj = getObj(name, registry, _separator[this.id]);
-				if (getType(obj, true) !== 'undefined') {
+			if (getType(name, 'string')) {
+				var obj = getObj(name, registry, store[this.id].separator);
+				if (!getType(obj, 'undefined')) {
 					return obj;
 				}
 				return false;
@@ -432,8 +438,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// exist.
 		set: function (name, value, bindings) {
 
-			var registry		= _registry[this.id],
-				separator	= _separator[this.id],
+			var registry		= store[this.id].registry,
+				separator	= store[this.id].separator,
 				strArr		= name.split(separator),
 				objStr		= (strArr.length > 1) ? strArr.pop() : false;
 
@@ -441,7 +447,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				throw new Error('Key "' + name + '" does not exist in the map!');
 			}
 
-			if (getType(value, true) === 'function' && bindings) {
+			if (getType(value, 'function') && bindings) {
 				value = this.on(bindings, value);
 			}
 
@@ -456,7 +462,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// wrapper.
 		wrap: function (fn, wrapper, ctx) {
 
-			var cabinet = _cabinet[this.id];
+			var cabinet = store[this.id].cabinet;
 
 			ctx = ctx || this;
 
@@ -486,7 +492,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet	= _cabinet[this.id],
+			var cabinet	= store[this.id].cabinet,
 				args	= slice.call(arguments);
 
 			var match = cabinet.filter(function (item) {
@@ -509,15 +515,28 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		create: function (props) {
 			return new Syringe(props);
 		}
+
 	};
 
-	// Some method aliases...
+	// Allow mixins to be added to the prototype
+	proto.mixin = function (obj) {
+		if (getType(obj, 'object')) {
+			for (var key in obj) {
+				if (!hasProp.call(obj, key)) continue;				
+				if (getType(obj[key], 'function')) proto[key] = obj[key];
+			}
+			return this;
+		}
+		return false;
+	};
+
+	// Create some method aliases
 	proto.bind		= proto.on;
 	proto.register		= proto.add;
 	proto.unregister	= proto.remove;
 
-	// Current version...
-	proto.VERSION		= '0.4.13';
+	// Add the current version
+	proto.VERSION		= '0.4.14';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
