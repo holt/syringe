@@ -92,7 +92,7 @@ $(document).ready(function () {
 				'second': 'done'
 			}
 		});
-		
+
 		var Func = function (data, msg) {
 			this.data = data;
 			this.msg = msg;
@@ -123,10 +123,10 @@ $(document).ready(function () {
 
 			'fifth': {
 				'sixth': 'over and out'
-			}			
+			}
 
 		});
-		
+
 		var Func1 = function (data, msg1) {
 			this.data = data;
 			this.msg1 = msg1;
@@ -137,11 +137,11 @@ $(document).ready(function () {
 		};
 
 		var Func2 = function (data1, data2, msg1, msg2, msg3) {
-			this.data1  = data1;
-			this.data2  = data2;
-			this.msg1   = msg1;
-			this.msg2   = msg2;
-			this.msg3   = msg3;
+			this.data1 = data1;
+			this.data2 = data2;
+			this.msg1 = msg1;
+			this.msg2 = msg2;
+			this.msg3 = msg3;
 		}
 
 		Func2.prototype.say = function () {
@@ -158,7 +158,7 @@ $(document).ready(function () {
 		var f2 = new F2('goodbye', 'cruel', 'world');
 
 		equal(f1.say(), 'hello world - done', 'data from first bound method should be returned.');
-		equal(f2.say(), 'goodbye cruel world - done and done - over and out' , 'data from second bound method should be returned.');
+		equal(f2.say(), 'goodbye cruel world - done and done - over and out', 'data from second bound method should be returned.');
 	});
 
 	module("Set");
@@ -166,9 +166,9 @@ $(document).ready(function () {
 	test("set shallow props of non-existant item", 1, function () {
 		var syr = Syringe.create();
 		raises(function () {
-			syr.set('data', 'ok');
-		},
-		Error, "must throw error to pass.");
+				syr.set('data', 'ok');
+			},
+			Error, "must throw error to pass.");
 	});
 
 	test("set shallow props of existing item", 1, function () {
@@ -199,7 +199,7 @@ $(document).ready(function () {
 			},
 			'third': {
 				'fourth': 'done and done'
-			}			
+			}
 		});
 		syr.add('func', function (data, msg) {
 			return msg + ' - ' + data;
@@ -309,11 +309,35 @@ $(document).ready(function () {
 			'first': {}
 		};
 		syr.bind('x.f', ['*', 'data'], function (map, data, args) {
-			return {data: 'process is ' + data, map: map}
+			return {
+				data: 'process is ' + data,
+				map: map
+			}
 		}, obj.first);
 
 		equal(obj.first.x.f().data, 'process is done', 'bound function returns injected data.');
 		equal(obj.first.x.f().map, syr.get(), 'bound function returns entire map.');
+	});
+
+	test("bind a named method, with context, that contains the current Syringe object", 2, function () {
+		var syr = Syringe.create({
+			'data': 'done'
+		});
+
+		var obj = {
+			'first': {}
+		};
+		syr.bind('x.f', ['data', 'this'], function (data, syr, args) {
+
+			return {
+				id: syr.id,
+				data: data
+			}
+
+		}, obj.first);
+
+		equal(obj.first.x.f().id, syr.id, 'bound function returns injected data.');
+		equal(obj.first.x.f().data, 'done', 'bound function returns registry object.');
 	});
 
 	module("Exec");
@@ -350,7 +374,7 @@ $(document).ready(function () {
 		});
 
 		syr.add('f', function (d, arg1, arg2) {
-		   return d + ' ' + arg1 + ' is ' + arg2;
+			return d + ' ' + arg1 + ' is ' + arg2;
 		}, ['data']);
 
 		equal(syr.exec('f', ['process', 'done']), 'test process is done', 'executed function returns data.');
@@ -363,7 +387,7 @@ $(document).ready(function () {
 		});
 
 		syr.add('f', function (d, arg1, arg2) {
-		   return this.example + ' ' + arg1 + ' is ' + arg2 + ' with ' + d;
+			return this.example + ' ' + arg1 + ' is ' + arg2 + ' with ' + d;
 		}, ['data']);
 
 		equal(syr.exec('f', ['process', 'done'], {
@@ -413,7 +437,7 @@ $(document).ready(function () {
 		equal(syr.get('first/second/third'), 'done', 'executed function returns data');
 
 		syr.separator('*');
-		equal(syr.get('first*second*third'), 'done', 'executed function returns data');		
+		equal(syr.get('first*second*third'), 'done', 'executed function returns data');
 
 		syr.separator('.');
 	});
@@ -434,14 +458,14 @@ $(document).ready(function () {
 		equal(syr.get('firstAsecondAthird'), false, 'executed function does not return data');
 
 		syr.separator('1');
-		equal(syr.get('first1second1third'), false, 'executed function does not return data');		
+		equal(syr.get('first1second1third'), false, 'executed function does not return data');
 
 		syr.separator('##');
-		equal(syr.get('first##second##third'), false, 'executed function does not return data');	
+		equal(syr.get('first##second##third'), false, 'executed function does not return data');
 
 		syr.separator('.');
 	});
-		
+
 	test("allow different separators between instances", 3, function () {
 
 		var syr1 = Syringe.create({
@@ -469,7 +493,7 @@ $(document).ready(function () {
 		syr2.separator('.');
 
 		equal(syr2.get('first.second.third'), 'done', 'executed function returns data');
-	});	
+	});
 
 	module("Copy");
 
@@ -494,9 +518,15 @@ $(document).ready(function () {
 
 	module("Faking response data", {
 		setup: function () {
-			var testData = { foo: 'bar' };
+			var testData = {
+				foo: 'bar'
+			};
 			this.server = sinon.fakeServer.create();
-			this.server.respondWith("GET", "/syringe/fetch1", [200, { "Content-Type": "application/json" }, JSON.stringify(testData)]);
+			this.server.respondWith("GET", "/syringe/fetch1", [200, {
+					"Content-Type": "application/json"
+				},
+				JSON.stringify(testData)
+			]);
 			this.server.autoRespond = true;
 		},
 		teardown: function () {
@@ -504,7 +534,7 @@ $(document).ready(function () {
 		}
 	});
 
-	asyncTest("fetch and bind an item", 1, function() {
+	asyncTest("fetch and bind an item", 1, function () {
 
 		var syr = Syringe.create();
 
@@ -524,7 +554,7 @@ $(document).ready(function () {
 
 	module("Mixin");
 
-	test("add a mxin to the prototype", 1, function () {
+	test("add a mixin to the prototype", 1, function () {
 		var syr = Syringe.create({
 			'data': 'foo',
 			'data2': 'bar'
@@ -541,4 +571,4 @@ $(document).ready(function () {
 		equal(syr.func(), 'foo', 'mixin returns Syringe object');
 	});
 
-});	
+});
