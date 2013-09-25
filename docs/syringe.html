@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.14. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.15. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -104,8 +104,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Get the object type as a string. If <code>lc</code> is <code>true</code> the comparison
-is with the lowercased name.</p>
+              <p>Get the object type as a string. If an <code>istype</code> value is passed the comparison
+is against this value and returns <code>true</code> or <code>false</code>, otherwise the type itself
+is returned.</p>
 
             </div>
             
@@ -196,8 +197,9 @@ in the registry object</p>
 		<span class="keyword">var</span> registry = store[id].registry;
 		<span class="keyword">return</span> arr.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 			<span class="keyword">return</span> (item === <span class="string">''</span>) ? 
-			<span class="literal">undefined</span> : (item === <span class="string">'*'</span>) ? 
-			registry : getObj(item, registry, store[id].separator);
+				<span class="literal">undefined</span> : (item === <span class="string">'*'</span>) ? 
+					registry : (item === <span class="string">'this'</span>) ?
+						<span class="keyword">this</span> : getObj(item, registry, store[id].separator);
 		}, <span class="keyword">this</span>);
 	};</pre></div></div>
             
@@ -367,8 +369,8 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> run = <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, id)</span> {</span>
-		<span class="keyword">var</span> cabinet	= store[id].cabinet,
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> run = <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, syr)</span> {</span>
+		<span class="keyword">var</span> cabinet	= store[syr.id].cabinet,
 			args	= slice.call(arguments);</pre></div></div>
             
         </li>
@@ -407,7 +409,7 @@ to it. </p>
             
             <div class="content"><div class='highlight'><pre>		<span class="keyword">if</span> (!isEmpty(fn.prototype)) {
 			<span class="keyword">var</span> Obj = fn.bind.apply(fn, [<span class="literal">null</span>]
-				.concat(getReg(arr, id)
+				.concat(getReg.apply(syr, [arr, syr.id])
 					.concat(args.slice(<span class="number">2</span>, args.length))));
 			<span class="keyword">return</span> <span class="keyword">new</span> Obj();
 		}</pre></div></div>
@@ -426,7 +428,7 @@ to it. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		<span class="keyword">else</span> {
-			<span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, getReg(arr, id)
+			<span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, getReg.apply(syr, [arr, syr.id])
 				.concat(args.slice(<span class="number">2</span>, args.length)));
 		}
 	};</pre></div></div>
@@ -649,7 +651,7 @@ bound function will be returned as an anonymous function.</p>
 				obj = {
 					fn	: args[<span class="number">1</span>],
 					ctx	: ctx,
-					bind	: run.bind(ctx, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>.id),
+					bind	: run.bind(ctx, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>),
 					args	: args
 				};
 				cabinet.push(obj);
@@ -705,7 +707,7 @@ will be used.</p>
 						fn	: args[<span class="number">1</span>],
 						ctx	: args[<span class="number">2</span>],
 						args	: args,
-						bind	: run.bind(args[<span class="number">2</span>], args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>.id)
+						bind	: run.bind(args[<span class="number">2</span>], args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>)
 					};
 					cabinet.push(obj);
 					<span class="keyword">return</span> obj.bind;
@@ -745,7 +747,7 @@ context will be used.</p>
 			<span class="keyword">var</span> strArr = name.split(separator),
 				objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
 
-			obj.bind = fn = run.bind(ctx, arr, fn, <span class="keyword">this</span>.id);</pre></div></div>
+			obj.bind = fn = run.bind(ctx, arr, fn, <span class="keyword">this</span>);</pre></div></div>
             
         </li>
         
@@ -804,7 +806,7 @@ pass an array of arguments and a context.</p>
 			<span class="keyword">if</span> ((getType(name, <span class="string">'string'</span>)) &amp;&amp; (getType(fn, <span class="string">'function'</span>))) {
 				<span class="keyword">if</span> (_fn) {
 					fn = _fn ? _fn.fn : fn;
-					<span class="keyword">return</span> run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>.id].concat(args));
+					<span class="keyword">return</span> run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>].concat(args));
 				}
 				<span class="keyword">return</span> fn.apply(ctx, args);
 			}
@@ -947,7 +949,7 @@ execution context.</p>
 				<span class="keyword">var</span> obj = {
 					fn	: fn,
 					ctx	: args[<span class="number">0</span>],
-					bind	: run.bind(match.ctx, bindings, match.fn, <span class="keyword">this</span>.id)
+					bind	: run.bind(match.ctx, bindings, match.fn, <span class="keyword">this</span>)
 				};
 				cabinet.push(obj);
 				<span class="keyword">return</span> obj.bind;
@@ -1028,7 +1030,7 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION		= <span class="string">'0.4.14'</span>;
+            <div class="content"><div class='highlight'><pre>	proto.VERSION		= <span class="string">'0.4.15'</span>;
 
 	<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
 		exports = module.exports = <span class="keyword">new</span> Syringe();
