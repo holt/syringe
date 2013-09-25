@@ -1,9 +1,9 @@
 {
     "name": "syringejs",
-    "description": "A lightweight dependency injection framework",
+    "description": "An ultra-lightweight dependency injection framework for JavaScript",
     "url": "https://holt.org/gitprojects",
     "author": "Michael Holt <mike@holt.org>",
-    "version": "0.4.14",
+    "version": "0.4.15",
     "main": "syringe.min",
     "keywords": [
             "syringe",
