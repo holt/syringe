@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.14. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.15. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -25,8 +25,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		});
 	};
 
-	// Get the object type as a string. If `lc` is `true` the comparison
-	// is with the lowercased name.
+	// Get the object type as a string. If an `istype` value is passed the comparison
+	// is against this value and returns `true` or `false`, otherwise the type itself
+	// is returned.
 	var getType = function (obj, istype) {
 		var ret;
 		if (obj) {
@@ -78,8 +79,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		var registry = store[id].registry;
 		return arr.map(function (item) {
 			return (item === '') ? 
-			undefined : (item === '*') ? 
-			registry : getObj(item, registry, store[id].separator);
+				undefined : (item === '*') ? 
+					registry : (item === 'this') ?
+						this : getObj(item, registry, store[id].separator);
 		}, this);
 	};
 
@@ -177,8 +179,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// When it executes is retrieves the original `fn` method from the 
 	// `cabinet` object, and applies both the injected and free arguments
 	// to it. 
-	var run = function (arr, fn, id) {
-		var cabinet	= store[id].cabinet,
+	var run = function (arr, fn, syr) {
+		var cabinet	= store[syr.id].cabinet,
 			args	= slice.call(arguments);
 
 		// Remove the id from the arguments
@@ -193,13 +195,13 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// Assume a constructor function
 		if (!isEmpty(fn.prototype)) {
 			var Obj = fn.bind.apply(fn, [null]
-				.concat(getReg(arr, id)
+				.concat(getReg.apply(syr, [arr, syr.id])
 					.concat(args.slice(2, args.length))));
 			return new Obj();
 		}
 		// Assume a regular function
 		else {
-			return fn.apply(this, getReg(arr, id)
+			return fn.apply(this, getReg.apply(syr, [arr, syr.id])
 				.concat(args.slice(2, args.length)));
 		}
 	};
@@ -314,7 +316,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				obj = {
 					fn	: args[1],
 					ctx	: ctx,
-					bind	: run.bind(ctx, args[0], args[1], this.id),
+					bind	: run.bind(ctx, args[0], args[1], this),
 					args	: args
 				};
 				cabinet.push(obj);
@@ -345,7 +347,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 						fn	: args[1],
 						ctx	: args[2],
 						args	: args,
-						bind	: run.bind(args[2], args[0], args[1], this.id)
+						bind	: run.bind(args[2], args[0], args[1], this)
 					};
 					cabinet.push(obj);
 					return obj.bind;
@@ -373,7 +375,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			var strArr = name.split(separator),
 				objStr = (strArr.length > 1) ? strArr.pop() : false;
 
-			obj.bind = fn = run.bind(ctx, arr, fn, this.id);
+			obj.bind = fn = run.bind(ctx, arr, fn, this);
 
 			// Store a copy of this binding in the `cabinet` object.
 			// This is useful if we want to copy an existing bound
@@ -408,7 +410,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			if ((getType(name, 'string')) && (getType(fn, 'function'))) {
 				if (_fn) {
 					fn = _fn ? _fn.fn : fn;
-					return run.apply(ctx, [_fn.args[0], fn, this.id].concat(args));
+					return run.apply(ctx, [_fn.args[0], fn, this].concat(args));
 				}
 				return fn.apply(ctx, args);
 			}
@@ -503,7 +505,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				var obj = {
 					fn	: fn,
 					ctx	: args[0],
-					bind	: run.bind(match.ctx, bindings, match.fn, this.id)
+					bind	: run.bind(match.ctx, bindings, match.fn, this)
 				};
 				cabinet.push(obj);
 				return obj.bind;
@@ -536,7 +538,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Add the current version
-	proto.VERSION		= '0.4.14';
+	proto.VERSION		= '0.4.15';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
