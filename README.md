@@ -49,17 +49,18 @@ First, create a new `Syringe` object instance:
 ```javascript
 var syr = Syringe.create({
     'data': {
-        '52775Z': {
-            'name'      : 'Metzger, Ted',
-            'dob'       : '08/23/1959',
-            'locale'    : 'CA',
-            'division'  : 'Facilities'
+        '00000': {
+            'name'      : 'Slothrop, Tyrone',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
         }  
     }
 });
 ```
 
-Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected into the getter when it is invoked:
+Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected 
+into the getter when it is invoked:
 
 ```javascript
 syr.add('utils.get', function (data, id) {
@@ -68,14 +69,14 @@ syr.add('utils.get', function (data, id) {
     data = data[id] || false;
 
     if (data) {
-        var name    = data.name     || 'N/A',
-            div     = data.division || 'N/A',
-            locale  = data.locale   || 'N/A';
+        var name        = data.name     || 'N/A',
+            rank        = data.rank     || 'N/A',
+            division    = data.division || 'N/A';
 
         data.msg = ''
-            + 'Name: '          + name
-            + '; Division: '    + div
-            + '; Locale: '      + locale;
+            + 'ID: '            + id
+            + '; Rank: '        + rank
+            + '; Division: '    + division;
     }
 
     return data;
@@ -91,7 +92,7 @@ syr.on('log', ['utils.get'], function (get, id) {
     'use strict';
 
     return (get = get(id))
-        ? (console.info('Volatile data accessed by employee ' + id + '\n' + get.msg), get)
+        ? (console.info('Schwarzgerät accessed by "' + get.name + '"\n' + get.msg), get)
         : false;
 });
 ```
@@ -99,18 +100,18 @@ syr.on('log', ['utils.get'], function (get, id) {
 Now call the utility function with Ted's ID:
 
 ```javascript
-log('52775Z');  // Logs:
-                // Volatile data accessed by employee 52775Z
-                // Name: Metzger, Ted; Division: Facilities; Locale: CA
+log('00000');  // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID: 00000; Rank: Lieutenant; Division: ACHTUNG
 
                 // Returns:
-                // {
-                //    "name"        : "Metzger, Ted",
-                //    "dob"         : "08/23/1959",
-                //    "division"    : "Facilities",
-                //    "locale"      : "CA",
-                //    "msg"         : "Name: Metzger, Ted; Division: Facilities; Locale: CA"
-                // }
+                //      {
+                //          'name'      : 'Slothrop, Tyrone',
+                //          'rank'      : 'Lieutenant',
+                //          'locale'    : 'GB',
+                //          'division'  : 'ACHTUNG',
+                //          'msg'       : 'ID: 00000; Rank: Lieutenant; Division: ACHTUNG'
+                //      }
 ```
 
 The logging utility returns some useful information and logs out a message to the console.
@@ -125,8 +126,8 @@ Loose coupling between the concerns means that we can easily change the registry
 syr.add({
     'warnings': {
         'access': {
-            'success'   : 'Employee {0} is A-OK!',
-            'fail'      : 'Employee {0} does not have the proper authorization!'
+            'success'   : '{0} is A-OK!',
+            'fail'      : '{0} does not have the proper authorization!'
         }
     }
 });
@@ -139,8 +140,8 @@ syr.set('utils.get', function (data, access, id) {
     'use strict';
 
     if (data = data[id] || false) {
-        var action = (data.division !== 'Development') ? 'fail' : 'success';
-        data.msg = access[action].replace('{0}', '"' + data.name + '"');
+        var action = (data.rank !== 'General') ? 'fail' : 'success';
+        data.msg = access[action].replace('{0}', 'ID ' + id);
     }
 
     return data;
@@ -152,25 +153,23 @@ syr.set('utils.get', function (data, access, id) {
 
 
 ```javascript
-log('52775Z');  // Logs:
-                // Volatile data accessed by employee 52775Z
-                // Employee "Metzger, Ted" does not have the proper authorization!
+log('00000');   // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID 00000 does not have the proper authorization!
                 // ...
 ```
 
 Change the user data:
 
 ```javascript
-syr.set('data.52775Z.division', 'Development');
+syr.set('data.00000.rank', 'General');
 ```
-
 ... and call the utility function again:
 
-
 ```javascript
-log('52775Z');  // Logs:
-                // Volatile data accessed by employee 52775Z
-                // Employee "Metzger, Ted" is A-OK!
+log('00000');   // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID 00000 is A-OK!
                 // ...
 ```
 
@@ -216,12 +215,12 @@ StaffObj = syr.on(['data'], StaffObj);
 ... and create a new object:
 ```javascript
 var ted = new StaffObj('52775Z');   // Creates:
-                                    // {
-                                    //    "name"        : "Metzger, Ted",
-                                    //    "dob"         : "08/23/1959",
-                                    //    "division"    : "Facilities",
-                                    //    "locale"      : "CA"
-                                    // }
+                                    //      {
+                                    //          'name'      : 'Metzger, Ted',
+                                    //          'dob'       : '08/23/1959',
+                                    //          'division'  : 'Facilities',
+                                    //          'locale'    : 'CA'
+                                    //      }
 ```
 
 ### "Can I see a more complex example?"
