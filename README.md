@@ -159,7 +159,7 @@ log('00000');   // Logs:
                 // ...
 ```
 
-Change the user data:
+Change Slothrop's rank:
 
 ```javascript
 syr.set('data.00000.rank', 'General');
