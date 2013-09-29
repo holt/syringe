@@ -97,7 +97,7 @@ syr.on('log', ['utils.get'], function (get, id) {
 });
 ```
 
-Now call the utility function with Ted's ID:
+Now call the utility function with Slothrop's ID:
 
 ```javascript
 log('00000');  // Logs:
