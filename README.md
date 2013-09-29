@@ -192,35 +192,26 @@ var syr = Syringe.create({
     }
 });
 ```
-Create a simple constructor:
+Create a simple constructor that automatically adds `data` to its context:
 ```javascript
 var StaffObj = function (data, id) {
 
     'use strict';
-    id && data[id] && this.extend(data[id]);
-};
-```
-Add an `extend` method to the prototype:
-```javascript
-StaffObj.prototype.extend = function () {
 
-    'use strict';
+    data = data || {};
 
-    [].slice.call(arguments).forEach(function (item) {
-        if (item) {
-            for (var prop in item) {
-                if (item.hasOwnProperty(prop)) {
-                    this[prop] = item[prop];
-                }
+    if (({}).toString.call(data[id]) === '[object Object]') {
+        for (var prop in data[id]) {
+            if (data[id].hasOwnProperty(prop)) {
+                this[prop] = data[id][prop];
             }
         }
-    }, this);
-    return this;   
+    }
 };
 ```
 Bind the `data` object to the constructor:
 ```javascript
-syr.on('StaffObj', ['data'], StaffObj);
+StaffObj = syr.on(['data'], StaffObj);
 ```
 ... and create a new object:
 ```javascript
