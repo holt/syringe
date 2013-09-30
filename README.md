@@ -225,7 +225,7 @@ var ted = new StaffObj('52775Z');   // Creates:
 
 ### "Can I see a more complex example?"
 
-[Here's a Todos application](http://goo.gl/KFGFQf)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+[Here's a Todos application](http://holt.github.io/syringe-todos)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
 
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
