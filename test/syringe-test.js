@@ -171,6 +171,14 @@ $(document).ready(function () {
 			Error, "must throw error to pass.");
 	});
 
+	test("set deep props of non-existant item", 1, function () {
+		var syr = Syringe.create();
+		raises(function () {
+				syr.set('first.second.third', 'ok');
+			},
+			Error, "must throw error to pass.");
+	});
+
 	test("set shallow props of existing item", 1, function () {
 		var syr = Syringe.create();
 		syr.add('data', false);
@@ -178,7 +186,7 @@ $(document).ready(function () {
 		equal(syr.get('data'), 'ok', 'shallow data should be set correctly.');
 	});
 
-	test("set deep props", 1, function () {
+	test("set deep props of existing item", 1, function () {
 		var syr = Syringe.create({
 			'data': {
 				'first': {
@@ -188,6 +196,20 @@ $(document).ready(function () {
 		});
 		syr.set('data.first.second', 'ok');
 		equal(syr.get('data.first.second'), 'ok', 'deep data should be set correctly.');
+	});
+
+	test("set shallow props of existing item where value is undefined", 1, function () {
+		var syr = Syringe.create();
+		syr.add('data');
+		syr.set('data', 'ok');
+		equal(syr.get('data'), 'ok', 'shallow data should be set correctly.');
+	});
+
+	test("set deep props of existing item where value is undefined", 1, function () {
+		var syr = Syringe.create();
+		syr.add('first.second.third');
+		syr.set('first.second.third', 'ok');
+		equal(syr.get('first.second.third'), 'ok', 'shallow data should be set correctly.');
 	});
 
 	test("add deep method with binding", 2, function () {
