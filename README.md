@@ -183,11 +183,11 @@ Indeed it does, and we'll demonstrate it with another simple example. Create a d
 ```javascript
 var syr = Syringe.create({
     'data': {
-        '52775Z': {
-            'name'      : 'Metzger, Ted',
-            'dob'       : '08/23/1959',
-            'locale'    : 'CA',
-            'division'  : 'Facilities'
+        '00000': {
+            'name'      : 'Slothrop, Tyrone',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
         }  
     }
 });
@@ -215,16 +215,14 @@ StaffObj = syr.on(['data'], StaffObj);
 ```
 ... and create a new object:
 ```javascript
-var ted = new StaffObj('52775Z');   // Creates:
-                                    //      {
-                                    //          'name'      : 'Metzger, Ted',
-                                    //          'dob'       : '08/23/1959',
-                                    //          'division'  : 'Facilities',
-                                    //          'locale'    : 'CA'
-                                    //      }
+var ted = new StaffObj('00000');   // Creates:
+                                   // {
+                                   //     "name"    : "Slothrop, Tyrone",
+                                   //     "rank"    : "Lieutenant",
+                                   //     "locale"  : "GB",
+                                   //     "division": "ACHTUNG"
+                                   // }
 ```
-
-
 
 ### "Can I see a more complex example?"
 
