@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.15. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.16. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -10,11 +10,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	"use strict";
 
 	// Globals
-	var root	= this, 
-		store	= {};
-
-	// Utilities from core prototypes
-	var hasProp	= {}.hasOwnProperty,
+	var 
+		root	= this, 
+		store	= {},
+		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;
 
 	// RFC 4122 GUID generator
@@ -33,12 +32,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		if (obj) {
 			ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
 		} else {
-			ret = (obj === null) ? 'Null' : 'Undefined';
+			ret  = ((obj === true) || (obj === false)) ? 'Boolean' : (obj === null) ? 'Null' : 'Undefined';
 		}
 		if (typeof istype === 'string') {
-			istype = istype.toLowerCase();
-			ret = ret.toLowerCase();
-			return (istype === ret);
+			return (istype.toLowerCase() === ret.toLowerCase());
 		} else {
 			return ret;
 		}
@@ -76,19 +73,19 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// Return a map of any items in the passed array that match items
 	// in the registry object
 	var getReg = function (arr, id) {
-		var registry = store[id].registry;
+		var reg = store[id].reg;
 		return arr.map(function (item) {
-			return (item === '') ? 
-				undefined : (item === '*') ? 
-					registry : (item === 'this') ?
-						this : getObj(item, registry, store[id].separator);
+			switch (item) {
+			case '':
+				return undefined;
+			case '*':
+				return reg;
+			case 'this':
+				return this;
+			default:
+				return getObj(item, reg, store[id].sep);
+			}
 		}, this);
-	};
-
-	// Test to see if a passed URL is local
-	var isLocalURL = function (url) {
-		var regexp = new RegExp("//" + location.host + "($|/)");
-		return "http" === url.substring(0, 4) ? regexp.test(url) : true;
 	};
 
 	// Standard ajax retrieval operation
@@ -141,6 +138,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			count	= 0,
 			url	= '';
 
+		// Test to see if a passed URL is local
+		var isLocalURL = function (url) {
+			var regexp = new RegExp("//" + location.host + "($|/)");
+			return "http" === url.substring(0, 4) ? regexp.test(url) : true;
+		};
+
 		// Keep a count of the script load events and reconcile it
 		// against the length of the script list
 		var stack = function (xhr) {
@@ -168,25 +171,27 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// Test to see if an object is empty
 	var isEmpty = function(obj) {
 		for (var key in obj) {
-			if (obj.hasOwnProperty(key)) {
-				return false;
-			}
+			if (hasProp.call(obj, key)) return false;
 		}
 		return true;
 	};
 
 	// The `run` function resolves the dependencies of a bound method.
 	// When it executes is retrieves the original `fn` method from the 
-	// `cabinet` object, and applies both the injected and free arguments
+	// `cab` object, and applies both the injected and free arguments
 	// to it. 
 	var run = function (arr, fn, syr) {
-		var cabinet	= store[syr.id].cabinet,
-			args	= slice.call(arguments);
+		var 
+			cab = store[syr.id].cab,
+			sep = store[syr.id].sep,
+			evt = getObj(arr.join(sep), store[syr.id].events),
+
+			args = slice.call(arguments);
 
 		// Remove the id from the arguments
 		args.splice(2, 1);
 
-		var match = cabinet.filter(function (item) {
+		var match = cab.filter(function (item) {
 			return item.fn === fn;
 		})[0];
 
@@ -196,23 +201,28 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		if (!isEmpty(fn.prototype)) {
 			var Obj = fn.bind.apply(fn, [null]
 				.concat(getReg.apply(syr, [arr, syr.id])
-					.concat(args.slice(2, args.length))));
-			return new Obj();
+				.concat(args.slice(2, args.length))));
+			fn = new Obj();
 		}
-		// Assume a regular function
+		// Assume a regular function or constructor with empty prototype
 		else {
-			return fn.apply(this, getReg.apply(syr, [arr, syr.id])
+			fn = fn.apply(this, getReg.apply(syr, [arr, syr.id])
 				.concat(args.slice(2, args.length)));
 		}
+
+		if (evt) evt(fn);
+		return fn;
 	};
 
 	// Syringe base constructor
 	var Syringe = function (props) {
 		store[this.id = makeId()] = {
-			cabinet		: [],
-			registry	: (props && getType(props, 'object')) ? props : {},
-			separator	: '.'
+			cab: [],
+			evt: {},
+			reg: (props && getType(props, 'object')) ? props : {},
+			sep: '.'
 		};
+		this.events.on = this.events.on.bind(this);
 	};
 
 	// Syringe object prototype methods
@@ -222,8 +232,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// retrieving objects. Whitespace and alphanumeric characters are
 		// not permitted. By default, the period '.' character is used.
 		separator: function (val) {
-			if (getType(val, 'string') && val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1) {
-				store[this.id].separator = val;
+
+			var tst = val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1;
+
+			if (getType(val, 'string') && tst) {
+				store[this.id].sep = val;
 				return this;
 			}
 			return false;
@@ -236,8 +249,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// with which to bind this function. In this way, registry methods
 		// can be automatically bound to other registry methods.
 		add: function (name, value, bindings) {
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator;
+			var 
+				reg = store[this.id].reg,
+				sep = store[this.id].sep;
 
 			if (getType(name, 'object')) {
 				for (var key in name) {
@@ -247,20 +261,20 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				return this;
 			}
 
-			if (getObj(name, registry, separator)) {
+			if (getObj(name, reg, sep)) {
 				throw new Error('Key "' + name + '" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
 				}
-				var strArr = name.split(separator),
+				var strArr = name.split(sep),
 					objStr = (strArr.length > 1) ? strArr.pop() : false;
 
 				if (objStr) {
-					setObj(strArr.join(separator), registry, separator)[objStr] = value;
+					setObj(strArr.join(sep), reg, sep)[objStr] = value;
 				} else {
-					registry[strArr.toString()] = value;
+					reg[strArr.toString()] = value;
 				}
 			}
 			return this;
@@ -268,27 +282,31 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 		// Remove a named item from the registry
 		remove: function (name) {
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator,
-				newregistry	= {},
-				obj		= {},
-				splitname	= name.trim().split(separator),
-				splitlast	= splitname.pop();
+			var 
+				reg = store[this.id].reg,
+				sep = store[this.id].sep,
 
-			splitname	= splitname.join(separator);
-			obj		= splitname ? getObj(splitname, registry, separator) : registry;
-			name		= splitlast || splitname;
+				snm = name.trim().split(sep),
+				lst = snm.pop(),
+
+				nrg = {},
+				obj = {};				
+
+			snm = snm.join(sep);
+			obj = snm ? getObj(snm, reg, sep) : reg;
+			
+			name = lst || snm;
 
 			for (var key in obj) {
 				if (!hasProp.call(obj, key) || (hasProp.call(obj, name) && key === name)) continue;
-				newregistry[key] = obj[key];
+				nrg[key] = obj[key];
 			}
 
 			// Deep removal (delimited name)
-			if (splitname) this.set(splitname, newregistry);
+			if (snm) this.set(snm, nrg);
 
 			// Shallow removal (non-delimited name)
-			else store[this.id].registry = newregistry;
+			else store[this.id].reg = nrg;
 
 			return this;
 		},
@@ -301,10 +319,13 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = root;
 
-			var cabinet		= store[this.id].cabinet,
-				separator	= store[this.id].separator,
-				args		= slice.call(arguments),
-				isNamed		= (getType(args[0], 'String')) ? true : false,
+			var 
+				cab = store[this.id].cab,
+				sep = store[this.id].sep,
+				
+				args = slice.call(arguments),
+				bool = (getType(args[0], 'String')) ? true : false,
+				
 				name, arr, fn, ctx, obj;
 
 			switch (args.length) {
@@ -319,11 +340,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					bind	: run.bind(ctx, args[0], args[1], this),
 					args	: args
 				};
-				cabinet.push(obj);
+				cab.push(obj);
 				return obj.bind;
 			case 3:
 
-				if (isNamed) {
+				if (bool) {
 
 					// __Three__ parameters: a name `args[0]`, the registry array 
 					// `args[1]`, and method `args[2]`. No context object
@@ -349,7 +370,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 						args	: args,
 						bind	: run.bind(args[2], args[0], args[1], this)
 					};
-					cabinet.push(obj);
+					cab.push(obj);
 					return obj.bind;
 				}
 				break;
@@ -372,20 +393,21 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				break;
 			}
 
-			var strArr = name.split(separator),
+			var 
+				strArr = name.split(sep),
 				objStr = (strArr.length > 1) ? strArr.pop() : false;
 
 			obj.bind = fn = run.bind(ctx, arr, fn, this);
 
-			// Store a copy of this binding in the `cabinet` object.
+			// Store a copy of this binding in the `cab` object.
 			// This is useful if we want to copy an existing bound
 			// function but use new registry items. 
-			cabinet.push(obj);
+			cab.push(obj);
 
 			if (objStr) {
-				setObj(strArr.join(separator), ctx, separator)[objStr] = fn;
+				setObj(strArr.join(sep), ctx, sep)[objStr] = fn;
 			} else {
-				ctx[strArr.join(separator)] = fn;
+				ctx[strArr.join(sep)] = fn;
 			}
 
 			return this;
@@ -398,10 +420,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet = store[this.id].cabinet,
-				fn = this.get(name);
+			var 
+				cab	= store[this.id].cab,
+				fn	= this.get(name);
 
-			var _fn = cabinet.filter(function (item) {
+			var _fn = cab.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
@@ -422,16 +445,18 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// does not exist.
 		get: function (name) {
 
-			var registry = store[this.id].registry;
+			var 
+				reg = store[this.id].reg,
+				sep = store[this.id].sep;
 
 			if (getType(name, 'string')) {
-				var obj = getObj(name, registry, store[this.id].separator);
+				var obj = getObj(name, reg, sep);
 				if (!getType(obj, 'undefined')) {
 					return obj;
 				}
 				return false;
 			}
-			return registry;
+			return reg;
 		},
 
 		// Set a named item from the registry. As with `get`, you can 
@@ -440,22 +465,42 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// exist.
 		set: function (name, value, bindings) {
 
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator,
-				strArr		= name.split(separator),
-				objStr		= (strArr.length > 1) ? strArr.pop() : false;
+			var 
+				reg = store[this.id].reg,
+				sep = store[this.id].sep,
+				arr = name.split(sep),
+				str = (arr.length > 1) ? arr.pop() : false,
+				prn;
 
-			if (getObj(name, registry, separator) === undefined) {
-				throw new Error('Key "' + name + '" does not exist in the map!');
+			// Test the existence of the key we're trying to set. The getObj function
+			// simply returns the key value, which could be `undefined`. Thus, we need to
+			// first establish if the value is undefined because the key doesn't exist,
+			// or if it *does* exist but its value is `undefined`. In the former case we
+			// throw an error.
+			if (getObj(name, reg, sep) === undefined) {
+
+				prn = getObj(arr.join(sep), reg, sep);
+
+				if (str) {
+					if ((prn && !hasProp.call(prn, str)) || !prn) {
+						throw new Error('Key "' + name + '" does not exist in the map!');
+					}
+				}
+				else if (!hasProp.call(reg, arr.toString())) {
+					throw new Error('Key "' + name + '" does not exist in the map!');
+				}
 			}
 
 			if (getType(value, 'function') && bindings) {
 				value = this.on(bindings, value);
 			}
 
-			if (objStr) setObj(strArr.join(separator), registry, separator)[objStr] = value;
-			else registry[strArr.toString()] = value;
-
+			if (str) {
+				setObj(arr.join(sep), reg, sep)[str] = value;
+			}
+			else {
+				reg[arr.toString()] = value;
+			}
 			return this;
 		},
 
@@ -464,11 +509,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// wrapper.
 		wrap: function (fn, wrapper, ctx) {
 
-			var cabinet = store[this.id].cabinet;
+			var cab = store[this.id].cab;
 
 			ctx = ctx || this;
 
-			var match = cabinet.filter(function (item) {
+			var match = cab.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
@@ -494,10 +539,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet	= store[this.id].cabinet,
-				args	= slice.call(arguments);
+			var 
+				cab = store[this.id].cab,
+				args = slice.call(arguments);
 
-			var match = cabinet.filter(function (item) {
+			var match = cab.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
@@ -507,7 +553,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					ctx	: args[0],
 					bind	: run.bind(match.ctx, bindings, match.fn, this)
 				};
-				cabinet.push(obj);
+				cab.push(obj);
 				return obj.bind;
 			}
 			return false;
@@ -516,8 +562,30 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// Create a new Syringe object
 		create: function (props) {
 			return new Syringe(props);
-		}
+		},
 
+		events: {
+
+			on: function (name, fn, ctx) {
+
+				ctx = ctx || this;
+
+				var 
+					evt = store[this.id].evt,
+					sep = store[this.id].sep,
+
+					arr = name.split(sep),
+					str = (arr.length > 1) ? arr.pop() : false;
+
+				if (getObj(name, store[this.id].reg, sep) === undefined) {
+					throw new Error('Key "' + name + '" does not exist in the map!');
+				}
+
+				if (str) setObj(arr.join(sep), evt, sep)[str] = fn.bind(ctx);
+				else evt[arr.toString()] = fn.bind(ctx);
+				return this;
+			}
+		}
 	};
 
 	// Allow mixins to be added to the prototype
@@ -538,10 +606,10 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Add the current version
-	proto.VERSION		= '0.4.15';
+	proto.VERSION		= '0.4.16';
 
-	if (typeof module !== 'undefined' && module.exports) {
-		exports = module.exports = new Syringe();
+	if (typeof root.module !== 'undefined' && root.module.exports) {
+		root.exports = root.module.exports = new Syringe();
 	} else {
 
 		// Asynch fetch is only present on the browser
