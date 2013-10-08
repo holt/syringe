@@ -15,8 +15,9 @@ Now, let's roll up our sleeves and begin shall we?
     - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
     - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
     - ["Can I see a _less_ complex example?"](#can-i-see-a-_less_-complex-example)
-    - ["Aren't we just making a curry?"](#aren't-we-just-making-a-curry)
-    - ["What's this about a registry?"](#what's-this-about-a-registry)
+    - ["Aren't we just making a curry?"](#aren-t-we-just-making-a-curry)
+    - ["What's this about a registry?"](#what-s-this-about-a-registry)
+    - ["Why doesn't Syringe just use the function signature?"](#why-doesn-t-syringe-just-use-the-function-signature)
 - [Installation](#installation)
     - [Browser](#browser)
         - [Compatibility](#compatibility)
@@ -223,6 +224,8 @@ var ted = new StaffObj('52775Z');   // Creates:
                                     //      }
 ```
 
+
+
 ### "Can I see a more complex example?"
 
 [Here's a Todos application](http://holt.github.io/syringe-todos)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
@@ -248,6 +251,22 @@ Currying _does_ take place, just at a different point. Syringe curries _your_ bo
 The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
+
+### "Why doesn't Syringe just use the function signature?"
+
+Some JavaScript dependency injection tutorials/libraries out there describe/provide ways of deriving function dependencies by _inference_ - that is, by scraping the contents of the bound function's signature:
+
+```javascript
+var f = function ($dep1, $dep2, freearg1, frearg2) { ... };
+
+Injection.bind(f);  // The library uses RegEx to figure out the parameters 
+                    // of `f` in order to pull them from the data registry
+                    // and apply them to `f` when the function is executed.
+```
+
+There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression/obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
+
+In addition, unless you namespace the dependencies it is impossible to disambiguate them from the free arguments. Also, dot-notation is not allowed in parameter names so you end up using something goofy like `$leve1_level2_level3` to retrieve deep items.
 
 ## Installation
 
