@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.17. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.18. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -58,7 +58,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> 
 		root	= <span class="keyword">this</span>, 
-		store	= {};</pre></div></div>
+		store	= {},
+		hasProp	= {}.hasOwnProperty,
+		slice	= [].slice;</pre></div></div>
             
         </li>
         
@@ -69,13 +71,25 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Utilities from core prototypes</p>
+              <p>Get an object from an (optional) context <code>ctx</code> using delimited
+string notation. The <code>sep</code> parameter determines the delimiter 
+(a period <code>.</code> by default).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> 
-		hasProp	= {}.hasOwnProperty,
-		slice	= [].slice;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
+
+		ctx = ctx || <span class="keyword">this</span>;
+		sep = sep || <span class="string">'.'</span>;
+
+		<span class="keyword">return</span> str.split(sep).filter(<span class="function"><span class="keyword">function</span> <span class="params">(num)</span> {</span>
+			<span class="keyword">return</span> num.length;
+		}).reduce(<span class="function"><span class="keyword">function</span> <span class="params">(prev, curr, index, list)</span> {</span>
+			<span class="keyword">if</span> (prev) {
+				<span class="keyword">return</span> prev[list[index]];
+			}
+		}, ctx);
+	};</pre></div></div>
             
         </li>
         
@@ -85,6 +99,31 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Create an object within an (optional) context <code>ctx</code> using 
+delimited string notation. The <code>sep</code> parameter determines
+the delimiter (period by default).            </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> setObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
+
+		ctx = ctx || <span class="keyword">this</span>;
+		sep = sep || <span class="string">'.'</span>;
+
+		<span class="keyword">return</span> str.split(sep).reduce(<span class="function"><span class="keyword">function</span> <span class="params">(prev, curr)</span> {</span>
+			<span class="keyword">return</span> (prev[curr]) ? (prev[curr]) : (prev[curr]) = {};
+		}, ctx);
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>RFC 4122 GUID generator</p>
 
@@ -100,11 +139,11 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Get the object type as a string. If an <code>istype</code> value is passed the comparison
 is against this value and returns <code>true</code> or <code>false</code>, otherwise the type itself
@@ -113,11 +152,21 @@ is returned.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getType = <span class="function"><span class="keyword">function</span> <span class="params">(obj, istype)</span> {</span>
-		<span class="keyword">var</span> ret;
+		<span class="keyword">var</span> ret = <span class="string">'Undefined'</span>;
 		<span class="keyword">if</span> (obj) {
 			ret = ({}).toString.call(obj).match(<span class="regexp">/\s([a-z|A-Z]+)/</span>)[<span class="number">1</span>];
 		} <span class="keyword">else</span> {
-			ret = ((obj === <span class="literal">true</span>) || (obj === <span class="literal">false</span>)) ? <span class="string">'Boolean'</span> : (obj === <span class="literal">null</span>) ? <span class="string">'Null'</span> : <span class="string">'Undefined'</span>;
+			<span class="keyword">if</span> (obj === <span class="literal">null</span>) {
+				ret = <span class="string">'Null'</span>;
+			} <span class="keyword">else</span> <span class="keyword">if</span> (obj === <span class="literal">false</span>) {
+				ret = <span class="string">'Boolean'</span>;
+			} <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> obj === <span class="string">'string'</span>) {
+				ret = <span class="string">'String'</span>;
+			} <span class="keyword">else</span> <span class="keyword">if</span> (obj === <span class="number">0</span>) {
+				ret = <span class="string">'Number'</span>;
+			} <span class="keyword">else</span> <span class="keyword">if</span> (isNaN(obj) &amp;&amp; <span class="keyword">typeof</span> obj === <span class="string">'number'</span>) {
+				ret = <span class="string">'NaN'</span>;
+			}
 		}
 		<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {
 			<span class="keyword">return</span> (istype.toLowerCase() === ret.toLowerCase());
@@ -129,64 +178,11 @@ is returned.</p>
         </li>
         
         
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <p>Get an object from an (optional) context <code>ctx</code> using delimited
-string notation. The <code>sep</code> parameter determines the delimiter 
-(a period <code>.</code> by default).</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> getObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
-		ctx = ctx || <span class="keyword">this</span>;
-		str = str.split(sep || <span class="string">'.'</span>);
-		<span class="keyword">return</span> str.filter(<span class="function"><span class="keyword">function</span> <span class="params">(num)</span> {</span>
-			<span class="keyword">return</span> num.length;
-		}).reduce(<span class="function"><span class="keyword">function</span> <span class="params">(prev, curr, index, list)</span> {</span>
-			<span class="keyword">if</span> (prev) {
-				<span class="keyword">return</span> prev[list[index]];
-			}
-		}, ctx);
-	};</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
-              </div>
-              <p>Create an object within an (optional) context <code>ctx</code> using 
-delimited string notation. The <code>sep</code> parameter determines
-the delimiter (period by default).            </p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> setObj = <span class="function"><span class="keyword">function</span> <span class="params">(str, ctx, sep)</span> {</span>
-		ctx = ctx || <span class="keyword">this</span>;
-		str = str.split(sep || <span class="string">'.'</span>);
-		<span class="keyword">var</span> obj, _i, _len;
-		<span class="keyword">for</span> (_i = <span class="number">0</span>, _len = str.length; _i &lt; _len; _i++) {
-			obj = str[_i];
-			ctx = (ctx[obj] = ctx[obj] || {});
-		}
-		<span class="keyword">return</span> ctx;
-	};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-8">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Return a map of any items in the passed array that match items
 in the registry object</p>
@@ -212,11 +208,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Standard ajax retrieval operation</p>
 
@@ -263,11 +259,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Asynch fetch</p>
 
@@ -287,11 +283,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-11">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Test to see if a passed URL is local</p>
 
@@ -305,11 +301,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-12">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Keep a count of the script load events and reconcile it
 against the length of the script list</p>
@@ -341,11 +337,11 @@ against the length of the script list</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Test to see if an object is empty</p>
 
@@ -361,11 +357,11 @@ against the length of the script list</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>The <code>run</code> function resolves the dependencies of a bound method.
 When it executes is retrieves the original <code>fn</code> method from the 
@@ -375,8 +371,29 @@ to it. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> run = <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, syr)</span> {</span>
-		<span class="keyword">var</span> cabinet	= store[syr.id].cabinet,
-			args	= slice.call(arguments);</pre></div></div>
+
+		<span class="keyword">var</span> args = slice.call(arguments);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Remove the id from the arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		args.splice(<span class="number">2</span>, <span class="number">1</span>);
+
+		<span class="keyword">var</span> match = store[syr.id].cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+			<span class="keyword">return</span> item.fn === fn;
+		})[<span class="number">0</span>];
+
+		fn = match ? match.fn : fn;</pre></div></div>
             
         </li>
         
@@ -386,27 +403,6 @@ to it. </p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
-              </div>
-              <p>Remove the id from the arguments</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>		args.splice(<span class="number">2</span>, <span class="number">1</span>);
-
-		<span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
-			<span class="keyword">return</span> item.fn === fn;
-		})[<span class="number">0</span>];
-
-		fn = match ? match.fn : fn;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-16">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Assume a constructor function</p>
 
@@ -422,11 +418,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Assume a regular function</p>
 
@@ -441,11 +437,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Syringe base constructor</p>
 
@@ -462,11 +458,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Syringe object prototype methods</p>
 
@@ -477,11 +473,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Set the separator character used for creating, specifying, and
 retrieving objects. Whitespace and alphanumeric characters are
@@ -490,10 +486,8 @@ not permitted. By default, the period &#39;.&#39; character is used.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		separator: <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
-
-			<span class="keyword">var</span> tst = val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length === <span class="number">1</span>;
-
-			<span class="keyword">if</span> (getType(val, <span class="string">'string'</span>) &amp;&amp; tst) {
+			<span class="keyword">var</span> test = val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length === <span class="number">1</span>;
+			<span class="keyword">if</span> (getType(val, <span class="string">'string'</span>) &amp;&amp; test) {
 				store[<span class="keyword">this</span>.id].separator = val;
 				<span class="keyword">return</span> <span class="keyword">this</span>;
 			}
@@ -503,11 +497,11 @@ not permitted. By default, the period &#39;.&#39; character is used.</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Add a new item to the Syringe registry. The name can be provided 
 in dot-notation, in which case a deep reference is built within
@@ -519,8 +513,9 @@ can be automatically bound to other registry methods.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		add: function (name, value, bindings) {
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator;
+			var 
+				reg = store[this.id].registry,
+				sep = store[this.id].separator;
 
 			if (getType(name, 'object')) {
 				for (var key in name) {
@@ -530,24 +525,59 @@ can be automatically bound to other registry methods.</p>
 				return this;
 			}
 
-			if (getObj(name, registry, separator)) {
-				throw new Error('Key "' + name + '" already exists in the map; use \
+			if (getObj(name, reg, sep)) {
+				throw new Error('Key "' + name + 
+					'" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (getType(value, 'function') &amp;&amp; bindings) {
 					value = this.on(bindings, value);
 				}
-				var strArr = name.split(separator),
-					objStr = (strArr.length &gt; 1) ? strArr.pop() : false;
+				var 
+					arr = name.split(sep),
+					str = (arr.length &gt; 1) ? arr.pop() : false;
 
-				if (objStr) {
-					setObj(strArr.join(separator), registry, separator)[objStr] = value;
+				if (str) {
+					setObj(arr.join(sep), reg, sep)[str] = value;
 				} else {
-					registry[strArr.toString()] = value;
+					reg[arr.toString()] = value;
 				}
 			}
 			return this;
 		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Remove a named item from the registry</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		remove: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
+			<span class="keyword">var</span> 
+				reg = store[<span class="keyword">this</span>.id].registry,
+				sep = store[<span class="keyword">this</span>.id].separator,
+				snm = name.trim().split(sep),
+				lst = snm.pop(),
+				nrg = {},
+				obj = {};				
+
+			snm = snm.join(sep);
+			obj = snm ? getObj(snm, reg, sep) : reg;
+			
+			name = lst || snm;
+
+			<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
+				<span class="keyword">if</span> (!hasProp.call(obj, key) || 
+				(hasProp.call(obj, name) &amp;&amp; key === name)) <span class="keyword">continue</span>;
+				nrg[key] = obj[key];
+			}</pre></div></div>
             
         </li>
         
@@ -558,26 +588,11 @@ can be automatically bound to other registry methods.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
-              <p>Remove a named item from the registry</p>
+              <p>Deep removal (delimited name)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		remove: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-			<span class="keyword">var</span> registry		= store[<span class="keyword">this</span>.id].registry,
-				separator	= store[<span class="keyword">this</span>.id].separator,
-				newregistry	= {},
-				obj		= {},
-				splitname	= name.trim().split(separator),
-				splitlast	= splitname.pop();
-
-			splitname	= splitname.join(separator);
-			obj		= splitname ? getObj(splitname, registry, separator) : registry;
-			name		= splitlast || splitname;
-
-			<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
-				<span class="keyword">if</span> (!hasProp.call(obj, key) || (hasProp.call(obj, name) &amp;&amp; key === name)) <span class="keyword">continue</span>;
-				newregistry[key] = obj[key];
-			}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (snm) <span class="keyword">this</span>.set(snm, nrg);</pre></div></div>
             
         </li>
         
@@ -588,11 +603,14 @@ can be automatically bound to other registry methods.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
-              <p>Deep removal (delimited name)</p>
+              <p>Shallow removal (non-delimited name)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (splitname) <span class="keyword">this</span>.set(splitname, newregistry);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> store[<span class="keyword">this</span>.id].registry = nrg;
+
+			<span class="keyword">return</span> <span class="keyword">this</span>;
+		},</pre></div></div>
             
         </li>
         
@@ -602,24 +620,6 @@ can be automatically bound to other registry methods.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-24">&#182;</a>
-              </div>
-              <p>Shallow removal (non-delimited name)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> store[<span class="keyword">this</span>.id].registry = newregistry;
-
-			<span class="keyword">return</span> <span class="keyword">this</span>;
-		},</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-25">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Bind a method to the dependency registry. This function accepts
 a variety of different arguments, the formulation of which 
@@ -632,7 +632,8 @@ described below.</p>
 
 			ctx = root;
 
-			<span class="keyword">var</span> cabinet		= store[<span class="keyword">this</span>.id].cabinet,
+			<span class="keyword">var</span> 
+				cabinet		= store[<span class="keyword">this</span>.id].cabinet,
 				separator	= store[<span class="keyword">this</span>.id].separator,
 				args		= slice.call(arguments),
 				isNamed		= (getType(args[<span class="number">0</span>], <span class="string">'String'</span>)) ? <span class="literal">true</span> : <span class="literal">false</span>,
@@ -643,11 +644,11 @@ described below.</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
 <code>args[1]</code>. No name or context object is provided. The 
@@ -671,11 +672,11 @@ bound function will be returned as an anonymous function.</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p><strong>Three</strong> parameters: a name <code>args[0]</code>, the registry array 
 <code>args[1]</code>, and method <code>args[2]</code>. No context object
@@ -698,11 +699,11 @@ whatever the root object is.</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p><strong>Three</strong> parameters: the registry array <code>args[0]</code>, the
 method <code>args[1]</code>, and a context object <code>args[2]</code>.
@@ -725,11 +726,11 @@ will be used.</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array 
 <code>args[1]</code>, the method <code>args[2]</code>, and a context object
@@ -752,7 +753,8 @@ context will be used.</p>
 				<span class="keyword">break</span>;
 			}
 
-			<span class="keyword">var</span> strArr = name.split(separator),
+			<span class="keyword">var</span> 
+				strArr = name.split(separator),
 				objStr = (strArr.length &gt; <span class="number">1</span>) ? strArr.pop() : <span class="literal">false</span>;
 
 			obj.bind = fn = run.bind(ctx, arr, fn, <span class="keyword">this</span>);</pre></div></div>
@@ -760,11 +762,11 @@ context will be used.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Store a copy of this binding in the <code>cabinet</code> object.
 This is useful if we want to copy an existing bound
@@ -786,11 +788,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -802,10 +804,8 @@ pass an array of arguments and a context.</p>
 
 			ctx = ctx || <span class="keyword">this</span>;
 
-			<span class="keyword">var</span> cabinet = store[<span class="keyword">this</span>.id].cabinet,
-				fn = <span class="keyword">this</span>.get(name);
-
-			<span class="keyword">var</span> _fn = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+			<span class="keyword">var</span> fn = <span class="keyword">this</span>.get(name);
+			<span class="keyword">var</span> _fn = store[<span class="keyword">this</span>.id].cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
 			})[<span class="number">0</span>];
 
@@ -824,11 +824,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -837,27 +837,25 @@ does not exist.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		get: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-
-			<span class="keyword">var</span> registry = store[<span class="keyword">this</span>.id].registry;
-
+			<span class="keyword">var</span> reg = store[<span class="keyword">this</span>.id].registry;
 			<span class="keyword">if</span> (getType(name, <span class="string">'string'</span>)) {
-				<span class="keyword">var</span> obj = getObj(name, registry, store[<span class="keyword">this</span>.id].separator);
+				<span class="keyword">var</span> obj = getObj(name, reg, store[<span class="keyword">this</span>.id].separator);
 				<span class="keyword">if</span> (!getType(obj, <span class="string">'undefined'</span>)) {
 					<span class="keyword">return</span> obj;
 				}
 				<span class="keyword">return</span> <span class="literal">false</span>;
 			}
-			<span class="keyword">return</span> registry;
+			<span class="keyword">return</span> reg;
 		},</pre></div></div>
             
         </li>
         
         
-        <li id="section-33">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -878,11 +876,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Test the existence of the key we&#39;re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -898,10 +896,12 @@ throw an error.</p>
 
 				<span class="keyword">if</span> (str) {
 					<span class="keyword">if</span> ((prn &amp;&amp; !hasProp.call(prn, str)) || !prn) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + <span class="string">'" does not exist in the map!'</span>);
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + 
+						<span class="string">'" does not exist in the map!'</span>);
 					}
 				} <span class="keyword">else</span> <span class="keyword">if</span> (!hasProp.call(reg, arr.toString())) {
-					<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + <span class="string">'" does not exist in the map!'</span>);
+					<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + 
+					<span class="string">'" does not exist in the map!'</span>);
 				}
 			}
 
@@ -920,11 +920,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-35">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -934,11 +934,9 @@ wrapper.</p>
             
             <div class="content"><div class='highlight'><pre>		wrap: <span class="function"><span class="keyword">function</span> <span class="params">(fn, wrapper, ctx)</span> {</span>
 
-			<span class="keyword">var</span> cabinet = store[<span class="keyword">this</span>.id].cabinet;
-
 			ctx = ctx || <span class="keyword">this</span>;
 
-			<span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+			<span class="keyword">var</span> match = store[<span class="keyword">this</span>.id].cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
 			})[<span class="number">0</span>];
 
@@ -959,11 +957,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -976,20 +974,18 @@ execution context.</p>
 
 			ctx = ctx || <span class="keyword">this</span>;
 
-			<span class="keyword">var</span> cabinet	= store[<span class="keyword">this</span>.id].cabinet,
-				args	= slice.call(arguments);
-
-			<span class="keyword">var</span> match = cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
+			<span class="keyword">var</span> cab = store[<span class="keyword">this</span>.id].cabinet;
+			<span class="keyword">var</span> match = cab.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
 			})[<span class="number">0</span>];
 
 			<span class="keyword">if</span> (match) {
 				<span class="keyword">var</span> obj = {
 					fn	: fn,
-					ctx	: args[<span class="number">0</span>],
+					ctx	: slice.call(arguments)[<span class="number">0</span>],
 					bind	: run.bind(match.ctx, bindings, match.fn, <span class="keyword">this</span>)
 				};
-				cabinet.push(obj);
+				cab.push(obj);
 				<span class="keyword">return</span> obj.bind;
 			}
 			<span class="keyword">return</span> <span class="literal">false</span>;
@@ -998,11 +994,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -1017,11 +1013,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
@@ -1041,11 +1037,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Create some method aliases</p>
 
@@ -1058,17 +1054,17 @@ execution context.</p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
-              <p>Add the current version</p>
+              <p>Add the current semver version</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION		= <span class="string">'0.4.17'</span>;
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.4.18'</span>;
 
 	<span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
 		exports = module.exports = <span class="keyword">new</span> Syringe();
@@ -1077,11 +1073,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Asynch fetch is only present on the browser</p>
 
