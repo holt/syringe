@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.18. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.19. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -180,42 +180,33 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		});
 	};
 
-	// Test to see if an object is empty
-	var isEmpty = function(obj) {
-		for (var key in obj) {
-			if (hasProp.call(obj, key)) return false;
-		}
-		return true;
-	};
-
 	// The `run` function resolves the dependencies of a bound method.
 	// When it executes is retrieves the original `fn` method from the 
 	// `cabinet` object, and applies both the injected and free arguments
 	// to it. 
 	var run = function (arr, fn, syr) {
 
-		var args = slice.call(arguments);
+		var args = slice.call(arguments), props, match, ins, res;
 
 		// Remove the id from the arguments
 		args.splice(2, 1);
 
-		var match = store[syr.id].cabinet.filter(function (item) {
+		match = store[syr.id].cabinet.filter(function (item) {
 			return item.fn === fn;
 		})[0];
 
 		fn = match ? match.fn : fn;
+		props = getReg.apply(syr, [arr, syr.id]).concat(args.slice(2, args.length));
 
 		// Assume a constructor function
-		if (!isEmpty(fn.prototype)) {
-			var Obj = fn.bind.apply(fn, [null]
-				.concat(getReg.apply(syr, [arr, syr.id])
-				.concat(args.slice(2, args.length))));
-			return new Obj();
+		if (Object.keys(fn.prototype).length) {
+			ins = Object.create(fn.prototype);
+			res = fn.apply(ins, props);
+			return (typeof res === 'object') ? res : ins;
 		}
 		// Assume a regular function
 		else {
-			return fn.apply(this, getReg.apply(syr, [arr, syr.id])
-				.concat(args.slice(2, args.length)));
+			return fn.apply(this, props);
 		}
 	};
 
@@ -255,10 +246,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				sep = store[this.id].separator;
 
 			if (getType(name, 'object')) {
-				for (var key in name) {
-					if (!hasProp.call(name, key)) continue;
+				Object.keys(name).forEach(function (key) {
 					this.add.apply(this, [key, name[key]]);
-				}
+				}, this);
 				return this;
 			}
 
@@ -298,11 +288,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			
 			name = lst || snm;
 
-			for (var key in obj) {
-				if (!hasProp.call(obj, key) || 
-				(hasProp.call(obj, name) && key === name)) continue;
-				nrg[key] = obj[key];
-			}
+			Object.keys(obj).forEach(function (key) {
+				if (key !== name) nrg[key] = obj[key];
+			});
 
 			// Deep removal (delimited name)
 			if (snm) this.set(snm, nrg);
@@ -551,16 +539,14 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		create: function (props) {
 			return new Syringe(props);
 		}
-
 	};
 
 	// Allow mixins to be added to the prototype
 	proto.mixin = function (obj) {
 		if (getType(obj, 'object')) {
-			for (var key in obj) {
-				if (!hasProp.call(obj, key)) continue;				
+			Object.keys(obj).forEach(function (key) {
 				if (getType(obj[key], 'function')) proto[key] = obj[key];
-			}
+			});
 			return this;
 		}
 		return false;
@@ -572,7 +558,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver version
-	proto.VERSION = '0.4.18';
+	proto.VERSION = '0.4.19';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
