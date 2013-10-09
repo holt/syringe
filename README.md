@@ -279,6 +279,8 @@ Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syring
 - `Array.reduce`
 - `Function.bind`
 - `String.trim`
+- `Object.keys`
+- `Object.create`
 
 If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
 
