@@ -178,7 +178,7 @@ log('00000');   // Logs:
 
 ### "Does injection work with constructor functions?"
 
-Indeed it does, and we'll demonstrate it with another simple example. Create a data object:
+Indeed it does, and we can demonstrate this with another simple example. Create a data object:
 
 ```javascript
 var syr = Syringe.create({
@@ -252,17 +252,17 @@ The registry is a closured dependency map unique to each Syringe object instance
 
 ### "Why doesn't Syringe just use the function signature?"
 
-Some JavaScript dependency injection tutorials/libraries out there describe/provide ways of deriving function dependencies by _inference_ - that is, by scraping the contents of the bound function's signature:
+Some JavaScript dependency injection tutorials / libraries out there describe / provide ways of deriving function dependencies by _inference_ - that is, by scraping the contents of the bound function's signature:
 
 ```javascript
 var f = function ($dep1, $dep2, freearg1, frearg2) { ... };
 
 Injection.bind(f);  // The library uses RegEx to figure out the parameters 
                     // of `f` in order to pull them from the data registry
-                    // and apply them to `f` when the function is executed.
+                    // and apply them to `f` when the function is executed
 ```
 
-There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression/obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
+There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression / obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
 
 In addition, unless you namespace the dependencies it is impossible to disambiguate them from the free arguments. Also, dot-notation is not allowed in parameter names so you end up using something goofy like `$leve1_level2_level3` to retrieve deep items.
 
