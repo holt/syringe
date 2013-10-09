@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.17. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.18. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -12,12 +12,39 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// Globals
 	var 
 		root	= this, 
-		store	= {};
-
-	// Utilities from core prototypes
-	var 
+		store	= {},
 		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;
+
+	// Get an object from an (optional) context `ctx` using delimited
+	// string notation. The `sep` parameter determines the delimiter 
+	// (a period `.` by default).
+	var getObj = function (str, ctx, sep) {
+
+		ctx = ctx || this;
+		sep = sep || '.';
+
+		return str.split(sep).filter(function (num) {
+			return num.length;
+		}).reduce(function (prev, curr, index, list) {
+			if (prev) {
+				return prev[list[index]];
+			}
+		}, ctx);
+	};
+
+	// Create an object within an (optional) context `ctx` using 
+	// delimited string notation. The `sep` parameter determines
+	// the delimiter (period by default).			
+	var setObj = function (str, ctx, sep) {
+
+		ctx = ctx || this;
+		sep = sep || '.';
+
+		return str.split(sep).reduce(function (prev, curr) {
+			return (prev[curr]) ? (prev[curr]) : (prev[curr]) = {};
+		}, ctx);
+	};
 
 	// RFC 4122 GUID generator
 	var makeId = function () {
@@ -31,46 +58,27 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// is against this value and returns `true` or `false`, otherwise the type itself
 	// is returned.
 	var getType = function (obj, istype) {
-		var ret;
+		var ret = 'Undefined';
 		if (obj) {
 			ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
 		} else {
-			ret = ((obj === true) || (obj === false)) ? 'Boolean' : (obj === null) ? 'Null' : 'Undefined';
+			if (obj === null) {
+				ret = 'Null';
+			} else if (obj === false) {
+				ret = 'Boolean';
+			} else if (typeof obj === 'string') {
+				ret = 'String';
+			} else if (obj === 0) {
+				ret = 'Number';
+			} else if (isNaN(obj) && typeof obj === 'number') {
+				ret = 'NaN';
+			}
 		}
 		if (typeof istype === 'string') {
 			return (istype.toLowerCase() === ret.toLowerCase());
 		} else {
 			return ret;
 		}
-	};
-
-	// Get an object from an (optional) context `ctx` using delimited
-	// string notation. The `sep` parameter determines the delimiter 
-	// (a period `.` by default).
-	var getObj = function (str, ctx, sep) {
-		ctx = ctx || this;
-		str = str.split(sep || '.');
-		return str.filter(function (num) {
-			return num.length;
-		}).reduce(function (prev, curr, index, list) {
-			if (prev) {
-				return prev[list[index]];
-			}
-		}, ctx);
-	};
-
-	// Create an object within an (optional) context `ctx` using 
-	// delimited string notation. The `sep` parameter determines
-	// the delimiter (period by default).			
-	var setObj = function (str, ctx, sep) {
-		ctx = ctx || this;
-		str = str.split(sep || '.');
-		var obj, _i, _len;
-		for (_i = 0, _len = str.length; _i < _len; _i++) {
-			obj = str[_i];
-			ctx = (ctx[obj] = ctx[obj] || {});
-		}
-		return ctx;
 	};
 
 	// Return a map of any items in the passed array that match items
@@ -185,13 +193,13 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	// `cabinet` object, and applies both the injected and free arguments
 	// to it. 
 	var run = function (arr, fn, syr) {
-		var cabinet	= store[syr.id].cabinet,
-			args	= slice.call(arguments);
+
+		var args = slice.call(arguments);
 
 		// Remove the id from the arguments
 		args.splice(2, 1);
 
-		var match = cabinet.filter(function (item) {
+		var match = store[syr.id].cabinet.filter(function (item) {
 			return item.fn === fn;
 		})[0];
 
@@ -227,10 +235,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// retrieving objects. Whitespace and alphanumeric characters are
 		// not permitted. By default, the period '.' character is used.
 		separator: function (val) {
-
-			var tst = val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1;
-
-			if (getType(val, 'string') && tst) {
+			var test = val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1;
+			if (getType(val, 'string') && test) {
 				store[this.id].separator = val;
 				return this;
 			}
@@ -244,8 +250,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// with which to bind this function. In this way, registry methods
 		// can be automatically bound to other registry methods.
 		add: function (name, value, bindings) {
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator;
+			var 
+				reg = store[this.id].registry,
+				sep = store[this.id].separator;
 
 			if (getType(name, 'object')) {
 				for (var key in name) {
@@ -255,20 +262,22 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				return this;
 			}
 
-			if (getObj(name, registry, separator)) {
-				throw new Error('Key "' + name + '" already exists in the map; use \
+			if (getObj(name, reg, sep)) {
+				throw new Error('Key "' + name + 
+					'" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
 				}
-				var strArr = name.split(separator),
-					objStr = (strArr.length > 1) ? strArr.pop() : false;
+				var 
+					arr = name.split(sep),
+					str = (arr.length > 1) ? arr.pop() : false;
 
-				if (objStr) {
-					setObj(strArr.join(separator), registry, separator)[objStr] = value;
+				if (str) {
+					setObj(arr.join(sep), reg, sep)[str] = value;
 				} else {
-					registry[strArr.toString()] = value;
+					reg[arr.toString()] = value;
 				}
 			}
 			return this;
@@ -276,27 +285,30 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 		// Remove a named item from the registry
 		remove: function (name) {
-			var registry		= store[this.id].registry,
-				separator	= store[this.id].separator,
-				newregistry	= {},
-				obj		= {},
-				splitname	= name.trim().split(separator),
-				splitlast	= splitname.pop();
+			var 
+				reg = store[this.id].registry,
+				sep = store[this.id].separator,
+				snm = name.trim().split(sep),
+				lst = snm.pop(),
+				nrg = {},
+				obj = {};				
 
-			splitname	= splitname.join(separator);
-			obj		= splitname ? getObj(splitname, registry, separator) : registry;
-			name		= splitlast || splitname;
+			snm = snm.join(sep);
+			obj = snm ? getObj(snm, reg, sep) : reg;
+			
+			name = lst || snm;
 
 			for (var key in obj) {
-				if (!hasProp.call(obj, key) || (hasProp.call(obj, name) && key === name)) continue;
-				newregistry[key] = obj[key];
+				if (!hasProp.call(obj, key) || 
+				(hasProp.call(obj, name) && key === name)) continue;
+				nrg[key] = obj[key];
 			}
 
 			// Deep removal (delimited name)
-			if (splitname) this.set(splitname, newregistry);
+			if (snm) this.set(snm, nrg);
 
 			// Shallow removal (non-delimited name)
-			else store[this.id].registry = newregistry;
+			else store[this.id].registry = nrg;
 
 			return this;
 		},
@@ -309,7 +321,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = root;
 
-			var cabinet		= store[this.id].cabinet,
+			var 
+				cabinet		= store[this.id].cabinet,
 				separator	= store[this.id].separator,
 				args		= slice.call(arguments),
 				isNamed		= (getType(args[0], 'String')) ? true : false,
@@ -380,7 +393,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				break;
 			}
 
-			var strArr = name.split(separator),
+			var 
+				strArr = name.split(separator),
 				objStr = (strArr.length > 1) ? strArr.pop() : false;
 
 			obj.bind = fn = run.bind(ctx, arr, fn, this);
@@ -406,10 +420,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet = store[this.id].cabinet,
-				fn = this.get(name);
-
-			var _fn = cabinet.filter(function (item) {
+			var fn = this.get(name);
+			var _fn = store[this.id].cabinet.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
@@ -429,17 +441,15 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// in the passed string. The method will return `false` if the item
 		// does not exist.
 		get: function (name) {
-
-			var registry = store[this.id].registry;
-
+			var reg = store[this.id].registry;
 			if (getType(name, 'string')) {
-				var obj = getObj(name, registry, store[this.id].separator);
+				var obj = getObj(name, reg, store[this.id].separator);
 				if (!getType(obj, 'undefined')) {
 					return obj;
 				}
 				return false;
 			}
-			return registry;
+			return reg;
 		},
 
 		// Set a named item from the registry. As with `get`, you can 
@@ -466,10 +476,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 				if (str) {
 					if ((prn && !hasProp.call(prn, str)) || !prn) {
-						throw new Error('Key "' + name + '" does not exist in the map!');
+						throw new Error('Key "' + name + 
+						'" does not exist in the map!');
 					}
 				} else if (!hasProp.call(reg, arr.toString())) {
-					throw new Error('Key "' + name + '" does not exist in the map!');
+					throw new Error('Key "' + name + 
+					'" does not exist in the map!');
 				}
 			}
 
@@ -490,11 +502,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// wrapper.
 		wrap: function (fn, wrapper, ctx) {
 
-			var cabinet = store[this.id].cabinet;
-
 			ctx = ctx || this;
 
-			var match = cabinet.filter(function (item) {
+			var match = store[this.id].cabinet.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
@@ -520,20 +530,18 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			ctx = ctx || this;
 
-			var cabinet	= store[this.id].cabinet,
-				args	= slice.call(arguments);
-
-			var match = cabinet.filter(function (item) {
+			var cab = store[this.id].cabinet;
+			var match = cab.filter(function (item) {
 				return item.bind === fn;
 			})[0];
 
 			if (match) {
 				var obj = {
 					fn	: fn,
-					ctx	: args[0],
+					ctx	: slice.call(arguments)[0],
 					bind	: run.bind(match.ctx, bindings, match.fn, this)
 				};
-				cabinet.push(obj);
+				cab.push(obj);
 				return obj.bind;
 			}
 			return false;
@@ -563,8 +571,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.register		= proto.add;
 	proto.unregister	= proto.remove;
 
-	// Add the current version
-	proto.VERSION		= '0.4.17';
+	// Add the current semver version
+	proto.VERSION = '0.4.18';
 
 	if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
