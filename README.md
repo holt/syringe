@@ -14,7 +14,6 @@ Now, let's roll up our sleeves and begin shall we?
 - [Questions](#questions)
     - ["Does injection work with constructor functions?"](#does-injection-work-with-constructor-functions)
     - ["Can I see a more complex example?"](#can-i-see-a-more-complex-example)
-    - ["Can I see a _less_ complex example?"](#can-i-see-a-_less_-complex-example)
     - ["Aren't we just making a curry?"](#arent-we-just-making-a-curry)
     - ["What's this about a registry?"](#whats-this-about-a-registry)
     - ["Why doesn't Syringe just use the function signature?"](#why-doesnt-syringe-just-use-the-function-signature)
@@ -37,7 +36,6 @@ Now, let's roll up our sleeves and begin shall we?
     - [Register and Bind Example](#register-and-bind-example)
     - [Wrap Example](#wrap-example)
 - [License](#license)
-
 
 ## Overview ##
 
@@ -231,10 +229,6 @@ var ted = new StaffObj('00000');   // Creates:
 <img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
 
 <sup>+ CSS and images courtesy of the awesome [TodoMVC](http://todomvc.com) project</sup>
-
-### "Can I see a _less_ complex example?"
-
-This [jsFiddle](http://jsfiddle.net/zenserve/HfGj4/) shows how Syringe can be used to build a simple form validation component.
 
 ### "Aren't we just making a curry?"
 
