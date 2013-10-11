@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.19. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.20. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -15,6 +15,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		store	= {},
 		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;
+
 
 	// Get an object from an (optional) context `ctx` using delimited
 	// string notation. The `sep` parameter determines the delimiter 
@@ -104,7 +105,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 		var xhr;
 
-		if (typeof XMLHttpRequest !== 'undefined') {
+		if (!getType(XMLHttpRequest, 'undefined')) {
 			xhr = new XMLHttpRequest();
 		} else {
 			[
@@ -191,6 +192,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// Remove the id from the arguments
 		args.splice(2, 1);
 
+		// Locate the stored injection target function
 		match = store[syr.id].cabinet.filter(function (item) {
 			return item.fn === fn;
 		})[0];
@@ -202,7 +204,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		if (Object.keys(fn.prototype).length) {
 			ins = Object.create(fn.prototype);
 			res = fn.apply(ins, props);
-			return (typeof res === 'object') ? res : ins;
+			return (getType(res, 'object')) ? res : ins;
 		}
 		// Assume a regular function
 		else {
@@ -316,6 +318,19 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				isNamed		= (getType(args[0], 'String')) ? true : false,
 				name, arr, fn, ctx, obj;
 
+			// In cases where no context is provided, we just want simple partial 
+			// application and no clobbering of the original `this` context. This
+			// allows .call() and .apply() to continue to work properly on unbound
+			// Syringe function.
+			var sbind = function () {
+				var slice = [].slice,
+					args = slice.call(arguments),
+					fn = this;
+				return function () {
+					return fn.apply(this, args.concat(slice.call(arguments)));
+				};
+			};
+
 			switch (args.length) {
 
 			// __Two__ parameters: the registry array `args[0]` and method
@@ -325,7 +340,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				obj = {
 					fn	: args[1],
 					ctx	: ctx,
-					bind	: run.bind(ctx, args[0], args[1], this),
+					bind	: sbind.call(run, args[0], args[1], this),
 					args	: args
 				};
 				cabinet.push(obj);
@@ -347,6 +362,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 						ctx	: ctx,
 						args	: args
 					};
+
+					obj.bind = fn = sbind.call(run, arr, fn, this);
+
 				} else {
 					// __Three__ parameters: the registry array `args[0]`, the
 					// method `args[1]`, and a context object `args[2]`.
@@ -378,6 +396,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					ctx	: ctx,
 					args	: args
 				};
+
+				obj.bind = fn = run.bind(ctx, arr, fn, this);
 				break;
 			}
 
@@ -385,17 +405,17 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				strArr = name.split(separator),
 				objStr = (strArr.length > 1) ? strArr.pop() : false;
 
-			obj.bind = fn = run.bind(ctx, arr, fn, this);
 
 			// Store a copy of this binding in the `cabinet` object.
 			// This is useful if we want to copy an existing bound
 			// function but use new registry items. 
 			cabinet.push(obj);
 
+			
 			if (objStr) {
-				setObj(strArr.join(separator), ctx, separator)[objStr] = fn;
+				setObj(strArr.join(separator), root, separator)[objStr] = fn;
 			} else {
-				ctx[strArr.join(separator)] = fn;
+				root[strArr.join(separator)] = fn;
 			}
 
 			return this;
@@ -558,15 +578,14 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver version
-	proto.VERSION = '0.4.19';
+	proto.VERSION = '0.4.20';
 
-	if (typeof module !== 'undefined' && module.exports) {
+	// Determine local context
+	if (this.window === this) {
+		proto.fetch = fetch;
+		root.Syringe = new Syringe();
+	} else if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
-	} else {
-
-		// Asynch fetch is only present on the browser
-		proto.fetch	= fetch;
-		root.Syringe	= new Syringe();
 	}
 
 }.call(this));
