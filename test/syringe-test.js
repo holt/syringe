@@ -319,7 +319,7 @@ $(document).ready(function () {
 			return 'process is ' + data;
 		}, obj.first);
 
-		equal(obj.first.x.f(), 'process is done', 'bound function returns injected data.');
+		equal(x.f(), 'process is done', 'bound function returns injected data.');
 	});
 
 	test("bind a named method, with context, that contains the entire map", 2, function () {
@@ -337,8 +337,8 @@ $(document).ready(function () {
 			}
 		}, obj.first);
 
-		equal(obj.first.x.f().data, 'process is done', 'bound function returns injected data.');
-		equal(obj.first.x.f().map, syr.get(), 'bound function returns entire map.');
+		equal(x.f().data, 'process is done', 'bound function returns injected data.');
+		equal(x.f().map, syr.get(), 'bound function returns entire map.');
 	});
 
 	test("bind a named method, with context, that contains the current Syringe object", 2, function () {
@@ -358,8 +358,8 @@ $(document).ready(function () {
 
 		}, obj.first);
 
-		equal(obj.first.x.f().id, syr.id, 'bound function returns injected data.');
-		equal(obj.first.x.f().data, 'done', 'bound function returns registry object.');
+		equal(x.f().id, syr.id, 'bound function returns injected data.');
+		equal(x.f().data, 'done', 'bound function returns registry object.');
 	});
 
 	module("Exec");
