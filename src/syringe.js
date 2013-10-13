@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.20. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.21. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
 undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
@@ -16,207 +16,236 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;
 
+	// Utility methods used by the API
+	var utils = {
 
-	// Get an object from an (optional) context `ctx` using delimited
-	// string notation. The `sep` parameter determines the delimiter 
-	// (a period `.` by default).
-	var getObj = function (str, ctx, sep) {
+		// Get an object from an (optional) context `ctx` using delimited
+		// string notation. The `sep` parameter determines the delimiter 
+		// (a period `.` by default).
+		getObj: function (str, ctx, sep) {
+			return str.split((sep || '.')).filter(function (num) {
+				return num.length;
+			}).reduce(function (prev, curr, index, list) {
+				if (prev) {
+					return prev[list[index]];
+				}
+			}, (ctx || this));
+		},
 
-		ctx = ctx || this;
-		sep = sep || '.';
+		// Create an object within an (optional) context `ctx` using 
+		// delimited string notation. The `sep` parameter determines
+		// the delimiter (period by default).			
+		setObj: function (str, ctx, sep) {
+			return str.split((sep || '.')).reduce(function (prev, curr) {
+				return (prev[curr]) ? (prev[curr]) : (prev[curr]) = {};
+			}, (ctx || this));
+		},
 
-		return str.split(sep).filter(function (num) {
-			return num.length;
-		}).reduce(function (prev, curr, index, list) {
-			if (prev) {
-				return prev[list[index]];
-			}
-		}, ctx);
-	};
+		// In cases where no context is provided, we just want simple partial 
+		// application and no clobbering of the original `this` context. This
+		// utility function allows .call() and .apply() to continue to work
+		// properly on unbound Syringe functions.
+		sbind: function () {
+			var 
+				args	= slice.call(arguments),
+				fn	= this;
+			return function () {
+				return fn.apply(this, args.concat(slice.call(arguments)));
+			};
+		},
 
-	// Create an object within an (optional) context `ctx` using 
-	// delimited string notation. The `sep` parameter determines
-	// the delimiter (period by default).			
-	var setObj = function (str, ctx, sep) {
-
-		ctx = ctx || this;
-		sep = sep || '.';
-
-		return str.split(sep).reduce(function (prev, curr) {
-			return (prev[curr]) ? (prev[curr]) : (prev[curr]) = {};
-		}, ctx);
-	};
-
-	// RFC 4122 GUID generator
-	var makeId = function () {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (b) {
-			var a = 16 * Math.random() | 0;
-			return ('x' === b ? a : a & 3 | 8).toString(16);
-		});
-	};
-
-	// Get the object type as a string. If an `istype` value is passed the comparison
-	// is against this value and returns `true` or `false`, otherwise the type itself
-	// is returned.
-	var getType = function (obj, istype) {
-		var ret = 'Undefined';
-		if (obj) {
-			ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
-		} else {
-			if (obj === null) {
-				ret = 'Null';
-			} else if (obj === false) {
-				ret = 'Boolean';
-			} else if (typeof obj === 'string') {
-				ret = 'String';
-			} else if (obj === 0) {
-				ret = 'Number';
-			} else if (isNaN(obj) && typeof obj === 'number') {
-				ret = 'NaN';
-			}
-		}
-		if (typeof istype === 'string') {
-			return (istype.toLowerCase() === ret.toLowerCase());
-		} else {
-			return ret;
-		}
-	};
-
-	// Return a map of any items in the passed array that match items
-	// in the registry object
-	var getReg = function (arr, id) {
-		var reg = store[id].registry;
-		return arr.map(function (item) {
-			switch (item) {
-			case '':
-				return undefined;
-			case '*':
-				return reg;
-			case 'this':
-				return this;
-			default:
-				return getObj(item, reg, store[id].sep);
-			}
-		}, this);
-	};
-
-	// Standard ajax retrieval operation
-	var getData = function (url, callback) {
-
-		var xhr;
-
-		if (!getType(XMLHttpRequest, 'undefined')) {
-			xhr = new XMLHttpRequest();
-		} else {
-			[
-				'MSXML2.XmlHttp.5.0',
-				'MSXML2.XmlHttp.4.0',
-				'MSXML2.XmlHttp.3.0',
-				'MSXML2.XmlHttp.2.0',
-				'Microsoft.XmlHttp'
-			].forEach(function (item) {
-				try {
-					xhr = new window.ActiveXObject(item);
-					return;
-				} catch (e) {}
+		// RFC 4122 GUID generator
+		makeId: function () {
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (b) {
+				var a = 16 * Math.random() | 0;
+				return ('x' === b ? a : a & 3 | 8).toString(16);
 			});
-		}
+		},
 
-		xhr.onreadystatechange = function () {
-			if (xhr.readyState < 4) {
-				return;
-			}
-			if (xhr.status !== 200) {
-				callback(null);
-			} else if (xhr.readyState === 4) {
-				callback(xhr);
-			}
-		};
-
-		xhr.open('GET', url, true);
-		xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
-		xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-		xhr.send('');
-	};
-
-	// Asynch fetch
-	var fetch = function (arr, options, ctx) {
-
-		options		= options		|| {};
-		options.success = options.success	|| false;
-		options.xss	= options.xss		|| false;
-
-		var 
-			self	= this,
-			count	= 0,
-			url	= '';
-
-		// Test to see if a passed URL is local
-		var isLocalURL = function (url) {
-			var regexp = new RegExp("//" + location.host + "($|/)");
-			return "http" === url.substring(0, 4) ? regexp.test(url) : true;
-		};
-
-		// Keep a count of the script load events and reconcile it
-		// against the length of the script list
-		var stack = function (xhr) {
-
-			if (xhr && xhr.responseText) {
-				var data = JSON.parse(xhr.responseText);
-				if (data) self.add(arr[count].bind, data);
-			}
-
-			if (++count === arr.length) {
-				if (getType(options.success, 'function')) {
-					options.success.call(self, (ctx || self));
+		// Get the object type as a string. If an `istype` value is passed the comparison
+		// is against this value and returns `true` or `false`, otherwise the type itself
+		// is returned.
+		getType: function (obj, istype) {
+			var ret = 'Undefined';
+			if (obj) {
+				ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
+			} else {
+				if (obj === null) {
+					ret = 'Null';
+				} else if (obj === false) {
+					ret = 'Boolean';
+				} else if (typeof obj === 'string') {
+					ret = 'String';
+				} else if (obj === 0) {
+					ret = 'Number';
+				} else if (isNaN(obj) && typeof obj === 'number') {
+					ret = 'NaN';
 				}
 			}
-
-		};
-
-		arr.forEach(function (item) {
-			if (isLocalURL(url = item.path) || options.xss === true) {
-				getData(item.path, stack);
+			if (typeof istype === 'string') {
+				return (istype.toLowerCase() === ret.toLowerCase());
+			} else {
+				return ret;
 			}
-		});
-	};
+		},
 
-	// The `run` function resolves the dependencies of a bound method.
-	// When it executes is retrieves the original `fn` method from the 
-	// `cabinet` object, and applies both the injected and free arguments
-	// to it. 
-	var run = function (arr, fn, syr) {
+		// Return an array that describes the type of items contained inside an arguments
+		// object, or match an arguments object to an array of type names in order to
+		// validate the payload
+		matchArgs: function (args, istype) {
 
-		var args = slice.call(arguments), props, match, ins, res;
+			istype	= istype || [];
+			args	= [].slice.call(args);
 
-		// Remove the id from the arguments
-		args.splice(2, 1);
+			if (!istype.length) {
+				return args.map(function (item) {
+					return utils.getType(item);
+				});
+			} else if (istype.length === args.length) {
+				return args.reduce(function (prev, curr, idx) {
+					if (!prev && utils.getType(istype[idx], 'string')) return false;
+					return utils.getType(curr, istype[idx]);
+				}, true);
 
-		// Locate the stored injection target function
-		match = store[syr.id].cabinet.filter(function (item) {
-			return item.fn === fn;
-		})[0];
+			} else return false;
+		},
 
-		fn = match ? match.fn : fn;
-		props = getReg.apply(syr, [arr, syr.id]).concat(args.slice(2, args.length));
+		// Return a map of any items in the passed array that match items
+		// in the registry object
+		getReg: function (arr, id) {
+			var reg = store[id].registry;
+			return arr.map(function (item) {
+				switch (item) {
+				case '':
+					return undefined;
+				case '*':
+					return reg;
+				case 'this':
+					return this;
+				default:
+					return utils.getObj(item, reg, store[id].sep);
+				}
+			}, this);
+		},
 
-		// Assume a constructor function
-		if (Object.keys(fn.prototype).length) {
-			ins = Object.create(fn.prototype);
-			res = fn.apply(ins, props);
-			return (getType(res, 'object')) ? res : ins;
-		}
-		// Assume a regular function
-		else {
-			return fn.apply(this, props);
+		// Standard ajax retrieval operation
+		getData: function (url, callback) {
+
+			var xhr;
+
+			if (!utils.getType(XMLHttpRequest, 'undefined')) {
+				xhr = new XMLHttpRequest();
+			} else {
+				[
+					'MSXML2.XmlHttp.5.0',
+					'MSXML2.XmlHttp.4.0',
+					'MSXML2.XmlHttp.3.0',
+					'MSXML2.XmlHttp.2.0',
+					'Microsoft.XmlHttp'
+				].forEach(function (item) {
+					try {
+						xhr = new window.ActiveXObject(item);
+						return;
+					} catch (e) {}
+				});
+			}
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState < 4) {
+					return;
+				}
+				if (xhr.status !== 200) {
+					callback(null);
+				} else if (xhr.readyState === 4) {
+					callback(xhr);
+				}
+			};
+
+			xhr.open('GET', url, true);
+			xhr.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');
+			xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+			xhr.send('');
+		},
+
+		// Asynch fetch
+		fetch: function (arr, options, ctx) {
+
+			options		= options		|| {};
+			options.success = options.success	|| false;
+			options.xss	= options.xss		|| false;
+
+			var 
+				self	= this,
+				count	= 0,
+				url	= '';
+
+			// Test to see if a passed URL is local
+			var isLocalURL = function (url) {
+				var regexp = new RegExp("//" + location.host + "($|/)");
+				return "http" === url.substring(0, 4) ? regexp.test(url) : true;
+			};
+
+			// Keep a count of the script load events and reconcile it
+			// against the length of the script list
+			var stack = function (xhr) {
+
+				if (xhr && xhr.responseText) {
+					var data = JSON.parse(xhr.responseText);
+					if (data) self.add(arr[count].bind, data);
+				}
+
+				if (++count === arr.length) {
+					if (utils.getType(options.success, 'function')) {
+						options.success.call(self, (ctx || self));
+					}
+				}
+
+			};
+
+			arr.forEach(function (item) {
+				if (isLocalURL(url = item.path) || options.xss === true) {
+					utils.getData(item.path, stack);
+				}
+			});
+		},
+
+		// The `run` function resolves the dependencies of a bound method.
+		// When it executes is retrieves the original `fn` method from the 
+		// `cabinet` object, and applies both the injected and free arguments
+		// to it. 
+		run: function (arr, fn, syr) {
+
+			var args = slice.call(arguments), props, match, ins, res;
+
+			// Remove the id from the arguments
+			args.splice(2, 1);
+
+			// Locate the stored injection target function
+			match = store[syr.id].cabinet.filter(function (item) {
+				return item.fn === fn;
+			})[0];
+
+			fn = match ? match.fn : fn;
+			props = utils.getReg.apply(syr, [arr, syr.id]).concat(args.slice(2, args.length));
+
+			// Assume a constructor function
+			if (Object.keys(fn.prototype).length) {
+				ins = Object.create(fn.prototype);
+				res = fn.apply(ins, props);
+				return (utils.getType(res, 'object')) ? res : ins;
+			}
+			// Assume a regular function
+			else {
+				return fn.apply(this, props);
+			}
 		}
 	};
 
 	// Syringe base constructor
 	var Syringe = function (props) {
-		store[this.id = makeId()] = {
+		store[this.id = utils.makeId()] = {
 			cabinet		: [],
-			registry	: (props && getType(props, 'object')) ? props : {},
+			registry	: (props && utils.getType(props, 'object')) ? props : {},
 			separator	: '.'
 		};
 	};
@@ -228,12 +257,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// retrieving objects. Whitespace and alphanumeric characters are
 		// not permitted. By default, the period '.' character is used.
 		separator: function (val) {
-			var test = val.replace(/[?a-zA-Z\d]|\s/g, '').length === 1;
-			if (getType(val, 'string') && test) {
-				store[this.id].separator = val;
-				return this;
-			}
-			return false;
+			return (utils.getType(val, 'string') && 
+				(1 === val.replace(/[?a-zA-Z\d]|\s/g, '').length)) ? 
+			(store[this.id].separator = val, this) : false;
 		},
 
 		// Add a new item to the Syringe registry. The name can be provided 
@@ -247,19 +273,19 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				reg = store[this.id].registry,
 				sep = store[this.id].separator;
 
-			if (getType(name, 'object')) {
+			if (utils.getType(name, 'object')) {
 				Object.keys(name).forEach(function (key) {
 					this.add.apply(this, [key, name[key]]);
 				}, this);
 				return this;
 			}
 
-			if (getObj(name, reg, sep)) {
+			if (utils.getObj(name, reg, sep)) {
 				throw new Error('Key "' + name + 
 					'" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
-				if (getType(value, 'function') && bindings) {
+				if (utils.getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
 				}
 				var 
@@ -267,7 +293,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					str = (arr.length > 1) ? arr.pop() : false;
 
 				if (str) {
-					setObj(arr.join(sep), reg, sep)[str] = value;
+					utils.setObj(arr.join(sep), reg, sep)[str] = value;
 				} else {
 					reg[arr.toString()] = value;
 				}
@@ -286,7 +312,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				obj = {};				
 
 			snm = snm.join(sep);
-			obj = snm ? getObj(snm, reg, sep) : reg;
+			obj = snm ? utils.getObj(snm, reg, sep) : reg;
 			
 			name = lst || snm;
 
@@ -315,77 +341,70 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				cabinet		= store[this.id].cabinet,
 				separator	= store[this.id].separator,
 				args		= slice.call(arguments),
-				isNamed		= (getType(args[0], 'String')) ? true : false,
 				name, arr, fn, ctx, obj;
 
-			// In cases where no context is provided, we just want simple partial 
-			// application and no clobbering of the original `this` context. This
-			// allows .call() and .apply() to continue to work properly on unbound
-			// Syringe function.
-			var sbind = function () {
-				var slice = [].slice,
-					args = slice.call(arguments),
-					fn = this;
-				return function () {
-					return fn.apply(this, args.concat(slice.call(arguments)));
-				};
-			};
-
-			switch (args.length) {
-
 			// __Two__ parameters: the registry array `args[0]` and method
-			// `args[1]`. No name or context object is provided. The 
+			// `args[1]`. No name or context object is provided. The
 			// bound function will be returned as an anonymous function.
-			case 2:
+			if (utils.matchArgs(args, ['array', 'function'])) {
 				obj = {
 					fn	: args[1],
 					ctx	: ctx,
-					bind	: sbind.call(run, args[0], args[1], this),
+					bind	: utils.sbind.call(utils.run, args[0], args[1], this),
 					args	: args
 				};
 				cabinet.push(obj);
 				return obj.bind;
-			case 3:
+			}
 
-				if (isNamed) {
+			// __Three__ parameters: the registry array `args[0]`, the
+			// method `args[1]`, and a context object `args[2]`.
+			// When the bound method executes the provided context
+			// will be used.
+			else if (utils.matchArgs(args, ['array', 'function', 'object'])) {
 
-					// __Three__ parameters: a name `args[0]`, the registry array 
-					// `args[1]`, and method `args[2]`. No context object
-					// is provided. The bound function will be assigned to 
-					// whatever the root object is.
-					name	= args[0];
-					arr	= args[1];
-					fn	= args[2];
+				// __Three__ parameters: the registry array `args[0]`, the
+				// method `args[1]`, and a context object `args[2]`.
+				// When the bound method executes the provided context
+				// will be used.
+				obj = {
+					fn	: args[1],
+					ctx	: args[2],
+					args	: args,
+					bind	: utils.run.bind(args[2], args[0], args[1], this)
+				};
+				cabinet.push(obj);
+				return obj.bind;
+			}
 
-					obj = {
-						fn	: fn,
-						ctx	: ctx,
-						args	: args
-					};
+			// __Three__ parameters: a name `args[0]`, the registry array
+			// `args[1]`, and method `args[2]`. No context object
+			// is provided. The bound function will be assigned to
+			// whatever the root object is.
+			else if (utils.matchArgs(args, ['string', 'array', 'function'])) {
 
-					obj.bind = fn = sbind.call(run, arr, fn, this);
+				// __Three__ parameters: a name `args[0]`, the registry array 
+				// `args[1]`, and method `args[2]`. No context object
+				// is provided. The bound function will be assigned to 
+				// whatever the root object is.
+				name	= args[0];
+				arr	= args[1];
+				fn	= args[2];
 
-				} else {
-					// __Three__ parameters: the registry array `args[0]`, the
-					// method `args[1]`, and a context object `args[2]`.
-					// When the bound method executes the provided context
-					// will be used.
-					obj = {
-						fn	: args[1],
-						ctx	: args[2],
-						args	: args,
-						bind	: run.bind(args[2], args[0], args[1], this)
-					};
-					cabinet.push(obj);
-					return obj.bind;
-				}
-				break;
+				obj = {
+					fn	: fn,
+					ctx	: ctx,
+					args	: args
+				};
 
-			// __Four__ parameters: a name `args[0]`, the registry array 
+				obj.bind = fn = utils.sbind.call(utils.run, arr, fn, this);
+			}
+
+			// __Four__ parameters: a name `args[0]`, the registry array
 			// `args[1]`, the method `args[2]`, and a context object
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
-			case 4:
+			else if (utils.matchArgs(args, ['string', 'array', 'function', 'object'])) {
 				name	= args[0];
 				arr	= args[1];
 				fn	= args[2];
@@ -397,25 +416,27 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					args	: args
 				};
 
-				obj.bind = fn = run.bind(ctx, arr, fn, this);
-				break;
+				obj.bind = fn = utils.run.bind(ctx, arr, fn, this);
 			}
 
-			var 
-				strArr = name.split(separator),
-				objStr = (strArr.length > 1) ? strArr.pop() : false;
+			// Otherwise, just return...
+			else {
+				return this;
+			}
 
+			arr = name.split(separator);
+			obj = (arr.length > 1) ? arr.pop() : false;
 
 			// Store a copy of this binding in the `cabinet` object.
 			// This is useful if we want to copy an existing bound
 			// function but use new registry items. 
 			cabinet.push(obj);
 
-			
-			if (objStr) {
-				setObj(strArr.join(separator), root, separator)[objStr] = fn;
+			// Add the bound method to any name specified by the call			
+			if (obj) {
+				utils.setObj(arr.join(separator), root, separator)[obj] = fn;
 			} else {
-				root[strArr.join(separator)] = fn;
+				root[arr.join(separator)] = fn;
 			}
 
 			return this;
@@ -433,12 +454,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				return item.bind === fn;
 			})[0];
 
-			args = (getType(args, 'array')) ? args : [args];
+			args = (utils.getType(args, 'array')) ? args : [args];
 
-			if ((getType(name, 'string')) && (getType(fn, 'function'))) {
+			if ((utils.getType(name, 'string')) && (utils.getType(fn, 'function'))) {
 				if (_fn) {
 					fn = _fn ? _fn.fn : fn;
-					return run.apply(ctx, [_fn.args[0], fn, this].concat(args));
+					return utils.run.apply(ctx, [_fn.args[0], fn, this].concat(args));
 				}
 				return fn.apply(ctx, args);
 			}
@@ -450,9 +471,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// does not exist.
 		get: function (name) {
 			var reg = store[this.id].registry;
-			if (getType(name, 'string')) {
-				var obj = getObj(name, reg, store[this.id].separator);
-				if (!getType(obj, 'undefined')) {
+			if (utils.getType(name, 'string')) {
+				var obj = utils.getObj(name, reg, store[this.id].separator);
+				if (!utils.getType(obj, 'undefined')) {
 					return obj;
 				}
 				return false;
@@ -478,9 +499,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			// first establish if the value is undefined because the key doesn't exist,
 			// or if it *does* exist but its value is `undefined`. In the former case we
 			// throw an error.
-			if (getObj(name, reg, sep) === undefined) {
+			if (utils.getObj(name, reg, sep) === undefined) {
 
-				prn = getObj(arr.join(sep), reg, sep);
+				prn = utils.getObj(arr.join(sep), reg, sep);
 
 				if (str) {
 					if ((prn && !hasProp.call(prn, str)) || !prn) {
@@ -493,12 +514,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				}
 			}
 
-			if (getType(value, 'function') && bindings) {
+			if (utils.getType(value, 'function') && bindings) {
 				value = this.on(bindings, value);
 			}
 
 			if (str) {
-				setObj(arr.join(sep), reg, sep)[str] = value;
+				utils.setObj(arr.join(sep), reg, sep)[str] = value;
 			} else {
 				reg[arr.toString()] = value;
 			}
@@ -547,7 +568,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				var obj = {
 					fn	: fn,
 					ctx	: slice.call(arguments)[0],
-					bind	: run.bind(match.ctx, bindings, match.fn, this)
+					bind	: utils.run.bind(match.ctx, bindings, match.fn, this)
 				};
 				cab.push(obj);
 				return obj.bind;
@@ -563,9 +584,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 	// Allow mixins to be added to the prototype
 	proto.mixin = function (obj) {
-		if (getType(obj, 'object')) {
+		if (utils.getType(obj, 'object')) {
 			Object.keys(obj).forEach(function (key) {
-				if (getType(obj[key], 'function')) proto[key] = obj[key];
+				if (utils.getType(obj[key], 'function')) proto[key] = obj[key];
 			});
 			return this;
 		}
@@ -577,12 +598,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.register		= proto.add;
 	proto.unregister	= proto.remove;
 
-	// Add the current semver version
-	proto.VERSION = '0.4.20';
+	// Add the current semver
+	proto.VERSION = '0.4.21';
 
 	// Determine local context
 	if (this.window === this) {
-		proto.fetch = fetch;
+		proto.fetch = utils.fetch;
 		root.Syringe = new Syringe();
 	} else if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
