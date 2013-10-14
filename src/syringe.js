@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.22. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.23. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -45,7 +45,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// In cases where no context is provided, we just want simple partial 
 		// application and no clobbering of the original `this` context. This
 		// utility function allows .call() and .apply() to continue to work
-		// properly on unbound Syringe functions.
+		// properly on bound Syringe functions.
 		bindArgs: function () {
 			var 
 				args	= slice.call(arguments),
@@ -70,6 +70,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 			var ret = 'Undefined';
 			if (obj) {
 				ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
+				ret = (ret === 'Window' || ret === 'HTMLDocument') ? 'Object' : ret;
 			} else {
 				if (obj === null) {
 					ret = 'Null';
@@ -378,11 +379,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// When the bound method executes the provided context
 			// will be used.
 			else if (utils.matchArgs(args, ['array', 'function', 'object'])) {
-
-				// __Three__ parameters: the registry array `args[0]`, the
-				// method `args[1]`, and a context object `args[2]`.
-				// When the bound method executes the provided context
-				// will be used.
 				obj = {
 					fn	: args[1],
 					ctx	: args[2],
@@ -398,11 +394,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// is provided. The bound function will be assigned to
 			// whatever the root object is.
 			else if (utils.matchArgs(args, ['string', 'array', 'function'])) {
-
-				// __Three__ parameters: a name `args[0]`, the registry array 
-				// `args[1]`, and method `args[2]`. No context object
-				// is provided. The bound function will be assigned to 
-				// whatever the root object is.
 				name	= args[0];
 				arr	= args[1];
 				fn	= args[2];
@@ -619,7 +610,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.4.22';
+	proto.VERSION = '0.4.23';
 
 	// Determine local context
 	if (this.window === this) {
