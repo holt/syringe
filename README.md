@@ -20,6 +20,7 @@ Now, let's roll up our sleeves and begin shall we?
 - [Installation](#installation)
     - [Browser](#browser)
         - [Compatibility](#compatibility)
+        - [Dependencies](#dependencies)
     - [Node](#node)
     - [Bower](#bower)
     - [NuGet](#nuget)
@@ -266,7 +267,9 @@ In addition, unless you namespace the dependencies it is impossible to disambigu
 
 Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
 
-**Note:** Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:
+#### Dependencies
+
+Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:
 
 - `Array.filter`
 - `Array.map`
@@ -276,7 +279,7 @@ Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syring
 - `Object.keys`
 - `Object.create`
 
-If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
+All of the above are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
 
 #### Compatibility
 
