@@ -1,13 +1,14 @@
 // > http://syringejs.org
-// > syringe.js v0.4.21. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.4.22. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
-/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
-undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
-forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
+/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
+undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
+laxbreak:true, multistr: true, camelcase:true, immed: true, latedef: true, nonew:true,
+quotmark: true, node: true, newcap: true, browser:true */
 
 (function () {
 
-	"use strict";
+	'use strict';
 
 	// Globals
 	var 
@@ -45,7 +46,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// application and no clobbering of the original `this` context. This
 		// utility function allows .call() and .apply() to continue to work
 		// properly on unbound Syringe functions.
-		sbind: function () {
+		bindArgs: function () {
 			var 
 				args	= slice.call(arguments),
 				fn	= this;
@@ -103,11 +104,15 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				});
 			} else if (istype.length === args.length) {
 				return args.reduce(function (prev, curr, idx) {
-					if (!prev && utils.getType(istype[idx], 'string')) return false;
+					if (!prev && utils.getType(istype[idx], 'string')) {
+						return false;
+					}
 					return utils.getType(curr, istype[idx]);
 				}, true);
 
-			} else return false;
+			} else {
+				return false;
+			}
 		},
 
 		// Return a map of any items in the passed array that match items
@@ -181,8 +186,8 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 			// Test to see if a passed URL is local
 			var isLocalURL = function (url) {
-				var regexp = new RegExp("//" + location.host + "($|/)");
-				return "http" === url.substring(0, 4) ? regexp.test(url) : true;
+				var regexp = new RegExp('//' + location.host + '($|/)');
+				return 'http' === url.substring(0, 4) ? regexp.test(url) : true;
 			};
 
 			// Keep a count of the script load events and reconcile it
@@ -191,7 +196,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 
 				if (xhr && xhr.responseText) {
 					var data = JSON.parse(xhr.responseText);
-					if (data) self.add(arr[count].bind, data);
+					if (data) {
+						self.add(arr[count].bind, data);
+					}
 				}
 
 				if (++count === arr.length) {
@@ -215,7 +222,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// to it. 
 		run: function (arr, fn, syr) {
 
-			var args = slice.call(arguments), props, match, ins, res;
+			var 
+				args = slice.call(arguments), 
+				props, match, ins, res;
 
 			// Remove the id from the arguments
 			args.splice(2, 1);
@@ -226,7 +235,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			})[0];
 
 			fn = match ? match.fn : fn;
-			props = utils.getReg.apply(syr, [arr, syr.id]).concat(args.slice(2, args.length));
+			props = utils.getReg
+				.apply(syr, [arr, syr.id])
+				.concat(args.slice(2, args.length));
 
 			// Assume a constructor function
 			if (Object.keys(fn.prototype).length) {
@@ -317,14 +328,20 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			name = lst || snm;
 
 			Object.keys(obj).forEach(function (key) {
-				if (key !== name) nrg[key] = obj[key];
+				if (key !== name) {
+					nrg[key] = obj[key];
+				}
 			});
 
 			// Deep removal (delimited name)
-			if (snm) this.set(snm, nrg);
+			if (snm) {
+				this.set(snm, nrg);
+			}
 
 			// Shallow removal (non-delimited name)
-			else store[this.id].registry = nrg;
+			else {
+				store[this.id].registry = nrg;
+			}
 
 			return this;
 		},
@@ -335,13 +352,12 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 		// described below.
 		on: function ( /* 2, 3, or 4 params */ ) {
 
-			ctx = root;
-
 			var 
 				cabinet		= store[this.id].cabinet,
 				separator	= store[this.id].separator,
 				args		= slice.call(arguments),
-				name, arr, fn, ctx, obj;
+				ctx		= root,
+				name, arr, fn, obj;
 
 			// __Two__ parameters: the registry array `args[0]` and method
 			// `args[1]`. No name or context object is provided. The
@@ -350,7 +366,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 				obj = {
 					fn	: args[1],
 					ctx	: ctx,
-					bind	: utils.sbind.call(utils.run, args[0], args[1], this),
+					bind	: utils.bindArgs.call(utils.run, args[0], args[1], this),
 					args	: args
 				};
 				cabinet.push(obj);
@@ -397,7 +413,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 					args	: args
 				};
 
-				obj.bind = fn = utils.sbind.call(utils.run, arr, fn, this);
+				obj.bind = fn = utils.bindArgs.call(utils.run, arr, fn, this);
 			}
 
 			// __Four__ parameters: a name `args[0]`, the registry array
@@ -459,7 +475,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 			if ((utils.getType(name, 'string')) && (utils.getType(fn, 'function'))) {
 				if (_fn) {
 					fn = _fn ? _fn.fn : fn;
-					return utils.run.apply(ctx, [_fn.args[0], fn, this].concat(args));
+					return utils.run
+						.apply(ctx, [_fn.args[0], fn, this]
+						.concat(args));
 				}
 				return fn.apply(ctx, args);
 			}
@@ -586,7 +604,9 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.mixin = function (obj) {
 		if (utils.getType(obj, 'object')) {
 			Object.keys(obj).forEach(function (key) {
-				if (utils.getType(obj[key], 'function')) proto[key] = obj[key];
+				if (utils.getType(obj[key], 'function')) {
+					proto[key] = obj[key];
+				}
 			});
 			return this;
 		}
@@ -599,7 +619,7 @@ forin:false, curly:false, evil: true, laxbreak:true, multistr: true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.4.21';
+	proto.VERSION = '0.4.22';
 
 	// Determine local context
 	if (this.window === this) {
