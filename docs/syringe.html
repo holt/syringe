@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.22. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.23. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -136,7 +136,7 @@ the delimiter (period by default).            </p>
               <p>In cases where no context is provided, we just want simple partial 
 application and no clobbering of the original <code>this</code> context. This
 utility function allows .call() and .apply() to continue to work
-properly on unbound Syringe functions.</p>
+properly on bound Syringe functions.</p>
 
             </div>
             
@@ -188,6 +188,7 @@ is returned.</p>
 			<span class="keyword">var</span> ret = <span class="string">'Undefined'</span>;
 			<span class="keyword">if</span> (obj) {
 				ret = ({}).toString.call(obj).match(<span class="regexp">/\s([a-z|A-Z]+)/</span>)[<span class="number">1</span>];
+				ret = (ret === <span class="string">'Window'</span> || ret === <span class="string">'HTMLDocument'</span>) ? <span class="string">'Object'</span> : ret;
 			} <span class="keyword">else</span> {
 				<span class="keyword">if</span> (obj === <span class="literal">null</span>) {
 					ret = <span class="string">'Null'</span>;
@@ -748,25 +749,8 @@ will be used.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (utils.matchArgs(args, [<span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>])) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-30">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
-              </div>
-              <p><strong>Three</strong> parameters: the registry array <code>args[0]</code>, the
-method <code>args[1]</code>, and a context object <code>args[2]</code>.
-When the bound method executes the provided context
-will be used.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>				obj = {
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (utils.matchArgs(args, [<span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>])) {
+				obj = {
 					fn	: args[<span class="number">1</span>],
 					ctx	: args[<span class="number">2</span>],
 					args	: args,
@@ -779,11 +763,11 @@ will be used.</p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p><strong>Three</strong> parameters: a name <code>args[0]</code>, the registry array
 <code>args[1]</code>, and method <code>args[2]</code>. No context object
@@ -792,25 +776,8 @@ whatever the root object is.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>])) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-32">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
-              </div>
-              <p><strong>Three</strong> parameters: a name <code>args[0]</code>, the registry array 
-<code>args[1]</code>, and method <code>args[2]</code>. No context object
-is provided. The bound function will be assigned to 
-whatever the root object is.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>				name	= args[<span class="number">0</span>];
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>])) {
+				name	= args[<span class="number">0</span>];
 				arr	= args[<span class="number">1</span>];
 				fn	= args[<span class="number">2</span>];
 
@@ -826,11 +793,11 @@ whatever the root object is.</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array
 <code>args[1]</code>, the method <code>args[2]</code>, and a context object
@@ -857,11 +824,11 @@ context will be used.</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Otherwise, just return...</p>
 
@@ -877,11 +844,11 @@ context will be used.</p>
         </li>
         
         
-        <li id="section-35">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Store a copy of this binding in the <code>cabinet</code> object.
 This is useful if we want to copy an existing bound
@@ -894,11 +861,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Add the bound method to any name specified by the call            </p>
 
@@ -916,11 +883,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -954,11 +921,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -981,11 +948,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -1006,11 +973,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Test the existence of the key we&#39;re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -1050,11 +1017,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -1087,11 +1054,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-42">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -1124,11 +1091,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -1142,11 +1109,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
@@ -1167,11 +1134,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Create some method aliases</p>
 
@@ -1184,26 +1151,26 @@ execution context.</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>Add the current semver</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.4.22'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.4.23'</span>;</pre></div></div>
             
         </li>
         
         
-        <li id="section-47">
+        <li id="section-45">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
               <p>Determine local context</p>
 
