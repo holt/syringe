@@ -29,19 +29,20 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.4.21. Copyright (c) 2013 Michael Holt
+syringe.js v0.4.22. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="comment">/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, 
-undef:true, unused:true, curly:true, browser:true, indent:4, maxerr:50, laxcomma:true,
-forin:false, curly:false, evil: true, laxbreak:true, multistr: true */</span>
+            <div class="content"><div class='highlight'><pre><span class="comment">/* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
+undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
+laxbreak:true, multistr: true, camelcase:true, immed: true, latedef: true, nonew:true,
+quotmark: true, node: true, newcap: true, browser:true */</span>
 
 (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 
-	<span class="string">"use strict"</span>;</pre></div></div>
+	<span class="string">'use strict'</span>;</pre></div></div>
             
         </li>
         
@@ -139,7 +140,7 @@ properly on unbound Syringe functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		sbind: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>		bindArgs: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 			<span class="keyword">var</span> 
 				args	= slice.call(arguments),
 				fn	= <span class="keyword">this</span>;
@@ -233,11 +234,15 @@ validate the payload</p>
 				});
 			} <span class="keyword">else</span> <span class="keyword">if</span> (istype.length === args.length) {
 				<span class="keyword">return</span> args.reduce(<span class="function"><span class="keyword">function</span> <span class="params">(prev, curr, idx)</span> {</span>
-					<span class="keyword">if</span> (!prev &amp;&amp; utils.getType(istype[idx], <span class="string">'string'</span>)) <span class="keyword">return</span> <span class="literal">false</span>;
+					<span class="keyword">if</span> (!prev &amp;&amp; utils.getType(istype[idx], <span class="string">'string'</span>)) {
+						<span class="keyword">return</span> <span class="literal">false</span>;
+					}
 					<span class="keyword">return</span> utils.getType(curr, istype[idx]);
 				}, <span class="literal">true</span>);
 
-			} <span class="keyword">else</span> <span class="keyword">return</span> <span class="literal">false</span>;
+			} <span class="keyword">else</span> {
+				<span class="keyword">return</span> <span class="literal">false</span>;
+			}
 		},</pre></div></div>
             
         </li>
@@ -359,8 +364,8 @@ in the registry object</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> isLocalURL = <span class="function"><span class="keyword">function</span> <span class="params">(url)</span> {</span>
-				<span class="keyword">var</span> regexp = <span class="keyword">new</span> RegExp(<span class="string">"//"</span> + location.host + <span class="string">"($|/)"</span>);
-				<span class="keyword">return</span> <span class="string">"http"</span> === url.substring(<span class="number">0</span>, <span class="number">4</span>) ? regexp.test(url) : <span class="literal">true</span>;
+				<span class="keyword">var</span> regexp = <span class="keyword">new</span> RegExp(<span class="string">'//'</span> + location.host + <span class="string">'($|/)'</span>);
+				<span class="keyword">return</span> <span class="string">'http'</span> === url.substring(<span class="number">0</span>, <span class="number">4</span>) ? regexp.test(url) : <span class="literal">true</span>;
 			};</pre></div></div>
             
         </li>
@@ -381,7 +386,9 @@ against the length of the script list</p>
 
 				<span class="keyword">if</span> (xhr &amp;&amp; xhr.responseText) {
 					<span class="keyword">var</span> data = JSON.parse(xhr.responseText);
-					<span class="keyword">if</span> (data) self.add(arr[count].bind, data);
+					<span class="keyword">if</span> (data) {
+						self.add(arr[count].bind, data);
+					}
 				}
 
 				<span class="keyword">if</span> (++count === arr.length) {
@@ -417,7 +424,9 @@ to it. </p>
             
             <div class="content"><div class='highlight'><pre>		run: <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, syr)</span> {</span>
 
-			<span class="keyword">var</span> args = slice.call(arguments), props, match, ins, res;</pre></div></div>
+			<span class="keyword">var</span> 
+				args = slice.call(arguments), 
+				props, match, ins, res;</pre></div></div>
             
         </li>
         
@@ -452,7 +461,9 @@ to it. </p>
 			})[<span class="number">0</span>];
 
 			fn = match ? match.fn : fn;
-			props = utils.getReg.apply(syr, [arr, syr.id]).concat(args.slice(<span class="number">2</span>, args.length));</pre></div></div>
+			props = utils.getReg
+				.apply(syr, [arr, syr.id])
+				.concat(args.slice(<span class="number">2</span>, args.length));</pre></div></div>
             
         </li>
         
@@ -628,7 +639,9 @@ can be automatically bound to other registry methods.</p>
 			name = lst || snm;
 
 			Object.keys(obj).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
-				<span class="keyword">if</span> (key !== name) nrg[key] = obj[key];
+				<span class="keyword">if</span> (key !== name) {
+					nrg[key] = obj[key];
+				}
 			});</pre></div></div>
             
         </li>
@@ -644,7 +657,9 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (snm) <span class="keyword">this</span>.set(snm, nrg);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (snm) {
+				<span class="keyword">this</span>.set(snm, nrg);
+			}</pre></div></div>
             
         </li>
         
@@ -659,7 +674,9 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> store[<span class="keyword">this</span>.id].registry = nrg;
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> {
+				store[<span class="keyword">this</span>.id].registry = nrg;
+			}
 
 			<span class="keyword">return</span> <span class="keyword">this</span>;
 		},</pre></div></div>
@@ -682,13 +699,12 @@ described below.</p>
             
             <div class="content"><div class='highlight'><pre>		on: <span class="function"><span class="keyword">function</span> <span class="params">( <span class="comment">/* 2, 3, or 4 params */</span> )</span> {</span>
 
-			ctx = root;
-
 			<span class="keyword">var</span> 
 				cabinet		= store[<span class="keyword">this</span>.id].cabinet,
 				separator	= store[<span class="keyword">this</span>.id].separator,
 				args		= slice.call(arguments),
-				name, arr, fn, ctx, obj;</pre></div></div>
+				ctx		= root,
+				name, arr, fn, obj;</pre></div></div>
             
         </li>
         
@@ -709,7 +725,7 @@ bound function will be returned as an anonymous function.</p>
 				obj = {
 					fn	: args[<span class="number">1</span>],
 					ctx	: ctx,
-					bind	: utils.sbind.call(utils.run, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>),
+					bind	: utils.bindArgs.call(utils.run, args[<span class="number">0</span>], args[<span class="number">1</span>], <span class="keyword">this</span>),
 					args	: args
 				};
 				cabinet.push(obj);
@@ -804,7 +820,7 @@ whatever the root object is.</p>
 					args	: args
 				};
 
-				obj.bind = fn = utils.sbind.call(utils.run, arr, fn, <span class="keyword">this</span>);
+				obj.bind = fn = utils.bindArgs.call(utils.run, arr, fn, <span class="keyword">this</span>);
 			}</pre></div></div>
             
         </li>
@@ -926,7 +942,9 @@ pass an array of arguments and a context.</p>
 			<span class="keyword">if</span> ((utils.getType(name, <span class="string">'string'</span>)) &amp;&amp; (utils.getType(fn, <span class="string">'function'</span>))) {
 				<span class="keyword">if</span> (_fn) {
 					fn = _fn ? _fn.fn : fn;
-					<span class="keyword">return</span> utils.run.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>].concat(args));
+					<span class="keyword">return</span> utils.run
+						.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>]
+						.concat(args));
 				}
 				<span class="keyword">return</span> fn.apply(ctx, args);
 			}
@@ -1137,7 +1155,9 @@ execution context.</p>
             <div class="content"><div class='highlight'><pre>	proto.mixin = <span class="function"><span class="keyword">function</span> <span class="params">(obj)</span> {</span>
 		<span class="keyword">if</span> (utils.getType(obj, <span class="string">'object'</span>)) {
 			Object.keys(obj).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
-				<span class="keyword">if</span> (utils.getType(obj[key], <span class="string">'function'</span>)) proto[key] = obj[key];
+				<span class="keyword">if</span> (utils.getType(obj[key], <span class="string">'function'</span>)) {
+					proto[key] = obj[key];
+				}
 			});
 			<span class="keyword">return</span> <span class="keyword">this</span>;
 		}
@@ -1174,7 +1194,7 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.4.21'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.4.22'</span>;</pre></div></div>
             
         </li>
         
