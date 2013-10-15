@@ -93,7 +93,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					ret = 'NaN';
 				}
 			}
-			if (typeof istype === 'string') {
+			if (typeof istype === 'string') {	
 				return (istype.toLowerCase() === ret.toLowerCase());
 			} else {
 				return ret;
@@ -182,6 +182,16 @@ quotmark: true, node: true, newcap: true, browser:true */
 			xhr.send('');
 		},
 
+		// Returns `true` if an object contains no enumerable propeties
+		isEmpty: function(obj) {
+			for (var key in obj) {
+				if (hasProp.call(obj, key)) {
+					return false;
+				}
+			}
+			return true;
+		},
+
 		// Asynch fetch
 		fetch: function (arr, options, ctx) {
 
@@ -249,8 +259,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 				.apply(syr, [arr, syr.id])
 				.concat(args.slice(2, args.length));
 
-			// Assume a constructor function
-			if (Object.keys(fn.prototype).length) {
+			if (!utils.isEmpty(fn.prototype)) {
 				ins = Object.create(fn.prototype);
 				res = fn.apply(ins, props);
 				return (utils.getType(res, 'object')) ? res : ins;
@@ -417,6 +426,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 			anonctx		= utils.matchArgs(args, ['array', 'function', 'object']);
 			named		= utils.matchArgs(args, ['string', 'array', 'function']);
 			namedctx	= utils.matchArgs(args, ['string', 'array', 'function', 'object']);
+
 
 			if (anon || anonctx || named || namedctx) {
 				
@@ -653,7 +663,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.VERSION = '0.5.0';
 
 	// Determine local context
-	if (this.window === this) {
+	if (window && this.window) {
 		proto.fetch = utils.fetch;
 		root.Syringe = new Syringe();
 	} else if (typeof module !== 'undefined' && module.exports) {
