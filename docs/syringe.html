@@ -211,7 +211,7 @@ is returned.</p>
 					ret = <span class="string">'NaN'</span>;
 				}
 			}
-			<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {
+			<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {	
 				<span class="keyword">return</span> (istype.toLowerCase() === ret.toLowerCase());
 			} <span class="keyword">else</span> {
 				<span class="keyword">return</span> ret;
@@ -345,6 +345,28 @@ in the registry object</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
+              <p>Returns <code>true</code> if an object contains no enumerable propeties</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		isEmpty: <span class="keyword">function</span>(obj) {
+			<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
+				<span class="keyword">if</span> (hasProp.call(obj, key)) {
+					<span class="keyword">return</span> <span class="literal">false</span>;
+				}
+			}
+			<span class="keyword">return</span> <span class="literal">true</span>;
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
               <p>Asynch fetch</p>
 
             </div>
@@ -363,11 +385,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Test to see if a passed URL is local</p>
 
@@ -381,11 +403,11 @@ in the registry object</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Keep a count of the script load events and reconcile it
 against the length of the script list</p>
@@ -419,11 +441,11 @@ against the length of the script list</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>The <code>run</code> function resolves the dependencies of a bound method.
 When it executes is retrieves the original <code>fn</code> method from the 
@@ -441,11 +463,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Remove the id from the arguments</p>
 
@@ -456,11 +478,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Locate the stored injection target function</p>
 
@@ -473,22 +495,9 @@ to it. </p>
 			fn = match ? match.fn : fn;
 			props = utils.getReg
 				.apply(syr, [arr, syr.id])
-				.concat(args.slice(<span class="number">2</span>, args.length));</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-18">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
-              </div>
-              <p>Assume a constructor function</p>
+				.concat(args.slice(<span class="number">2</span>, args.length));
 
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (Object.keys(fn.prototype).length) {
+			<span class="keyword">if</span> (!utils.isEmpty(fn.prototype)) {
 				ins = Object.create(fn.prototype);
 				res = fn.apply(ins, props);
 				<span class="keyword">return</span> (utils.getType(res, <span class="string">'object'</span>)) ? res : ins;
@@ -844,6 +853,7 @@ context will be used.</p>
 			anonctx		= utils.matchArgs(args, [<span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
 			named		= utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>]);
 			namedctx	= utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
+
 
 			<span class="keyword">if</span> (anon || anonctx || named || namedctx) {
 				
@@ -1272,7 +1282,7 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">if</span> (<span class="keyword">this</span>.window === <span class="keyword">this</span>) {
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">if</span> (window &amp;&amp; <span class="keyword">this</span>.window) {
 		proto.fetch = utils.fetch;
 		root.Syringe = <span class="keyword">new</span> Syringe();
 	} <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> module !== <span class="string">'undefined'</span> &amp;&amp; module.exports) {
