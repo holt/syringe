@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.4.23. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.0. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -67,10 +67,19 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// is against this value and returns `true` or `false`, otherwise the type itself
 		// is returned.
 		getType: function (obj, istype) {
-			var ret = 'Undefined';
+			var 
+				ret	= 'Undefined',
+				types	= ['Window', 'HTMLDocument', 'Global', 'Document'];
+
 			if (obj) {
+
 				ret = ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1];
-				ret = (ret === 'Window' || ret === 'HTMLDocument') ? 'Object' : ret;
+
+				types = types.some(function (item) {
+					return item.toLowerCase() === ret.toLowerCase();
+				});
+
+				ret =  types ? 'Object' : ret;
 			} else {
 				if (obj === null) {
 					ret = 'Null';
@@ -350,102 +359,133 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// Bind a method to the dependency registry. This function accepts
 		// a variety of different arguments, the formulation of which 
 		// determine what type of binding takes place. The variations are
-		// described below.
-		on: function ( /* 2, 3, or 4 params */ ) {
+		// described below.		
+		on: function ( /* 1, 2, 3, or 4 params */ ) {
 
 			var 
-				cabinet		= store[this.id].cabinet,
-				separator	= store[this.id].separator,
-				args		= slice.call(arguments),
-				ctx		= root,
-				name, arr, fn, obj;
+				cab	= store[this.id].cabinet,
+				args	= slice.call(arguments),
+				ctx	= root,
+				obj	= {args: args},
+				anon, anonctx, named, namedctx, map;
+
+			// Bind arguments only, no context - used when a context is
+			// provided
+			var bindArgsOnly = utils.bindArgs.bind(utils.run);
+
+			// Utility that adds named methods to a provided context
+			var namedFuncFactory = function (name, fn, target) {
+
+				var 
+					sep = store[this.id].separator,
+					arr = name.split(sep),
+					str = (arr.length > 1) ? arr.pop() : false;
+				
+				target = utils.getType(target, 'object') ? target : root;
+
+				if (str) {
+					utils.setObj(arr.join(sep), target, sep)[str] = fn;
+				} else {
+					target[arr.join(sep)] = fn;
+				}
+
+			}.bind(this);
+
+			// __One__ parameter: a map (property) object.
 
 			// __Two__ parameters: the registry array `args[0]` and method
 			// `args[1]`. No name or context object is provided. The
 			// bound function will be returned as an anonymous function.
-			if (utils.matchArgs(args, ['array', 'function'])) {
-				obj = {
-					fn	: args[1],
-					ctx	: ctx,
-					bind	: utils.bindArgs.call(utils.run, args[0], args[1], this),
-					args	: args
-				};
-				cabinet.push(obj);
-				return obj.bind;
-			}
 
-			// __Three__ parameters: the registry array `args[0]`, the
+			// __Three__ parameters (1): the registry array `args[0]`, the
 			// method `args[1]`, and a context object `args[2]`.
 			// When the bound method executes the provided context
 			// will be used.
-			else if (utils.matchArgs(args, ['array', 'function', 'object'])) {
-				obj = {
-					fn	: args[1],
-					ctx	: args[2],
-					args	: args,
-					bind	: utils.run.bind(args[2], args[0], args[1], this)
-				};
-				cabinet.push(obj);
-				return obj.bind;
-			}
 
-			// __Three__ parameters: a name `args[0]`, the registry array
+			// __Three__ parameters (2): a name `args[0]`, the registry array
 			// `args[1]`, and method `args[2]`. No context object
 			// is provided. The bound function will be assigned to
 			// whatever the root object is.
-			else if (utils.matchArgs(args, ['string', 'array', 'function'])) {
-				name	= args[0];
-				arr	= args[1];
-				fn	= args[2];
-
-				obj = {
-					fn	: fn,
-					ctx	: ctx,
-					args	: args
-				};
-
-				obj.bind = fn = utils.bindArgs.call(utils.run, arr, fn, this);
-			}
 
 			// __Four__ parameters: a name `args[0]`, the registry array
 			// `args[1]`, the method `args[2]`, and a context object
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
-			else if (utils.matchArgs(args, ['string', 'array', 'function', 'object'])) {
-				name	= args[0];
-				arr	= args[1];
-				fn	= args[2];
-				ctx	= args[3];
 
-				obj = {
-					fn	: fn,
-					ctx	: ctx,
-					args	: args
-				};
+			map		= utils.matchArgs(args, ['object']);
+			anon		= utils.matchArgs(args, ['array', 'function']);
+			anonctx		= utils.matchArgs(args, ['array', 'function', 'object']);
+			named		= utils.matchArgs(args, ['string', 'array', 'function']);
+			namedctx	= utils.matchArgs(args, ['string', 'array', 'function', 'object']);
 
-				obj.bind = fn = utils.run.bind(ctx, arr, fn, this);
+			if (anon || anonctx || named || namedctx) {
+				
+				var n = (named || namedctx) ? 1 : 0;
+
+				obj.fn	= args[n+1];
+				obj.ctx	= anonctx ? args[n+2] : ctx;
+				
+				if (anon || named) {
+					obj.bind = bindArgsOnly(args[n+0], args[n+1], this);
+				}
+				else if (anonctx || namedctx){
+					obj.bind = utils.run.bind(args[n+2], args[n+0], args[n+1], this);
+				}
+
+				// Store a copy of this binding in the `cabinet` object.
+				// This is useful if we want to copy an existing bound
+				// function but use new registry items. 
+				cab.push(obj);
+
+				// if this is a named method?, If so, add the bound function to the name			
+				if (n) {
+					namedFuncFactory(args[0], obj.bind, ctx);
+					return this;
+				}
+				else {
+					return obj.bind;
+				}
 			}
 
-			// Otherwise, just return...
-			else {
-				return this;
+			// Is this a property map?
+			else if (map) {
+
+				var
+					props		= utils.getType(args[0], 'object') ? args[0] : {},
+					name		= utils.getType(props.name, 'string') ? props.name : false,
+					bindings	= utils.getType(props.bindings, 'array') ? props.bindings: false,
+					fn		= utils.getType(props.fn, 'function') ? props.fn : false,
+					target		= utils.getType(props.target, 'object') ? props.target : false;
+				
+				ctx = utils.getType(props.ctx, 'object') ? props.ctx : ctx;
+
+				if (bindings.length && fn) {
+
+					obj.fn	= fn;
+					obj.ctx	= ctx;
+
+					if (props.ctx) {
+						obj.bind = utils.run.bind(props.ctx, bindings, fn, this);
+					}
+
+					else {
+						obj.bind = bindArgsOnly(bindings, fn, this);
+					}
+
+					cab.push(obj);
+
+					// if this is a named method?, If so, add the bound function to the name			
+					if (name) {
+						namedFuncFactory(name, obj.bind, target);
+						return this;
+					}
+					else {
+						return obj.bind;
+					}
+				}
 			}
 
-			arr = name.split(separator);
-			obj = (arr.length > 1) ? arr.pop() : false;
-
-			// Store a copy of this binding in the `cabinet` object.
-			// This is useful if we want to copy an existing bound
-			// function but use new registry items. 
-			cabinet.push(obj);
-
-			// Add the bound method to any name specified by the call			
-			if (obj) {
-				utils.setObj(arr.join(separator), root, separator)[obj] = fn;
-			} else {
-				root[arr.join(separator)] = fn;
-			}
-
+			// If nothing gets returned, just return the Syringe object
 			return this;
 		},
 
@@ -610,7 +650,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.4.23';
+	proto.VERSION = '0.5.0';
 
 	// Determine local context
 	if (this.window === this) {
