@@ -25,6 +25,7 @@ Now, let's roll up our sleeves and begin shall we?
     - [Bower](#bower)
     - [NuGet](#nuget)
 - [API](#api)
+    - [Creating Bound Functions Using a Property Map](#creating-bound-functions-using-a-property-map)
 - [Additional Examples](#additional-examples)
     - [Initialization and Registration](#initialization-and-registration)
         - [Register a Single Item](#register-a-single-item)
@@ -54,12 +55,12 @@ var syr = Syringe.create({
             'rank'      : 'Lieutenant',
             'locale'    : 'GB',
             'division'  : 'ACHTUNG'
-        }  
+        } 
     }
 });
 ```
 
-Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected 
+Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected
 into the getter when it is invoked:
 
 ```javascript
@@ -187,7 +188,7 @@ var syr = Syringe.create({
             'rank'      : 'Lieutenant',
             'locale'    : 'GB',
             'division'  : 'ACHTUNG'
-        }  
+        } 
     }
 });
 ```
@@ -252,7 +253,7 @@ Some JavaScript dependency injection tutorials / libraries out there describe / 
 ```javascript
 var f = function ($dep1, $dep2, freearg1, frearg2) { ... };
 
-Injection.bind(f);  // The library uses RegEx to figure out the parameters 
+Injection.bind(f);  // The library uses RegEx to figure out the parameters
                     // of `f` in order to pull them from the data registry
                     // and apply them to `f` when the function is executed
 ```
@@ -315,12 +316,13 @@ This following table describes the methods provided by the `Syringe` object:
 
 Name     | Parameters   | Description
 ---------|--------------|-------------
-*create* | `map` (optional) | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
+*create* | `[map]` | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
 *add*    | `name, value [, binding]` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
 *on*     | `binding, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the binding array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the binding array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});`
-*on*     | `name, binding, fn [, ctx]`| Bind a named function to an optional context. The `name` string can be a dot-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
+*on*     | `name, binding, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
+*on* | `map` | Bind a named function to an optional target, or return an unnamed function. The `name` property can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` property makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: [See below](#creating-bound-functions-using-a-property-map)
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
 *set*    | `name, value [, binding]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `binding` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
 *exec*    | `name, args [, ctx]` | Directly execute a method within the registry. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
@@ -329,6 +331,58 @@ Name     | Parameters   | Description
 *copy*   | `binding, fn [, ctx]` | Create a new bound function from an existing one using a new registry binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 *mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
 *separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
+
+### Creating Bound Functions Using a Property Map
+
+Instead of passing multiple arguments to `.on()`, functions can be bound using a property map object.
+
+Property  | Description  | Example | Optional
+----------|--------------|---------|----------
+*name*    | A character delimited name for the bound function.<br/><br/>If a name but no `target` property is provided, the function is attached in shallow or deep form to the global object.<br/><br/>If a name and a `target` property is provided, the function is attached in shallow or deep form to the target object.<br/><br/>**Note:** If no name is provided, the bound function is returned as an anonymous function. | `first.second.third` | Yes
+*bindings*| An array of registry map items to be injected into the function specified by `fn`. | `['data', 'weather.report']` | No
+*fn*      | The function against which the injection operation takes place. Must have at least as many parameters as injected items. Any additional parameters are treated as free arguments that are passed by the caller on invocation. | `function (data, report) {...}` | No
+*ctx*     | The `this` context in which the function specified by `fn` will execute. | `{'foo': 'bar'}` | Yes
+*target*  | The target into which a named bound function can be attached. If the function isn't named, this property has no effect. | `window.utils` | Yes
+
+Here's a simple example. Add a an empty target:
+
+```javascript
+window.utils = {};
+```
+Add some data to the registry:
+```javascript
+Syringe.add({
+    data: 'example data',
+    weather: {
+        report: 'sunny'
+    }
+})
+```
+Create a simple function:
+```javascript
+var fn = function (data, report) {
+    console.log('Here is some ' + data);
+    console.log('The weather is ' + report);
+    console.log('Let\'s go to the ' + this.foo);
+};
+```
+Bind the function as a named function that executes with a provided context and gets added to a specified target:
+```javascript
+Syringe.on({
+    name    : 'first.second.third',
+    bindings: ['data', 'weather.report'],
+    fn      : fn,
+    ctx     : {'foo': 'bar'},
+    target  : window.utils
+});
+```
+Execute the bound function:
+```javascript
+window.utils.first.second.third();  // Logs:
+                                    //  Here is some example data
+                                    //  The weather is sunny
+                                    //  Let's go to the bar
+```
 
 ## Additional Examples ##
 
@@ -554,11 +608,11 @@ Bound methods can themselves be wrapped in other methods in order to create tier
 var timer = function (fn, name, funcname) {
 
     var start, stop, ret;
-  
+ 
     start   = (new Date()).getTime();
     ret     = fn();
     stop    = (new Date()).getTime();
-  
+ 
     console.log('The function "' + funcname + '" took ' + (stop - start) + 'ms');
     return ret;
 };
