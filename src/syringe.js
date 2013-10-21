@@ -1,18 +1,17 @@
 // > http://syringejs.org
-// > syringe.js v0.5.3. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.4. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
 laxbreak:true, multistr: true, camelcase:true, immed: true, latedef: true, nonew:true,
 quotmark: true, node: true, newcap: true, browser:true */
-
 (function () {
 
 	'use strict';
 
 	// Globals
-	var 
-		root	= this, 
+	var
+		root	= this,
 		store	= {},
 		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;
@@ -47,7 +46,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// utility function allows .call() and .apply() to continue to work
 		// properly on bound Syringe functions.
 		bindArgs: function () {
-			var 
+			var
 				args	= slice.call(arguments),
 				fn	= this;
 			return function () {
@@ -67,7 +66,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// is against this value and returns `true` or `false`, otherwise the type itself
 		// is returned.
 		getType: function (obj, istype) {
-			var 
+			var
 				ret	= 'Undefined',
 				types	= ['Window', 'HTMLDocument', 'Global', 'Document'];
 
@@ -79,7 +78,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					return item.toLowerCase() === ret.toLowerCase();
 				});
 
-				ret =  types ? 'Object' : ret;
+				ret = types ? 'Object' : ret;
 			} else {
 				if (obj === null) {
 					ret = 'Null';
@@ -93,7 +92,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					ret = 'NaN';
 				}
 			}
-			if (typeof istype === 'string') {	
+			if (typeof istype === 'string') {
 				return (istype.toLowerCase() === ret.toLowerCase());
 			} else {
 				return ret;
@@ -104,10 +103,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// object, or match an arguments object to an array of type names in order to
 		// validate the payload
 		matchArgs: function (args, istype) {
-
 			istype	= istype || [];
 			args	= [].slice.call(args);
-
 			if (!istype.length) {
 				return args.map(function (item) {
 					return utils.getType(item);
@@ -145,9 +142,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Standard ajax retrieval operation
 		getData: function (url, callback) {
-
 			var xhr;
-
 			if (!utils.getType(XMLHttpRequest, 'undefined')) {
 				xhr = new XMLHttpRequest();
 			} else {
@@ -183,7 +178,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		},
 
 		// Returns `true` if an object contains no enumerable propeties
-		isEmpty: function(obj) {
+		isEmpty: function (obj) {
 			for (var key in obj) {
 				if (hasProp.call(obj, key)) {
 					return false;
@@ -193,13 +188,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 		},
 
 		// Asynch fetch
-		fetch: function (arr, options, ctx) {
+		fetch: function (arr, props, ctx) {
+			props		= props || {};
+			props.success	= props.success || false;
+			props.xss	= props.xss || false;
 
-			options		= options		|| {};
-			options.success = options.success	|| false;
-			options.xss	= options.xss		|| false;
-
-			var 
+			var
 				self	= this,
 				count	= 0,
 				url	= '';
@@ -213,24 +207,21 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// Keep a count of the script load events and reconcile it
 			// against the length of the script list
 			var stack = function (xhr) {
-
 				if (xhr && xhr.responseText) {
 					var data = JSON.parse(xhr.responseText);
 					if (data) {
 						self.add(arr[count].bind, data);
 					}
 				}
-
 				if (++count === arr.length) {
-					if (utils.getType(options.success, 'function')) {
-						options.success.call(self, (ctx || self));
+					if (utils.getType(props.success, 'function')) {
+						props.success.call(self, (ctx || self));
 					}
 				}
-
 			};
 
 			arr.forEach(function (item) {
-				if (isLocalURL(url = item.path) || options.xss === true) {
+				if (isLocalURL(url = item.path) || props.xss === true) {
 					utils.getData(item.path, stack);
 				}
 			});
@@ -241,9 +232,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// `cabinet` object, and applies both the injected and free arguments
 		// to it. 
 		run: function (arr, fn, syr) {
-
-			var 
-				args = slice.call(arguments), 
+			var
+				args = slice.call(arguments),
 				props, match, ins, res;
 
 			// Remove the id from the arguments
@@ -258,6 +248,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 			props = utils.getReg
 				.apply(syr, [arr, syr.id])
 				.concat(args.slice(2, args.length));
+
+			// Replace pointers to the global object with actual instances
+			arr.forEach(function (item, idx) {
+				if (utils.getType(item, 'string') && item.indexOf('global:') === 0) {
+					props[idx] = utils.getObj(item.slice(7, item.length), root, '.');
+
+				}
+			});
 
 			if (!utils.isEmpty(fn.prototype)) {
 				ins = Object.create(fn.prototype);
@@ -274,9 +272,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 	// Syringe base constructor
 	var Syringe = function (props) {
 		store[this.id = utils.makeId()] = {
-			cabinet		: [],
-			registry	: (props && utils.getType(props, 'object')) ? props : {},
-			separator	: '.'
+			cabinet: [],
+			registry: (props && utils.getType(props, 'object')) ? props : {},
+			separator: '.'
 		};
 	};
 
@@ -287,9 +285,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// retrieving objects. Whitespace and alphanumeric characters are
 		// not permitted. By default, the period '.' character is used.
 		separator: function (val) {
-			return (utils.getType(val, 'string') && 
-				(1 === val.replace(/[?a-zA-Z\d]|\s/g, '').length)) ? 
-			(store[this.id].separator = val, this) : false;
+			return (utils.getType(val, 'string') &&
+				(1 === val.replace(/[?a-zA-Z\d]|\s/g, '').length)) ?
+				(store[this.id].separator = val, this) : false;
 		},
 
 		// Add a new item to the Syringe registry. The name can be provided 
@@ -299,7 +297,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// with which to bind this function. In this way, registry methods
 		// can be automatically bound to other registry methods.
 		add: function (name, value, bindings) {
-			var 
+			var
 				reg = store[this.id].registry,
 				sep = store[this.id].separator;
 
@@ -310,16 +308,26 @@ quotmark: true, node: true, newcap: true, browser:true */
 				return this;
 			}
 
+			if (!utils.getType(name, 'string')) {
+				throw new Error('Name must be a string!');
+			}
+
+			name = name.trim();
+
+			if (name.indexOf('global:') === 0) {
+				throw new Error('You can\'t add a key with this prefix!');
+			}
+
 			if (utils.getObj(name, reg, sep)) {
-				throw new Error('Key "' + name + 
+				throw new Error('Key "' + name +
 					'" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (utils.getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
 				}
-				var 
-					arr = name.split(sep),
+				var
+				arr = name.split(sep),
 					str = (arr.length > 1) ? arr.pop() : false;
 
 				if (str) {
@@ -333,17 +341,17 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Remove a named item from the registry
 		remove: function (name) {
-			var 
+			var
 				reg = store[this.id].registry,
 				sep = store[this.id].separator,
 				snm = name.trim().split(sep),
 				lst = snm.pop(),
 				nrg = {},
-				obj = {};				
+				obj = {};
 
 			snm = snm.join(sep);
 			obj = snm ? utils.getObj(snm, reg, sep) : reg;
-			
+
 			name = lst || snm;
 
 			Object.keys(obj).forEach(function (key) {
@@ -370,8 +378,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// determine what type of binding takes place. The variations are
 		// described below.		
 		on: function ( /* 1, 2, 3, or 4 params */ ) {
-
-			var 
+			var
 				cab	= store[this.id].cabinet,
 				args	= slice.call(arguments),
 				ctx	= root,
@@ -384,12 +391,11 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 			// Utility that adds named methods to a provided context
 			var namedFuncFactory = function (name, fn, target) {
-
-				var 
+				var
 					sep = store[this.id].separator,
 					arr = name.split(sep),
 					str = (arr.length > 1) ? arr.pop() : false;
-				
+
 				target = utils.getType(target, 'object') ? target : root;
 
 				if (str) {
@@ -429,17 +435,16 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 
 			if (anon || anonctx || named || namedctx) {
-				
+
 				var n = (named || namedctx) ? 1 : 0;
 
-				obj.fn	= args[n+1];
-				obj.ctx	= anonctx ? args[n+2] : ctx;
-				
+				obj.fn = args[n + 1];
+				obj.ctx = anonctx ? args[n + 2] : ctx;
+
 				if (anon || named) {
-					obj.bind = bindArgsOnly(args[n+0], args[n+1], this);
-				}
-				else if (anonctx || namedctx){
-					obj.bind = utils.run.bind(args[n+2], args[n+0], args[n+1], this);
+					obj.bind = bindArgsOnly(args[n + 0], args[n + 1], this);
+				} else if (anonctx || namedctx) {
+					obj.bind = utils.run.bind(args[n + 2], args[n + 0], args[n + 1], this);
 				}
 
 				// Store a copy of this binding in the `cabinet` object.
@@ -451,34 +456,30 @@ quotmark: true, node: true, newcap: true, browser:true */
 				if (n) {
 					namedFuncFactory(args[0], obj.bind, ctx);
 					return this;
-				}
-				else {
+				} else {
 					return obj.bind;
 				}
 			}
 
 			// Is this a property map?
 			else if (map) {
-
 				var
 					props		= utils.getType(args[0], 'object') ? args[0] : {},
 					name		= utils.getType(props.name, 'string') ? props.name : false,
-					bindings	= utils.getType(props.bindings, 'array') ? props.bindings: false,
+					bindings	= utils.getType(props.bindings, 'array') ? props.bindings : false,
 					fn		= utils.getType(props.fn, 'function') ? props.fn : false,
 					target		= utils.getType(props.target, 'object') ? props.target : false;
-				
+
 				ctx = utils.getType(props.ctx, 'object') ? props.ctx : ctx;
 
 				if (bindings.length && fn) {
 
-					obj.fn	= fn;
-					obj.ctx	= ctx;
+					obj.fn = fn;
+					obj.ctx = ctx;
 
 					if (props.ctx) {
 						obj.bind = utils.run.bind(props.ctx, bindings, fn, this);
-					}
-
-					else {
+					} else {
 						obj.bind = bindArgsOnly(bindings, fn, this);
 					}
 
@@ -488,8 +489,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					if (name) {
 						namedFuncFactory(name, obj.bind, target);
 						return this;
-					}
-					else {
+					} else {
 						return obj.bind;
 					}
 				}
@@ -503,9 +503,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// You can use this method to do just that. You can also (optionally) 
 		// pass an array of arguments and a context.
 		exec: function (name, args, ctx) {
-
 			ctx = ctx || this;
-
 			var fn = this.get(name);
 			var _fn = store[this.id].cabinet.filter(function (item) {
 				return item.bind === fn;
@@ -518,7 +516,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					fn = _fn ? _fn.fn : fn;
 					return utils.run
 						.apply(ctx, [_fn.args[0], fn, this]
-						.concat(args));
+							.concat(args));
 				}
 				return fn.apply(ctx, args);
 			}
@@ -545,7 +543,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// an exception if you try to set something that doesn't
 		// exist.
 		set: function (name, value, bindings) {
-
 			var
 				reg = store[this.id].registry,
 				sep = store[this.id].separator,
@@ -559,17 +556,16 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// or if it *does* exist but its value is `undefined`. In the former case we
 			// throw an error.
 			if (utils.getObj(name, reg, sep) === undefined) {
-
 				prn = utils.getObj(arr.join(sep), reg, sep);
 
 				if (str) {
 					if ((prn && !hasProp.call(prn, str)) || !prn) {
-						throw new Error('Key "' + name + 
-						'" does not exist in the map!');
+						throw new Error('Key "' + name +
+							'" does not exist in the map!');
 					}
 				} else if (!hasProp.call(reg, arr.toString())) {
-					throw new Error('Key "' + name + 
-					'" does not exist in the map!');
+					throw new Error('Key "' + name +
+						'" does not exist in the map!');
 				}
 			}
 
@@ -589,9 +585,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// The original function is passed as the first argument to the
 		// wrapper.
 		wrap: function (fn, wrapper, ctx) {
-
 			ctx = ctx || this;
-
 			var match = store[this.id].cabinet.filter(function (item) {
 				return item.bind === fn;
 			})[0];
@@ -600,6 +594,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 				return function () {
 					var args = slice.call(arguments);
 					return wrapper.apply(ctx, [
+
 						function () {
 							args = arguments.length ? arguments : args;
 							return match.bind.apply(ctx, args);
@@ -615,9 +610,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// `bindings` argument. You can also provide an optional
 		// execution context.
 		copy: function (bindings, fn, ctx) {
-
 			ctx = ctx || this;
-
 			var cab = store[this.id].cabinet;
 			var match = cab.filter(function (item) {
 				return item.bind === fn;
@@ -625,9 +618,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 			if (match) {
 				var obj = {
-					fn	: fn,
-					ctx	: slice.call(arguments)[0],
-					bind	: utils.run.bind(match.ctx, bindings, match.fn, this)
+					fn: fn,
+					ctx: slice.call(arguments)[0],
+					bind: utils.run.bind(match.ctx, bindings, match.fn, this)
 				};
 				cab.push(obj);
 				return obj.bind;
@@ -655,12 +648,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 	};
 
 	// Create some method aliases
-	proto.bind		= proto.on;
-	proto.register		= proto.add;
-	proto.unregister	= proto.remove;
+	proto.bind = proto.on;
+	proto.register = proto.add;
+	proto.unregister = proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.3';
+	proto.VERSION = '0.5.4';
 
 	// Determine local context
 	if (this.window) {
