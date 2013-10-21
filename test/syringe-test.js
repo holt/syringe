@@ -362,6 +362,29 @@ $(document).ready(function () {
 		equal(x.f().data, 'done', 'bound function returns registry object.');
 	});
 
+	test("bind a named method, with context, that contains an item from the global object", 1, function () {
+		
+		var syr = Syringe.create();
+		
+		var obj = {
+			'first': {}
+		};
+
+		window.obj2 = {
+			'data': 'done'
+		};
+
+		syr.bind('x.f', ['global:obj2.data'], function (data) {
+
+			return {
+				data: data
+			}
+
+		}, obj.first);
+
+		equal(x.f().data, 'done', 'bound function returns registry object.');
+	});
+
 	test("bind an anonymous method, no context, from a property map", 1, function () {
 		var syr = Syringe.create({
 			'data': 'done'
@@ -513,6 +536,34 @@ $(document).ready(function () {
 		});
 
 		equal(x.f().id, syr.id, 'bound function returns injected data.');
+		equal(x.f().data, 'done and done', 'bound function returns registry object.');
+	});
+
+	test("bind a named method, with context, from property map, that contains items from the global object", 1, function () {
+		var syr = Syringe.create();
+
+		var obj = {
+			'first': {
+				'second': 'and done'
+			}
+		};
+
+		window.obj2 = {
+			'data': 'done'
+		};
+
+		syr.bind({
+			name: 'x.f',
+			bindings: ['global:obj2.data', 'this'],
+			fn: function (data, args) {
+				return {
+					data: data + ' ' + this.second
+				}
+			},
+			ctx: obj.first
+
+		});
+
 		equal(x.f().data, 'done and done', 'bound function returns registry object.');
 	});
 
