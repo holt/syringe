@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.5.3. Copyright (c) 2013 Michael Holt
+syringe.js v0.5.4. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -39,7 +39,6 @@ holt.org. Distributed under the MIT License</p>
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
 laxbreak:true, multistr: true, camelcase:true, immed: true, latedef: true, nonew:true,
 quotmark: true, node: true, newcap: true, browser:true */</span>
-
 (<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 
 	<span class="string">'use strict'</span>;</pre></div></div>
@@ -57,8 +56,8 @@ quotmark: true, node: true, newcap: true, browser:true */</span>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> 
-		root	= <span class="keyword">this</span>, 
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span>
+		root	= <span class="keyword">this</span>,
 		store	= {},
 		hasProp	= {}.hasOwnProperty,
 		slice	= [].slice;</pre></div></div>
@@ -141,7 +140,7 @@ properly on bound Syringe functions.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		bindArgs: <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-			<span class="keyword">var</span> 
+			<span class="keyword">var</span>
 				args	= slice.call(arguments),
 				fn	= <span class="keyword">this</span>;
 			<span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
@@ -185,7 +184,7 @@ is returned.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		getType: <span class="function"><span class="keyword">function</span> <span class="params">(obj, istype)</span> {</span>
-			<span class="keyword">var</span> 
+			<span class="keyword">var</span>
 				ret	= <span class="string">'Undefined'</span>,
 				types	= [<span class="string">'Window'</span>, <span class="string">'HTMLDocument'</span>, <span class="string">'Global'</span>, <span class="string">'Document'</span>];
 
@@ -197,7 +196,7 @@ is returned.</p>
 					<span class="keyword">return</span> item.toLowerCase() === ret.toLowerCase();
 				});
 
-				ret =  types ? <span class="string">'Object'</span> : ret;
+				ret = types ? <span class="string">'Object'</span> : ret;
 			} <span class="keyword">else</span> {
 				<span class="keyword">if</span> (obj === <span class="literal">null</span>) {
 					ret = <span class="string">'Null'</span>;
@@ -211,7 +210,7 @@ is returned.</p>
 					ret = <span class="string">'NaN'</span>;
 				}
 			}
-			<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {	
+			<span class="keyword">if</span> (<span class="keyword">typeof</span> istype === <span class="string">'string'</span>) {
 				<span class="keyword">return</span> (istype.toLowerCase() === ret.toLowerCase());
 			} <span class="keyword">else</span> {
 				<span class="keyword">return</span> ret;
@@ -234,10 +233,8 @@ validate the payload</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		matchArgs: <span class="function"><span class="keyword">function</span> <span class="params">(args, istype)</span> {</span>
-
 			istype	= istype || [];
 			args	= [].slice.call(args);
-
 			<span class="keyword">if</span> (!istype.length) {
 				<span class="keyword">return</span> args.map(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 					<span class="keyword">return</span> utils.getType(item);
@@ -299,9 +296,7 @@ in the registry object</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		getData: <span class="function"><span class="keyword">function</span> <span class="params">(url, callback)</span> {</span>
-
 			<span class="keyword">var</span> xhr;
-
 			<span class="keyword">if</span> (!utils.getType(XMLHttpRequest, <span class="string">'undefined'</span>)) {
 				xhr = <span class="keyword">new</span> XMLHttpRequest();
 			} <span class="keyword">else</span> {
@@ -349,7 +344,7 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		isEmpty: <span class="keyword">function</span>(obj) {
+            <div class="content"><div class='highlight'><pre>		isEmpty: <span class="function"><span class="keyword">function</span> <span class="params">(obj)</span> {</span>
 			<span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> obj) {
 				<span class="keyword">if</span> (hasProp.call(obj, key)) {
 					<span class="keyword">return</span> <span class="literal">false</span>;
@@ -371,13 +366,12 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		fetch: <span class="function"><span class="keyword">function</span> <span class="params">(arr, options, ctx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		fetch: <span class="function"><span class="keyword">function</span> <span class="params">(arr, props, ctx)</span> {</span>
+			props = props || {};
+			props.success = props.success || <span class="literal">false</span>;
+			props.xss = props.xss || <span class="literal">false</span>;
 
-			options		= options		|| {};
-			options.success = options.success	|| <span class="literal">false</span>;
-			options.xss	= options.xss		|| <span class="literal">false</span>;
-
-			<span class="keyword">var</span> 
+			<span class="keyword">var</span>
 				self	= <span class="keyword">this</span>,
 				count	= <span class="number">0</span>,
 				url	= <span class="string">''</span>;</pre></div></div>
@@ -415,24 +409,21 @@ against the length of the script list</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> stack = <span class="function"><span class="keyword">function</span> <span class="params">(xhr)</span> {</span>
-
 				<span class="keyword">if</span> (xhr &amp;&amp; xhr.responseText) {
 					<span class="keyword">var</span> data = JSON.parse(xhr.responseText);
 					<span class="keyword">if</span> (data) {
 						self.add(arr[count].bind, data);
 					}
 				}
-
 				<span class="keyword">if</span> (++count === arr.length) {
-					<span class="keyword">if</span> (utils.getType(options.success, <span class="string">'function'</span>)) {
-						options.success.call(self, (ctx || self));
+					<span class="keyword">if</span> (utils.getType(props.success, <span class="string">'function'</span>)) {
+						props.success.call(self, (ctx || self));
 					}
 				}
-
 			};
 
 			arr.forEach(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
-				<span class="keyword">if</span> (isLocalURL(url = item.path) || options.xss === <span class="literal">true</span>) {
+				<span class="keyword">if</span> (isLocalURL(url = item.path) || props.xss === <span class="literal">true</span>) {
 					utils.getData(item.path, stack);
 				}
 			});
@@ -455,9 +446,8 @@ to it. </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		run: <span class="function"><span class="keyword">function</span> <span class="params">(arr, fn, syr)</span> {</span>
-
-			<span class="keyword">var</span> 
-				args = slice.call(arguments), 
+			<span class="keyword">var</span>
+				args = slice.call(arguments),
 				props, match, ins, res;</pre></div></div>
             
         </li>
@@ -495,7 +485,27 @@ to it. </p>
 			fn = match ? match.fn : fn;
 			props = utils.getReg
 				.apply(syr, [arr, syr.id])
-				.concat(args.slice(<span class="number">2</span>, args.length));
+				.concat(args.slice(<span class="number">2</span>, args.length));</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Replace pointers to the global object with actual instances</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>			arr.forEach(<span class="function"><span class="keyword">function</span> <span class="params">(item, idx)</span> {</span>
+				<span class="keyword">if</span> (utils.getType(item, <span class="string">'string'</span>) &amp;&amp; item.indexOf(<span class="string">'global:'</span>) === <span class="number">0</span>) {
+					props[idx] = utils.getObj(item.slice(<span class="number">7</span>, item.length), root, <span class="string">'.'</span>);
+
+				}
+			});
 
 			<span class="keyword">if</span> (!utils.isEmpty(fn.prototype)) {
 				ins = Object.create(fn.prototype);
@@ -506,11 +516,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Assume a regular function</p>
 
@@ -525,11 +535,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>Syringe base constructor</p>
 
@@ -537,26 +547,11 @@ to it. </p>
             
             <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> Syringe = <span class="function"><span class="keyword">function</span> <span class="params">(props)</span> {</span>
 		store[<span class="keyword">this</span>.id = utils.makeId()] = {
-			cabinet		: [],
-			registry	: (props &amp;&amp; utils.getType(props, <span class="string">'object'</span>)) ? props : {},
-			separator	: <span class="string">'.'</span>
+			cabinet: [],
+			registry: (props &amp;&amp; utils.getType(props, <span class="string">'object'</span>)) ? props : {},
+			separator: <span class="string">'.'</span>
 		};
 	};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-21">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
-              </div>
-              <p>Syringe object prototype methods</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> proto = Syringe.prototype = {</pre></div></div>
             
         </li>
         
@@ -567,17 +562,11 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
-              <p>Set the separator character used for creating, specifying, and
-retrieving objects. Whitespace and alphanumeric characters are
-not permitted. By default, the period &#39;.&#39; character is used.</p>
+              <p>Syringe object prototype methods</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		separator: <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
-			<span class="keyword">return</span> (utils.getType(val, <span class="string">'string'</span>) &amp;&amp; 
-				(<span class="number">1</span> === val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length)) ? 
-			(store[<span class="keyword">this</span>.id].separator = val, <span class="keyword">this</span>) : <span class="literal">false</span>;
-		},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="keyword">var</span> proto = Syringe.prototype = {</pre></div></div>
             
         </li>
         
@@ -587,6 +576,27 @@ not permitted. By default, the period &#39;.&#39; character is used.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Set the separator character used for creating, specifying, and
+retrieving objects. Whitespace and alphanumeric characters are
+not permitted. By default, the period &#39;.&#39; character is used.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		separator: <span class="function"><span class="keyword">function</span> <span class="params">(val)</span> {</span>
+			<span class="keyword">return</span> (utils.getType(val, <span class="string">'string'</span>) &amp;&amp;
+				(<span class="number">1</span> === val.replace(<span class="regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="string">''</span>).length)) ?
+				(store[<span class="keyword">this</span>.id].separator = val, <span class="keyword">this</span>) : <span class="literal">false</span>;
+		},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>Add a new item to the Syringe registry. The name can be provided 
 in dot-notation, in which case a deep reference is built within
@@ -598,7 +608,7 @@ can be automatically bound to other registry methods.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		add: function (name, value, bindings) {
-			var 
+			var
 				reg = store[this.id].registry,
 				sep = store[this.id].separator;
 
@@ -609,16 +619,26 @@ can be automatically bound to other registry methods.</p>
 				return this;
 			}
 
+			if (!utils.getType(name, 'string')) {
+				throw new Error('Name must be a string!');
+			}
+
+			name = name.trim();
+
+			if (name.indexOf('global:') === 0) {
+				throw new Error('You can\'t add a key with this prefix!');
+			}
+
 			if (utils.getObj(name, reg, sep)) {
-				throw new Error('Key "' + name + 
+				throw new Error('Key "' + name +
 					'" already exists in the map; use \
 					.remove() to unregister it first!');
 			} else {
 				if (utils.getType(value, 'function') &amp;&amp; bindings) {
 					value = this.on(bindings, value);
 				}
-				var 
-					arr = name.split(sep),
+				var
+				arr = name.split(sep),
 					str = (arr.length &gt; 1) ? arr.pop() : false;
 
 				if (str) {
@@ -633,28 +653,28 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Remove a named item from the registry</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>		remove: <span class="function"><span class="keyword">function</span> <span class="params">(name)</span> {</span>
-			<span class="keyword">var</span> 
+			<span class="keyword">var</span>
 				reg = store[<span class="keyword">this</span>.id].registry,
 				sep = store[<span class="keyword">this</span>.id].separator,
 				snm = name.trim().split(sep),
 				lst = snm.pop(),
 				nrg = {},
-				obj = {};				
+				obj = {};
 
 			snm = snm.join(sep);
 			obj = snm ? utils.getObj(snm, reg, sep) : reg;
-			
+
 			name = lst || snm;
 
 			Object.keys(obj).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
@@ -666,11 +686,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Deep removal (delimited name)</p>
 
@@ -683,11 +703,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>Shallow removal (non-delimited name)</p>
 
@@ -703,11 +723,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Bind a method to the dependency registry. This function accepts
 a variety of different arguments, the formulation of which 
@@ -717,8 +737,7 @@ described below.        </p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		on: <span class="function"><span class="keyword">function</span> <span class="params">( <span class="comment">/* 1, 2, 3, or 4 params */</span> )</span> {</span>
-
-			<span class="keyword">var</span> 
+			<span class="keyword">var</span>
 				cab	= store[<span class="keyword">this</span>.id].cabinet,
 				args	= slice.call(arguments),
 				ctx	= root,
@@ -728,11 +747,11 @@ described below.        </p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Bind arguments only, no context - used when a context is
 provided</p>
@@ -744,23 +763,22 @@ provided</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Utility that adds named methods to a provided context</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">var</span> namedFuncFactory = <span class="function"><span class="keyword">function</span> <span class="params">(name, fn, target)</span> {</span>
-
-				<span class="keyword">var</span> 
+				<span class="keyword">var</span>
 					sep = store[<span class="keyword">this</span>.id].separator,
 					arr = name.split(sep),
 					str = (arr.length &gt; <span class="number">1</span>) ? arr.pop() : <span class="literal">false</span>;
-				
+
 				target = utils.getType(target, <span class="string">'object'</span>) ? target : root;
 
 				<span class="keyword">if</span> (str) {
@@ -774,28 +792,13 @@ provided</p>
         </li>
         
         
-        <li id="section-30">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
-              </div>
-              <p><strong>One</strong> parameter: a map (property) object.</p>
-
-            </div>
-            
-        </li>
-        
-        
         <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
-              <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
-<code>args[1]</code>. No name or context object is provided. The
-bound function will be returned as an anonymous function.</p>
+              <p><strong>One</strong> parameter: a map (property) object.</p>
 
             </div>
             
@@ -808,10 +811,9 @@ bound function will be returned as an anonymous function.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p><strong>Three</strong> parameters (1): the registry array <code>args[0]</code>, the
-method <code>args[1]</code>, and a context object <code>args[2]</code>.
-When the bound method executes the provided context
-will be used.</p>
+              <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
+<code>args[1]</code>. No name or context object is provided. The
+bound function will be returned as an anonymous function.</p>
 
             </div>
             
@@ -824,10 +826,10 @@ will be used.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p><strong>Three</strong> parameters (2): a name <code>args[0]</code>, the registry array
-<code>args[1]</code>, and method <code>args[2]</code>. No context object
-is provided. The bound function will be assigned to
-whatever the root object is.</p>
+              <p><strong>Three</strong> parameters (1): the registry array <code>args[0]</code>, the
+method <code>args[1]</code>, and a context object <code>args[2]</code>.
+When the bound method executes the provided context
+will be used.</p>
 
             </div>
             
@@ -839,6 +841,22 @@ whatever the root object is.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p><strong>Three</strong> parameters (2): a name <code>args[0]</code>, the registry array
+<code>args[1]</code>, and method <code>args[2]</code>. No context object
+is provided. The bound function will be assigned to
+whatever the root object is.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array
 <code>args[1]</code>, the method <code>args[2]</code>, and a context object
@@ -856,27 +874,26 @@ context will be used.</p>
 
 
 			<span class="keyword">if</span> (anon || anonctx || named || namedctx) {
-				
+
 				<span class="keyword">var</span> n = (named || namedctx) ? <span class="number">1</span> : <span class="number">0</span>;
 
-				obj.fn	= args[n+<span class="number">1</span>];
-				obj.ctx	= anonctx ? args[n+<span class="number">2</span>] : ctx;
-				
+				obj.fn = args[n + <span class="number">1</span>];
+				obj.ctx = anonctx ? args[n + <span class="number">2</span>] : ctx;
+
 				<span class="keyword">if</span> (anon || named) {
-					obj.bind = bindArgsOnly(args[n+<span class="number">0</span>], args[n+<span class="number">1</span>], <span class="keyword">this</span>);
-				}
-				<span class="keyword">else</span> <span class="keyword">if</span> (anonctx || namedctx){
-					obj.bind = utils.run.bind(args[n+<span class="number">2</span>], args[n+<span class="number">0</span>], args[n+<span class="number">1</span>], <span class="keyword">this</span>);
+					obj.bind = bindArgsOnly(args[n + <span class="number">0</span>], args[n + <span class="number">1</span>], <span class="keyword">this</span>);
+				} <span class="keyword">else</span> <span class="keyword">if</span> (anonctx || namedctx) {
+					obj.bind = utils.run.bind(args[n + <span class="number">2</span>], args[n + <span class="number">0</span>], args[n + <span class="number">1</span>], <span class="keyword">this</span>);
 				}</pre></div></div>
             
         </li>
         
         
-        <li id="section-35">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Store a copy of this binding in the <code>cabinet</code> object.
 This is useful if we want to copy an existing bound
@@ -889,11 +906,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>if this is a named method?, If so, add the bound function to the name            </p>
 
@@ -902,50 +919,10 @@ function but use new registry items. </p>
             <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span> (n) {
 					namedFuncFactory(args[<span class="number">0</span>], obj.bind, ctx);
 					<span class="keyword">return</span> <span class="keyword">this</span>;
-				}
-				<span class="keyword">else</span> {
+				} <span class="keyword">else</span> {
 					<span class="keyword">return</span> obj.bind;
 				}
 			}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-37">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
-              </div>
-              <p>Is this a property map?</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (map) {
-
-				<span class="keyword">var</span>
-					props		= utils.getType(args[<span class="number">0</span>], <span class="string">'object'</span>) ? args[<span class="number">0</span>] : {},
-					name		= utils.getType(props.name, <span class="string">'string'</span>) ? props.name : <span class="literal">false</span>,
-					bindings	= utils.getType(props.bindings, <span class="string">'array'</span>) ? props.bindings: <span class="literal">false</span>,
-					fn		= utils.getType(props.fn, <span class="string">'function'</span>) ? props.fn : <span class="literal">false</span>,
-					target		= utils.getType(props.target, <span class="string">'object'</span>) ? props.target : <span class="literal">false</span>;
-				
-				ctx = utils.getType(props.ctx, <span class="string">'object'</span>) ? props.ctx : ctx;
-
-				<span class="keyword">if</span> (bindings.length &amp;&amp; fn) {
-
-					obj.fn	= fn;
-					obj.ctx	= ctx;
-
-					<span class="keyword">if</span> (props.ctx) {
-						obj.bind = utils.run.bind(props.ctx, bindings, fn, <span class="keyword">this</span>);
-					}
-
-					<span class="keyword">else</span> {
-						obj.bind = bindArgsOnly(bindings, fn, <span class="keyword">this</span>);
-					}
-
-					cab.push(obj);</pre></div></div>
             
         </li>
         
@@ -956,19 +933,32 @@ function but use new registry items. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
-              <p>if this is a named method?, If so, add the bound function to the name            </p>
+              <p>Is this a property map?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span> (name) {
-						namedFuncFactory(name, obj.bind, target);
-						<span class="keyword">return</span> <span class="keyword">this</span>;
+            <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (map) {
+				<span class="keyword">var</span>
+					props		= utils.getType(args[<span class="number">0</span>], <span class="string">'object'</span>) ? args[<span class="number">0</span>] : {},
+					name		= utils.getType(props.name, <span class="string">'string'</span>) ? props.name : <span class="literal">false</span>,
+					bindings	= utils.getType(props.bindings, <span class="string">'array'</span>) ? props.bindings : <span class="literal">false</span>,
+					fn		= utils.getType(props.fn, <span class="string">'function'</span>) ? props.fn : <span class="literal">false</span>,
+					target		= utils.getType(props.target, <span class="string">'object'</span>) ? props.target : <span class="literal">false</span>;
+
+				ctx = utils.getType(props.ctx, <span class="string">'object'</span>) ? props.ctx : ctx;
+
+				<span class="keyword">if</span> (bindings.length &amp;&amp; fn) {
+
+					obj.fn = fn;
+					obj.ctx = ctx;
+
+					<span class="keyword">if</span> (props.ctx) {
+						obj.bind = utils.run.bind(props.ctx, bindings, fn, <span class="keyword">this</span>);
+					} <span class="keyword">else</span> {
+						obj.bind = bindArgsOnly(bindings, fn, <span class="keyword">this</span>);
 					}
-					<span class="keyword">else</span> {
-						<span class="keyword">return</span> obj.bind;
-					}
-				}
-			}</pre></div></div>
+
+					cab.push(obj);</pre></div></div>
             
         </li>
         
@@ -978,6 +968,28 @@ function but use new registry items. </p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>if this is a named method?, If so, add the bound function to the name            </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span> (name) {
+						namedFuncFactory(name, obj.bind, target);
+						<span class="keyword">return</span> <span class="keyword">this</span>;
+					} <span class="keyword">else</span> {
+						<span class="keyword">return</span> obj.bind;
+					}
+				}
+			}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>If nothing gets returned, just return the Syringe object</p>
 
@@ -989,11 +1001,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -1002,9 +1014,7 @@ pass an array of arguments and a context.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		exec: <span class="function"><span class="keyword">function</span> <span class="params">(name, args, ctx)</span> {</span>
-
 			ctx = ctx || <span class="keyword">this</span>;
-
 			<span class="keyword">var</span> fn = <span class="keyword">this</span>.get(name);
 			<span class="keyword">var</span> _fn = store[<span class="keyword">this</span>.id].cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
@@ -1017,7 +1027,7 @@ pass an array of arguments and a context.</p>
 					fn = _fn ? _fn.fn : fn;
 					<span class="keyword">return</span> utils.run
 						.apply(ctx, [_fn.args[<span class="number">0</span>], fn, <span class="keyword">this</span>]
-						.concat(args));
+							.concat(args));
 				}
 				<span class="keyword">return</span> fn.apply(ctx, args);
 			}
@@ -1027,11 +1037,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -1054,11 +1064,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-42">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -1068,7 +1078,6 @@ exist.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		set: <span class="function"><span class="keyword">function</span> <span class="params">(name, value, bindings)</span> {</span>
-
 			<span class="keyword">var</span>
 				reg = store[<span class="keyword">this</span>.id].registry,
 				sep = store[<span class="keyword">this</span>.id].separator,
@@ -1079,11 +1088,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>Test the existence of the key we&#39;re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -1094,17 +1103,16 @@ throw an error.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">if</span> (utils.getObj(name, reg, sep) === <span class="literal">undefined</span>) {
-
 				prn = utils.getObj(arr.join(sep), reg, sep);
 
 				<span class="keyword">if</span> (str) {
 					<span class="keyword">if</span> ((prn &amp;&amp; !hasProp.call(prn, str)) || !prn) {
-						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + 
-						<span class="string">'" does not exist in the map!'</span>);
+						<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name +
+							<span class="string">'" does not exist in the map!'</span>);
 					}
 				} <span class="keyword">else</span> <span class="keyword">if</span> (!hasProp.call(reg, arr.toString())) {
-					<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name + 
-					<span class="string">'" does not exist in the map!'</span>);
+					<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name +
+						<span class="string">'" does not exist in the map!'</span>);
 				}
 			}
 
@@ -1123,11 +1131,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-45">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -1136,9 +1144,7 @@ wrapper.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		wrap: <span class="function"><span class="keyword">function</span> <span class="params">(fn, wrapper, ctx)</span> {</span>
-
 			ctx = ctx || <span class="keyword">this</span>;
-
 			<span class="keyword">var</span> match = store[<span class="keyword">this</span>.id].cabinet.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
 			})[<span class="number">0</span>];
@@ -1147,6 +1153,7 @@ wrapper.</p>
 				<span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 					<span class="keyword">var</span> args = slice.call(arguments);
 					<span class="keyword">return</span> wrapper.apply(ctx, [
+
 						<span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
 							args = arguments.length ? arguments : args;
 							<span class="keyword">return</span> match.bind.apply(ctx, args);
@@ -1160,11 +1167,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-46">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -1174,9 +1181,7 @@ execution context.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>		copy: <span class="function"><span class="keyword">function</span> <span class="params">(bindings, fn, ctx)</span> {</span>
-
 			ctx = ctx || <span class="keyword">this</span>;
-
 			<span class="keyword">var</span> cab = store[<span class="keyword">this</span>.id].cabinet;
 			<span class="keyword">var</span> match = cab.filter(<span class="function"><span class="keyword">function</span> <span class="params">(item)</span> {</span>
 				<span class="keyword">return</span> item.bind === fn;
@@ -1184,9 +1189,9 @@ execution context.</p>
 
 			<span class="keyword">if</span> (match) {
 				<span class="keyword">var</span> obj = {
-					fn	: fn,
-					ctx	: slice.call(arguments)[<span class="number">0</span>],
-					bind	: utils.run.bind(match.ctx, bindings, match.fn, <span class="keyword">this</span>)
+					fn: fn,
+					ctx: slice.call(arguments)[<span class="number">0</span>],
+					bind: utils.run.bind(match.ctx, bindings, match.fn, <span class="keyword">this</span>)
 				};
 				cab.push(obj);
 				<span class="keyword">return</span> obj.bind;
@@ -1197,11 +1202,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-47">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -1215,11 +1220,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-48">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
@@ -1240,34 +1245,19 @@ execution context.</p>
         </li>
         
         
-        <li id="section-48">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
-              </div>
-              <p>Create some method aliases</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>	proto.bind		= proto.on;
-	proto.register		= proto.add;
-	proto.unregister	= proto.remove;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
-              <p>Add the current semver</p>
+              <p>Create some method aliases</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.5.3'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.bind = proto.on;
+	proto.register = proto.add;
+	proto.unregister = proto.remove;</pre></div></div>
             
         </li>
         
@@ -1277,6 +1267,21 @@ execution context.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>Add the current semver</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.5.4'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
               <p>Determine local context</p>
 
