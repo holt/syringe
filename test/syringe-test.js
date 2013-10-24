@@ -269,6 +269,31 @@ $(document).ready(function () {
 		equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targeted data should not be removed.');
 	});
 
+
+	test("remove multiple deep props", 4, function () {
+		var syr = Syringe.create({
+			'data': {
+				'first': {
+					'second': 'done'
+				},
+				'other': {}
+			},
+			'data2': {},
+			'data3': {
+				'third': {}
+			}
+		});
+
+		syr.remove(['data.first', 'data3.third']);
+
+		strictEqual(syr.get('data.first'), false, 'targeted deep data should be removed.');
+		strictEqual(syr.get('data3.third'), false, 'targeted deep data should be removed.');
+
+		equal(typeof syr.get('data.other'), 'object', 'siblings of targeted data should not be removed.');
+		equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targeted data should not be removed.');
+	});
+
+
 	module("Bind");
 
 	test("bind an anonymous method, no context", 1, function () {
