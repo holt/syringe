@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.5.4. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.5. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -341,33 +341,51 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Remove a named item from the registry
 		remove: function (name) {
-			var
-				reg = store[this.id].registry,
-				sep = store[this.id].separator,
-				snm = name.trim().split(sep),
-				lst = snm.pop(),
-				nrg = {},
-				obj = {};
 
-			snm = snm.join(sep);
-			obj = snm ? utils.getObj(snm, reg, sep) : reg;
-
-			name = lst || snm;
-
-			Object.keys(obj).forEach(function (key) {
-				if (key !== name) {
-					nrg[key] = obj[key];
-				}
-			});
-
-			// Deep removal (delimited name)
-			if (snm) {
-				this.set(snm, nrg);
+			// Remove an array of items
+			if (utils.getType(name, 'array')) {
+				name.forEach(function (item) {
+					if (utils.getType(item, 'string')) {
+						this.remove(item);
+					}
+				}, this);
+				return;
 			}
 
-			// Shallow removal (non-delimited name)
-			else {
-				store[this.id].registry = nrg;
+			// Remove a single item
+			if (utils.getType(name, 'string')) {
+
+				name = name.trim();
+
+				var
+					reg = store[this.id].registry,
+					sep = store[this.id].separator,
+					snm = name.trim().split(sep),
+					lst = snm.pop(),
+					nrg = {},
+					obj = {};
+
+				snm = snm.join(sep);
+				obj = snm ? utils.getObj(snm, reg, sep) : reg;
+
+				name = lst || snm;
+
+				Object.keys(obj).forEach(function (key) {
+					if (key !== name) {
+						nrg[key] = obj[key];
+					}
+				});
+
+				// Deep removal (delimited name)
+				if (snm) {
+					this.set(snm, nrg);
+				}
+
+				// Shallow removal (non-delimited name)
+				else {
+					store[this.id].registry = nrg;
+				}
+
 			}
 
 			return this;
@@ -653,7 +671,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister = proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.4';
+	proto.VERSION = '0.5.5';
 
 	// Determine local context
 	if (this.window) {
