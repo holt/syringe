@@ -31,7 +31,7 @@ var syr = Syringe.create({
             'rank'      : 'Lieutenant',
             'locale'    : 'GB',
             'division'  : 'ACHTUNG'
-        } 
+        }
     }
 });
 ```
@@ -77,7 +77,7 @@ syr.on('log', ['utils.get'], function (get, id) {
 Now call the utility function with Slothrop's ID:
 
 ```javascript
-log('00000');  // Logs:
+log('00000');   // Logs:
                 //      Schwarzgerät accessed by "Slothrop, Tyrone"
                 //      ID: 00000; Rank: Lieutenant; Division: ACHTUNG
 
@@ -164,7 +164,13 @@ var syr = Syringe.create({
             'rank'      : 'Lieutenant',
             'locale'    : 'GB',
             'division'  : 'ACHTUNG'
-        } 
+        },
+        '00001': {
+            'name'      : 'Mucker-Maffick, Oliver',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
+        }
     }
 });
 ```
@@ -189,15 +195,23 @@ Bind the `data` object to the constructor:
 ```javascript
 StaffObj = syr.on(['data'], StaffObj);
 ```
-... and create a new object:
+... and create a couple of new objects:
 ```javascript
-var ted = new StaffObj('00000');   // Creates:
-                                   // {
-                                   //     "name"    : "Slothrop, Tyrone",
-                                   //     "rank"    : "Lieutenant",
-                                   //     "locale"  : "GB",
-                                   //     "division": "ACHTUNG"
-                                   // }
+var slothrop = new StaffObj('00000');   // Creates:
+                                        // {
+                                        //     "name"    : "Slothrop, Tyrone",
+                                        //     "rank"    : "Lieutenant",
+                                        //     "locale"  : "GB",
+                                        //     "division": "ACHTUNG"
+                                        // }
+
+var tantivy = new StaffObj('00001');    // Creates:
+                                        // {
+                                        //     "name"    : "Mucker-Maffick, Oliver",
+                                        //     "rank"    : "Lieutenant",
+                                        //     "locale"  : "GB",
+                                        //     "division": "ACHTUNG"
+                                        // }
 ```
 
 ### "Can I see a more complex example?"
@@ -297,14 +311,14 @@ Name     | Parameters   | Description
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
 *remove* | `array`                   | Remove an array of named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove(['data', 'foo.bar']);`
-*on*     | `bindings, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind a shallow or deep item located _outside_ of the dependency map in the global object, use the prefix `global:` before the keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['global:jQuery'], function ($) {...});` 
+*on*     | `bindings, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind a shallow or deep item located _outside_ of the dependency map in the global object, use the prefix `global:` before the keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['global:jQuery'], function ($) {...});`
 *on*     | `name, bindings, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
 *on* | `map` | Bind a named function to an optional target, or return an unnamed function. The `name` property can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` property makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: [See below](#creating-bound-functions-using-a-property-map)
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
 *set*    | `name, value [, bindings]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
 *exec*    | `name, args [, ctx]` | Directly execute a method within the dependency map. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
 *fetch*  | `array, props` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-items-asynchronously)
-*wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#wrap-example)
+*wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#fibonacci-number-add-on-remove-wrap-get)
 *copy*   | `bindings, fn [, ctx]` | Create a new bound function from an existing one using a new dependency map binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 *mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
 *separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
@@ -355,62 +369,15 @@ Syringe.on({
 ```
 Execute the bound function:
 ```javascript
-window.utils.first.second.third();  // Logs:
+window.utils.first.second.third();  //  Logs:
                                     //  Here is some example data
                                     //  The weather is sunny
                                     //  Let's go to the bar
 ```
 
-## Additional Examples ##
+### Register Items Asynchronously
 
-The following sections describe how to initialize a new Syringe registry, populate it with data, and bind the data to functions in order to inject dependencies.
-
-### Initialization and Registration
-
-Create a sterile new syringe:
-```javascript
-var syr = Syringe.create();
-```
-... or initialize one that is loaded up with some with useful dependencies:
-
-```javascript
-var syr = Syringe.create({
-   '$': window.jQuery || window.Zepto
-});
-```
-#### Register a Single Item
-```javascript
-syr.add('tzone', {
-    'result': [{
-            'TimeZoneId': 'America-Montevideo',
-            'DST'       : '-3',
-            'GMT'       : '-2'
-        }, {
-            'TimeZoneId': 'America-Sao_Paulo',
-            'DST'       : '-3',
-            'GMT'       : '-2'
-        }
-    ]
-});
-```
-#### Register a Map of Multiple Items
-
-```javascript
-syr.add({
-    'uuid': function () {
-        var a = function () {
-            return Math.floor(65536 * Math.random()).toString(16);
-        };
-        return a() + a() + '-' + a() + '-' + a() + '-' + a() + '-' + a() + a() + a();
-    },
-    'stat': 0,
-    'date': (function () {
-        return JSON.parse(JSON.stringify(new Date()));
-    }())
-});
-```
-
-#### Register Items Asynchronously
+You can retrieve JSON data items from a remote source and add them to the Syringe registry using the `fetch` method:
 
 ```javascript
 syr.fetch([{
@@ -427,193 +394,161 @@ syr.fetch([{
 });
 ```
 
-### Binding Methods
 
-You can bind your methods in a number of different ways.
+## Additional Examples ##
 
-#### Function Expression
+The following generic examples show how some of the API methods provided by Syringe might be used to manage function operations.
+
+### FizzBuzz (add, bind, exec, remove) ###
+
+A FizzBuzz is a program that prints the numbers from 1 to 100. But for multiples of three it prints `Fizz` instead of the number. For multiples of five it prints `Buzz`. For numbers which are multiples of both three and five it prints `FizzBuzz`. It's also a drinking game, and a surprisingly tricky one.
 
 ```javascript
-var event = syr.on(['uuid', 'tzone', 'stat', 'date'], function (uuid, tzone, stat, date, props) {
+Syringe.add('fn', function (syr, fn, lg, n) {
 
-    var state = ['Green', 'Amber', 'Orange', 'Red'][(stat = stat+1)];
+    // Examine the passed integer and log the evaluation
+    n = n || 1, lg((n % 3?'':'Fizz')+(n % 5?'':'Buzz') || n);
 
-    var GMT = tzone.result.filter(function (item) {
-        return item.TimeZoneId === props.locale;
-    })[0].GMT;
+    // Execute against self with current integer or remove self
+    return (100 >= ++n ? fn(n) : syr.remove('fn'));
 
-    if (stat < 4) syr.set('stat', stat); // Change the `stat` value
+}, ['this', 'fn', 'global:console.log']);
 
-    return {
-        'msg': 'User "' + props.name + '" entered forbidden zone at ' + date + ' GMT(' + GMT + ')',
-        'id': uuid(),
-        'stat': state
-    };
+// Execute the function:
+Syringe.exec('fn');
+```
+
+The above code shows how a simple functional FizzBuzz can be created with Syringe, and illustrates a number of different qualities. The first is obviously recursion - a function can inject itself into itself when executed.
+
+The bound function also receives its action (in this case a logger from the `global:` context) as a passed parameter, which decouples side-effectful operations from the main operation slightly. When the function completes, it removes itself from the dependency map and returns the Syringe object.
+
+### Sieve Of Eratosthenes (add, bind, on, copy) ###
+
+The sieve of Eratosthenes is a simple, ancient algorithm for finding all prime numbers up to any given limit. It does so by iteratively marking as composite (that is, not prime) the multiples of each prime, starting with the multiples of 2. For this example we're going to implement two slightly different ways of recursively processing the data and see which one is more performant.
+
+First we create a processor that sieves the data using `reduce`:
+
+```javascript
+Syringe.add('reduce', function (proc, arr, cnt) {
+
+    if ((cnt = cnt || 1) > Math.sqrt(arr.length)) {
+        return 1 === arr[0] && arr.shift(), arr;
+    }
+
+    return proc(arr.reduce(function (prv, cur, idx, lst) {
+        0 === cur % lst[cnt] && cur !== lst[cnt] || prv.push(cur);
+        return prv;
+    }, []), ++cnt);
+
+}, ['reduce']);
+```
+
+Next we create an alternate processor that sieves the data using an incrementing `while` loop:
+
+```javascript
+Syringe.add('while', function (proc, arr, cnt) {
+
+    var len = 0, newarr = [];
+
+    if ((cnt = cnt || 1) > Math.sqrt(arr.length)) {
+        return 1 === arr[0] && arr.shift(), arr;
+    }
+   
+    while (len < arr.length) {
+        arr[len] % arr[cnt] === 0 && arr[len] !== arr[cnt] || newarr.push(arr[len])        
+        len++;
+    }
+
+    return proc(newarr, ++cnt);
+
+}, ['while']);
+```
+
+Now we create a sieving function that builds the seed array and passes it to the `while` processor:
+
+```javascript
+var sieve_while = Syringe.on(['while'], function (proc, to) {
+
+    to = to || 10;
+    var n = 1, arr = [];
+    while (to--) arr[to] = n++;      
+
+    return proc(arr.reverse());
 
 });
 ```
-#### Object Reference
+
+We can copy `sieve_while` and create an alternate sieving function that uses the `reduce` processor:
 
 ```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
-    /* as above */
-});
-```
-... or as a _deep_ object reference (the object is dynamically constructed if it doesn't already exist):
-
-```javascript
-syr.on('security.access.event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
-    /* as above */
-});
-```
-... or as an object reference within a provided context:
-
-```javascript
-syr.on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) {
-    /* as above */
-}, security.access);
+var sieve_reduce = Syringe.copy(['reduce'], sieve_while);
 ```
 
-The object reference form returns the Syringe object, so you can create a chain of binding operations:
+Finally, let's ask both to return all prime numbers between 1 and 10,000 and see what happens:
 
 ```javascript
-syr
-    .on('event', ['uuid', 'tzone', 'stat'], function (uuid, tzone, stat, props) { /* as above  */})
-    .on('func1', ['_'], function (_, props) { /* ... */ })
-    .on('func2', ['_'], function (_, props) { /* ... */ });
+console.time('sieve while');
+console.log(sieve_while(10000));
+console.timeEnd('sieve while');     // Logs:
+                                    // sieve while: 80ms
+
+console.time('sieve reduce');
+console.log(sieve_reduce(10000));
+console.timeEnd('sieve reduce');    // Logs:
+                                    // sieve reduce: 120ms
 ```
 
-### Execution
+The `while` processor appears to be considerably more performant!
 
-Run the function:
+###  Fibonacci Number (add, on, remove, wrap, get)
 
-```javascript
-event({
-    'name': 'Doe, John',
-    'locale': 'America-Montevideo'
-});
-
-/* Returns:
-{
-    "msg" : "User \"Doe, John\" entered forbidden zone at 2013-04-03T02:38:49.068Z GMT(-2)",
-    "id"  : "5bc612d1-d6ea-d78f-7c24-5d26d299ec1",
-    "cond": "Green"
-}
-*/
-```
-Run it again:
+The Fibonacci sequence is a numeric list where the first two numbers are 0 and 1 and each subsequent number is the sum of the previous two. The following example describes a simple function that calculates the Fibonacci value of a specific number.
 
 ```javascript
-event({
-    'name': 'Smith, Alice',
-    'locale': 'America-Sao_Paulo'
-});
-
-/* Returns:
-{
-    "msg" : "User \"Smith, Alice\" entered forbidden zone at 2013-04-03T02:44:13.196Z GMT(-2)",
-    "id"  : "5418d190-c1df-7d26-82e9-6d1aab74c1f",
-    "cond": "Amber"
-}
-*/
+var fib = function () {
+    var fn = Syringe.on(['store'], function (store, a) {
+        var res = store[a];
+        if ('number' !== typeof res) {
+            res = fn(a - 1) + fn(a - 2);
+            store[a] = res;
+        }
+        return res;
+    });
+    return fn;
+}();
 ```
 
-###  Register and Bind Example
-
-If you pass an array of registry properties as the third argument when you register a function, syringe will automatically bind the function before adding it to the registry:
+To improve performance, the storage of each preceding number is held inside the dependency map:
 
 ```javascript
-// Define a function for getting the current date:
-var getDate = function () {
-
-    var a = new Date(),
-        b = a.getDate(),
-        c = a.getMonth() + 1,
-        a = a.getFullYear();
-
-    return a + "/" + (10 > c ? "0" + c : c) + "/" + (10 > b ? "0" + b : b);
-};
-
-// Define a function for getting the current time:
-var getTime = function () {
-
-    var a = new Date(),
-        b = a.getMinutes(),
-        a = a.getHours();
-
-    return (10 > a ? "0" + a : a) + ":" + (10 > b ? "0" + b : b);
-};
-
-// Create a new syringe and register the date and time functions:
-var syr = Syringe.create({
-    'date': getDate,
-    'time': getTime
-});
-
-// Register a "condition" function that itself is bound and uses the date and time functions:
-syr.add('condition', function (date, time, stat) {
-    return 'Current status on ' + date() + ' at ' + time() + ' is ' + (stat || 'Green');
-}, ['date', 'time']); // Registration binds the passed function
-
-// Create a bound function that gets passed the "condition" function:
-var msg = syr.on( ['condition'], function (condition, motd, stat) {
-    return condition(stat) + '\nMessage of the day: ' + motd;
-});
-
-// Call the bound function with a message of the day:
-msg('All is well.');
-/* Returns:
-    "Current status on 2013/04/07 at 23:15 is Green
-    Message of the day: All is well."
-*/
-
-// Call the bound function with a status level and message of the day:
-msg('Keep calm and carry on!', 'Amber');
-/* Returns:
-    "Current status on 2013/04/07 at 23:15 is Amber
-     Message of the day: Keep calm and carry on!"
-*/
+Syringe.add('store', [0, 1]);
 ```
 
-###  Wrap Example
-
-Bound methods can themselves be wrapped in other methods in order to create tiers of operation. For example, you might want to use a generic timer function to log out the execution time of a bound method. Example:
+In the Sieve Of Eratosthenes example we bookended the bound function with a console timer to determine the overall performance of the operation. In this example we'll use Syringe to wrap our bound function with a timer in order to produce a new function:
 
 ```javascript
-// Generic timer function that will be passed the original registry method,
-// its name, and an array of its original arguments:
-var timer = function (fn, name, funcname) {
+fib = Syringe.wrap(fib, function (fn, num, name) {
 
     var start, stop, ret;
- 
+
     start   = (new Date()).getTime();
     ret     = fn();
     stop    = (new Date()).getTime();
- 
-    console.log('The function "' + funcname + '" took ' + (stop - start) + 'ms');
+
+    this.remove('log.' + name).add('log.' + name, 'The ' + name + ' function took ' + (stop - start) + 'ms');
     return ret;
-};
-
-var syr = Syringe.create({
-    'utils': {
-        "motd": function (user) {
-            return "Greetings " + user;
-        }
-    }
 });
+```
 
-var f = syr.on(['utils.motd'], function (motd, name) {
-    // ... do stuff
-    return motd(name);
-});
+Now we execute the function, providing an argument that specifies the number for which we want know the Fibonacci value, and the name of the function for logging purposes:
 
-// Wrap the `f` method with the `timer` function:
-f = syr.wrap(f, timer);
+```javascript
+fib(100, 'fib');
 
-f('Mike', 'msg'); // log: "The function "msg" took 1ms"
-/* Returns:
-    "Greetings Mike"
-*/
+Syringe.get('log'); // Returns: 
+                    //      {
+                    //          fib: "The fib function took 11ms"
+                    //      }
 ```
 
 ## License
