@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.5.5. Copyright (c) 2013 Michael Holt
+syringe.js v0.5.6. Copyright (c) 2013 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -607,47 +607,46 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		add: function (name, value, bindings) {
-			var
-				reg = store[this.id].registry,
-				sep = store[this.id].separator;
+            <div class="content"><div class='highlight'><pre>		add: <span class="function"><span class="keyword">function</span> <span class="params">(name, value, bindings)</span> {</span>
+			<span class="keyword">var</span>
+				reg = store[<span class="keyword">this</span>.id].registry,
+				sep = store[<span class="keyword">this</span>.id].separator;
 
-			if (utils.getType(name, 'object')) {
-				Object.keys(name).forEach(function (key) {
-					this.add.apply(this, [key, name[key]]);
-				}, this);
-				return this;
+			<span class="keyword">if</span> (utils.getType(name, <span class="string">'object'</span>)) {
+				Object.keys(name).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
+					<span class="keyword">this</span>.add.apply(<span class="keyword">this</span>, [key, name[key]]);
+				}, <span class="keyword">this</span>);
+				<span class="keyword">return</span> <span class="keyword">this</span>;
 			}
 
-			if (!utils.getType(name, 'string')) {
-				throw new Error('Name must be a string!');
+			<span class="keyword">if</span> (!utils.getType(name, <span class="string">'string'</span>)) {
+				<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Name must be a string!'</span>);
 			}
 
 			name = name.trim();
 
-			if (name.indexOf('global:') === 0) {
-				throw new Error('You can\'t add a key with this prefix!');
+			<span class="keyword">if</span> (name.indexOf(<span class="string">'global:'</span>) === <span class="number">0</span>) {
+				<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'You can\'t add a key with this prefix!'</span>);
 			}
 
-			if (utils.getObj(name, reg, sep)) {
-				throw new Error('Key "' + name +
-					'" already exists in the map; use \
-					.remove() to unregister it first!');
-			} else {
-				if (utils.getType(value, 'function') &amp;&amp; bindings) {
-					value = this.on(bindings, value);
+			<span class="keyword">if</span> (utils.getObj(name, reg, sep)) {
+				<span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">'Key "'</span> + name +
+					<span class="string">'" already exists in the map; use .remove() to unregister it first!'</span>);
+			} <span class="keyword">else</span> {
+				<span class="keyword">if</span> (utils.getType(value, <span class="string">'function'</span>) &amp;&amp; bindings) {
+					value = <span class="keyword">this</span>.on(bindings, value);
 				}
-				var
+				<span class="keyword">var</span>
 				arr = name.split(sep),
-					str = (arr.length &gt; 1) ? arr.pop() : false;
+					str = (arr.length &gt; <span class="number">1</span>) ? arr.pop() : <span class="literal">false</span>;
 
-				if (str) {
+				<span class="keyword">if</span> (str) {
 					utils.setObj(arr.join(sep), reg, sep)[str] = value;
-				} else {
+				} <span class="keyword">else</span> {
 					reg[arr.toString()] = value;
 				}
 			}
-			return this;
+			<span class="keyword">return</span> <span class="keyword">this</span>;
 		},</pre></div></div>
             
         </li>
@@ -715,13 +714,15 @@ can be automatically bound to other registry methods.</p>
 				snm = snm.join(sep);
 				obj = snm ? utils.getObj(snm, reg, sep) : reg;
 
-				name = lst || snm;
+				<span class="keyword">if</span> (utils.getType(obj, <span class="string">'object'</span>)) {
 
-				Object.keys(obj).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
-					<span class="keyword">if</span> (key !== name) {
-						nrg[key] = obj[key];
-					}
-				});</pre></div></div>
+					name = lst || snm;
+
+					Object.keys(obj).forEach(<span class="function"><span class="keyword">function</span> <span class="params">(key)</span> {</span>
+						<span class="keyword">if</span> (key !== name) {
+							nrg[key] = obj[key];
+						}
+					});</pre></div></div>
             
         </li>
         
@@ -736,9 +737,9 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				<span class="keyword">if</span> (snm) {
-					<span class="keyword">this</span>.set(snm, nrg);
-				}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span> (snm) {
+						<span class="keyword">this</span>.set(snm, nrg);
+					}</pre></div></div>
             
         </li>
         
@@ -753,10 +754,10 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>				<span class="keyword">else</span> {
-					store[<span class="keyword">this</span>.id].registry = nrg;
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">else</span> {
+						store[<span class="keyword">this</span>.id].registry = nrg;
+					}
 				}
-
 			}
 
 			<span class="keyword">return</span> <span class="keyword">this</span>;
@@ -784,6 +785,8 @@ described below.        </p>
 				args	= slice.call(arguments),
 				ctx	= root,
 				obj	= {args: args},
+				gtp 	= utils.getType,
+				mtc 	= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;</pre></div></div>
             
         </li>
@@ -821,7 +824,7 @@ provided</p>
 					arr = name.split(sep),
 					str = (arr.length &gt; <span class="number">1</span>) ? arr.pop() : <span class="literal">false</span>;
 
-				target = utils.getType(target, <span class="string">'object'</span>) ? target : root;
+				target = gtp(target, <span class="string">'object'</span>) ? target : root;
 
 				<span class="keyword">if</span> (str) {
 					utils.setObj(arr.join(sep), target, sep)[str] = fn;
@@ -908,11 +911,11 @@ context will be used.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>
-			map		= utils.matchArgs(args, [<span class="string">'object'</span>]);
-			anon		= utils.matchArgs(args, [<span class="string">'array'</span>, <span class="string">'function'</span>]);
-			anonctx		= utils.matchArgs(args, [<span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
-			named		= utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>]);
-			namedctx	= utils.matchArgs(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
+			map 		= mtc(args, [<span class="string">'object'</span>]);
+			anon		= mtc(args, [<span class="string">'array'</span>, <span class="string">'function'</span>]);
+			anonctx		= mtc(args, [<span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
+			named		= mtc(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>]);
+			namedctx	= mtc(args, [<span class="string">'string'</span>, <span class="string">'array'</span>, <span class="string">'function'</span>, <span class="string">'object'</span>]);
 
 
 			<span class="keyword">if</span> (anon || anonctx || named || namedctx) {
@@ -981,13 +984,14 @@ function but use new registry items. </p>
             
             <div class="content"><div class='highlight'><pre>			<span class="keyword">else</span> <span class="keyword">if</span> (map) {
 				<span class="keyword">var</span>
-					props		= utils.getType(args[<span class="number">0</span>], <span class="string">'object'</span>) ? args[<span class="number">0</span>] : {},
-					name		= utils.getType(props.name, <span class="string">'string'</span>) ? props.name : <span class="literal">false</span>,
-					bindings	= utils.getType(props.bindings, <span class="string">'array'</span>) ? props.bindings : <span class="literal">false</span>,
-					fn		= utils.getType(props.fn, <span class="string">'function'</span>) ? props.fn : <span class="literal">false</span>,
-					target		= utils.getType(props.target, <span class="string">'object'</span>) ? props.target : <span class="literal">false</span>;
+					props		= gtp(args[<span class="number">0</span>], <span class="string">'object'</span>) ? args[<span class="number">0</span>] : {},
+					name		= gtp(props.name, <span class="string">'string'</span>) ? props.name : <span class="literal">false</span>,
+					bindings	= gtp(props.bindings, <span class="string">'array'</span>) ? props.bindings : <span class="literal">false</span>,
+					fn		= gtp(props.fn, <span class="string">'function'</span>) ? props.fn : <span class="literal">false</span>,
+					target		= gtp(props.target, <span class="string">'object'</span>) ? props.target : <span class="literal">false</span>,
+					add		= gtp(props.target, <span class="string">'object'</span>) ? props.add : <span class="literal">false</span>;
 
-				ctx = utils.getType(props.ctx, <span class="string">'object'</span>) ? props.ctx : ctx;
+				ctx = gtp(props.ctx, <span class="string">'object'</span>) ? props.ctx : ctx;
 
 				<span class="keyword">if</span> (bindings.length &amp;&amp; fn) {
 
@@ -1011,6 +1015,30 @@ function but use new registry items. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
+              <p>Handler for adding the bound function to repository (if requested)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					<span class="keyword">if</span> (props.add &amp;&amp; gtp(props.add.name, <span class="string">'string'</span>)) {
+
+						<span class="keyword">if</span> (gtp(props.add.bindings, <span class="string">'array'</span>)) {
+							<span class="keyword">this</span>.add(props.add.name, obj.bind, props.add.bindings);
+						}
+						<span class="keyword">else</span> {
+							<span class="keyword">this</span>.add(props.add.name, obj.bind);
+						}
+
+					}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
               <p>if this is a named method?, If so, add the bound function to the name            </p>
 
             </div>
@@ -1027,11 +1055,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-42">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>If nothing gets returned, just return the Syringe object</p>
 
@@ -1043,11 +1071,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -1079,11 +1107,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-44">
+        <li id="section-45">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
+                <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -1106,11 +1134,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-45">
+        <li id="section-46">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-45">&#182;</a>
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -1130,11 +1158,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-46">
+        <li id="section-47">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-46">&#182;</a>
+                <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
               <p>Test the existence of the key we&#39;re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -1173,11 +1201,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-48">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -1209,11 +1237,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-48">
+        <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
+                <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -1244,11 +1272,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-49">
+        <li id="section-50">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
+                <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -1262,11 +1290,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-50">
+        <li id="section-51">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
+                <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
@@ -1287,11 +1315,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-51">
+        <li id="section-52">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
+                <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
               <p>Create some method aliases</p>
 
@@ -1304,26 +1332,26 @@ execution context.</p>
         </li>
         
         
-        <li id="section-52">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
-              </div>
-              <p>Add the current semver</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.5.5'</span>;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-53">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>Add the current semver</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="string">'0.5.6'</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
               </div>
               <p>Determine local context</p>
 
