@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.5.5. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.6. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -320,8 +320,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 			if (utils.getObj(name, reg, sep)) {
 				throw new Error('Key "' + name +
-					'" already exists in the map; use \
-					.remove() to unregister it first!');
+					'" already exists in the map; use .remove() to unregister it first!');
 			} else {
 				if (utils.getType(value, 'function') && bindings) {
 					value = this.on(bindings, value);
@@ -368,24 +367,26 @@ quotmark: true, node: true, newcap: true, browser:true */
 				snm = snm.join(sep);
 				obj = snm ? utils.getObj(snm, reg, sep) : reg;
 
-				name = lst || snm;
+				if (utils.getType(obj, 'object')) {
 
-				Object.keys(obj).forEach(function (key) {
-					if (key !== name) {
-						nrg[key] = obj[key];
+					name = lst || snm;
+
+					Object.keys(obj).forEach(function (key) {
+						if (key !== name) {
+							nrg[key] = obj[key];
+						}
+					});
+
+					// Deep removal (delimited name)
+					if (snm) {
+						this.set(snm, nrg);
 					}
-				});
 
-				// Deep removal (delimited name)
-				if (snm) {
-					this.set(snm, nrg);
+					// Shallow removal (non-delimited name)
+					else {
+						store[this.id].registry = nrg;
+					}
 				}
-
-				// Shallow removal (non-delimited name)
-				else {
-					store[this.id].registry = nrg;
-				}
-
 			}
 
 			return this;
@@ -401,6 +402,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 				args	= slice.call(arguments),
 				ctx	= root,
 				obj	= {args: args},
+				gtp 	= utils.getType,
+				mtc 	= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;
 
 			// Bind arguments only, no context - used when a context is
@@ -414,7 +417,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					arr = name.split(sep),
 					str = (arr.length > 1) ? arr.pop() : false;
 
-				target = utils.getType(target, 'object') ? target : root;
+				target = gtp(target, 'object') ? target : root;
 
 				if (str) {
 					utils.setObj(arr.join(sep), target, sep)[str] = fn;
@@ -445,11 +448,11 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
 
-			map		= utils.matchArgs(args, ['object']);
-			anon		= utils.matchArgs(args, ['array', 'function']);
-			anonctx		= utils.matchArgs(args, ['array', 'function', 'object']);
-			named		= utils.matchArgs(args, ['string', 'array', 'function']);
-			namedctx	= utils.matchArgs(args, ['string', 'array', 'function', 'object']);
+			map 		= mtc(args, ['object']);
+			anon		= mtc(args, ['array', 'function']);
+			anonctx		= mtc(args, ['array', 'function', 'object']);
+			named		= mtc(args, ['string', 'array', 'function']);
+			namedctx	= mtc(args, ['string', 'array', 'function', 'object']);
 
 
 			if (anon || anonctx || named || namedctx) {
@@ -482,13 +485,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// Is this a property map?
 			else if (map) {
 				var
-					props		= utils.getType(args[0], 'object') ? args[0] : {},
-					name		= utils.getType(props.name, 'string') ? props.name : false,
-					bindings	= utils.getType(props.bindings, 'array') ? props.bindings : false,
-					fn		= utils.getType(props.fn, 'function') ? props.fn : false,
-					target		= utils.getType(props.target, 'object') ? props.target : false;
+					props		= gtp(args[0], 'object') ? args[0] : {},
+					name		= gtp(props.name, 'string') ? props.name : false,
+					bindings	= gtp(props.bindings, 'array') ? props.bindings : false,
+					fn		= gtp(props.fn, 'function') ? props.fn : false,
+					target		= gtp(props.target, 'object') ? props.target : false,
+					add		= gtp(props.target, 'object') ? props.add : false;
 
-				ctx = utils.getType(props.ctx, 'object') ? props.ctx : ctx;
+				ctx = gtp(props.ctx, 'object') ? props.ctx : ctx;
 
 				if (bindings.length && fn) {
 
@@ -502,6 +506,18 @@ quotmark: true, node: true, newcap: true, browser:true */
 					}
 
 					cab.push(obj);
+
+					// Handler for adding the bound function to repository (if requested)
+					if (props.add && gtp(props.add.name, 'string')) {
+
+						if (gtp(props.add.bindings, 'array')) {
+							this.add(props.add.name, obj.bind, props.add.bindings);
+						}
+						else {
+							this.add(props.add.name, obj.bind);
+						}
+
+					}
 
 					// if this is a named method?, If so, add the bound function to the name			
 					if (name) {
@@ -671,7 +687,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister = proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.5';
+	proto.VERSION = '0.5.6';
 
 	// Determine local context
 	if (this.window) {
