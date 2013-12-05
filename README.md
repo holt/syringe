@@ -485,8 +485,7 @@ Finally, let's ask both to return all prime numbers between 1 and 10,000 and see
 console.time('sieve while');
 
 console.log(sieve_while(10000));    // Logs:
-                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53 ... ]
-
+                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 ... ]
 console.timeEnd('sieve while');     // Logs:
                                     //      sieve while: 80ms
 
@@ -494,7 +493,7 @@ console.timeEnd('sieve while');     // Logs:
 console.time('sieve reduce');
 
 console.log(sieve_reduce(10000));   // Logs:
-                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53 ... ]
+                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 ... ]
 
 console.timeEnd('sieve reduce');    // Logs:
                                     //      sieve reduce: 120ms
