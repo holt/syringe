@@ -2,7 +2,7 @@
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
-Syringe is a teeny-tiny JavaScript dependency injection framework that allows you to dynamically assign data contracts to your functions and methods. No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+Syringe is a teeny-tiny JavaScript dependency injection framework that allows you to dynamically assign data contracts to your functions, constructor functions, and methods. No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
 
 Now, let's roll up our sleeves and begin shall we?
 
@@ -12,7 +12,7 @@ Now, let's roll up our sleeves and begin shall we?
 - [Questions](#questions)
 - [Installation](#installation)
 - [API](#api)
-- [Additional Examples](#additional-examples)
+- [Examples](#examples)
 - [License](#license)
 
 ## Overview ##
@@ -43,17 +43,12 @@ into the getter when it is invoked:
 syr.add('utils.get', function (data, id) {
 
     'use strict';
-    data = data[id] || false;
 
-    if (data) {
-        var name        = data.name     || 'N/A',
-            rank        = data.rank     || 'N/A',
-            division    = data.division || 'N/A';
-
+    if (data = data[id] || false) {
         data.msg = ''
             + 'ID: '            + id
-            + '; Rank: '        + rank
-            + '; Division: '    + division;
+            + '; Rank: '        + data.rank     || 'N/A'
+            + '; Division: '    + data.division || 'N/A';
     }
 
     return data;
@@ -198,20 +193,20 @@ StaffObj = syr.on(['data'], StaffObj);
 ... and create a couple of new objects:
 ```javascript
 var slothrop = new StaffObj('00000');   // Creates:
-                                        // {
-                                        //     "name"    : "Slothrop, Tyrone",
-                                        //     "rank"    : "Lieutenant",
-                                        //     "locale"  : "GB",
-                                        //     "division": "ACHTUNG"
-                                        // }
+                                        //      {
+                                        //          "name"    : "Slothrop, Tyrone",
+                                        //          "rank"    : "Lieutenant",
+                                        //          "locale"  : "GB",
+                                        //          "division": "ACHTUNG"
+                                        //      }
 
 var tantivy = new StaffObj('00001');    // Creates:
-                                        // {
-                                        //     "name"    : "Mucker-Maffick, Oliver",
-                                        //     "rank"    : "Lieutenant",
-                                        //     "locale"  : "GB",
-                                        //     "division": "ACHTUNG"
-                                        // }
+                                        //      {
+                                        //          "name"    : "Mucker-Maffick, Oliver",
+                                        //          "rank"    : "Lieutenant",
+                                        //          "locale"  : "GB",
+                                        //          "division": "ACHTUNG"
+                                        //      }
 ```
 
 ### "Can I see a more complex example?"
@@ -370,9 +365,9 @@ Syringe.on({
 Execute the bound function:
 ```javascript
 window.utils.first.second.third();  //  Logs:
-                                    //  Here is some example data
-                                    //  The weather is sunny
-                                    //  Let's go to the bar
+                                    //      Here is some example data
+                                    //      The weather is sunny
+                                    //      Let's go to the bar
 ```
 
 ### Register Items Asynchronously
@@ -395,7 +390,7 @@ syr.fetch([{
 ```
 
 
-## Additional Examples ##
+## Examples ##
 
 The following generic examples show how some of the API methods provided by Syringe might be used to manage function operations.
 
@@ -424,9 +419,9 @@ The bound function also receives its action (in this case a logger from the `glo
 
 ### Sieve Of Eratosthenes (add, bind, on, copy) ###
 
-The sieve of Eratosthenes is a simple, ancient algorithm for finding all prime numbers up to any given limit. It does so by iteratively marking as composite (that is, not prime) the multiples of each prime, starting with the multiples of 2. For this example we're going to implement two slightly different ways of recursively processing the data and see which one is more performant.
+The sieve of Eratosthenes is a simple, ancient algorithm for finding all prime numbers up to any given limit. It does so by iteratively marking as composite (that is, not prime) the multiples of each prime, starting with all multiples of 2. 
 
-First we create a processor that sieves the data using `reduce`:
+For this example we're going to implement two slightly different ways of recursively processing the data and see which one is more performant. First we create a processor that sieves the data using `reduce`:
 
 ```javascript
 Syringe.add('reduce', function (proc, arr, cnt) {
@@ -488,14 +483,21 @@ Finally, let's ask both to return all prime numbers between 1 and 10,000 and see
 
 ```javascript
 console.time('sieve while');
-console.log(sieve_while(10000));
+
+console.log(sieve_while(10000));    // Logs:
+                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53 ... ]
+
 console.timeEnd('sieve while');     // Logs:
-                                    // sieve while: 80ms
+                                    //      sieve while: 80ms
+
 
 console.time('sieve reduce');
-console.log(sieve_reduce(10000));
+
+console.log(sieve_reduce(10000));   // Logs:
+                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53 ... ]
+
 console.timeEnd('sieve reduce');    // Logs:
-                                    // sieve reduce: 120ms
+                                    //      sieve reduce: 120ms
 ```
 
 The `while` processor appears to be considerably more performant!
@@ -545,7 +547,8 @@ fib = Syringe.wrap(fib, function (fn, num, name) {
 Now we execute the function, providing an argument that specifies the number for which we want know the Fibonacci value, and the name of the function for logging purposes:
 
 ```javascript
-fib(100, 'fib');
+fib(100, 'fib');    // Returns:
+                    //      55
 
 Syringe.get('log'); // Returns: 
                     //      {
