@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.5.6. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.7. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -11,10 +11,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 	// Globals
 	var
-		root	= this,
-		store	= {},
-		hasProp	= {}.hasOwnProperty,
-		slice	= [].slice;
+		root = this,
+		store = {},
+		hasProp = {}.hasOwnProperty,
+		slice = [].slice;
 
 	// Utility methods used by the API
 	var utils = {
@@ -47,8 +47,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// properly on bound Syringe functions.
 		bindArgs: function () {
 			var
-				args	= slice.call(arguments),
-				fn	= this;
+				args = slice.call(arguments),
+				fn = this;
 			return function () {
 				return fn.apply(this, args.concat(slice.call(arguments)));
 			};
@@ -67,8 +67,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// is returned.
 		getType: function (obj, istype) {
 			var
-				ret	= 'Undefined',
-				types	= ['Window', 'HTMLDocument', 'Global', 'Document'];
+				ret = 'Undefined',
+				types = ['Window', 'HTMLDocument', 'Global', 'Document'];
 
 			if (obj) {
 
@@ -103,8 +103,8 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// object, or match an arguments object to an array of type names in order to
 		// validate the payload
 		matchArgs: function (args, istype) {
-			istype	= istype || [];
-			args	= [].slice.call(args);
+			istype = istype || [];
+			args = [].slice.call(args);
 			if (!istype.length) {
 				return args.map(function (item) {
 					return utils.getType(item);
@@ -189,14 +189,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Asynch fetch
 		fetch: function (arr, props, ctx) {
-			props		= props || {};
-			props.success	= props.success || false;
-			props.xss	= props.xss || false;
+			props = props || {};
+			props.success = props.success || false;
+			props.xss = props.xss || false;
 
 			var
-				self	= this,
-				count	= 0,
-				url	= '';
+			self = this,
+				count = 0,
+				url = '';
 
 			// Test to see if a passed URL is local
 			var isLocalURL = function (url) {
@@ -301,7 +301,18 @@ quotmark: true, node: true, newcap: true, browser:true */
 				reg = store[this.id].registry,
 				sep = store[this.id].separator;
 
-			if (utils.getType(name, 'object')) {
+			//console.log(arguments);
+
+			switch ((utils.getType(name))) {
+
+			case 'Array':
+
+				name.forEach(function (item) {
+					this.add.apply(this, [item]);
+				}, this);
+				return this;
+
+			case 'Object':
 				Object.keys(name).forEach(function (key) {
 					this.add.apply(this, [key, name[key]]);
 				}, this);
@@ -398,12 +409,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// described below.		
 		on: function ( /* 1, 2, 3, or 4 params */ ) {
 			var
-				cab	= store[this.id].cabinet,
-				args	= slice.call(arguments),
-				ctx	= root,
-				obj	= {args: args},
-				gtp 	= utils.getType,
-				mtc 	= utils.matchArgs,
+				cab = store[this.id].cabinet,
+				args = slice.call(arguments),
+				ctx = root,
+				obj = {
+					args: args
+				},
+				gtp = utils.getType,
+				mtc = utils.matchArgs,
 				anon, anonctx, named, namedctx, map;
 
 			// Bind arguments only, no context - used when a context is
@@ -448,12 +461,11 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
 
-			map 		= mtc(args, ['object']);
-			anon		= mtc(args, ['array', 'function']);
-			anonctx		= mtc(args, ['array', 'function', 'object']);
-			named		= mtc(args, ['string', 'array', 'function']);
-			namedctx	= mtc(args, ['string', 'array', 'function', 'object']);
-
+			map = mtc(args, ['object']);
+			anon = mtc(args, ['array', 'function']);
+			anonctx = mtc(args, ['array', 'function', 'object']);
+			named = mtc(args, ['string', 'array', 'function']);
+			namedctx = mtc(args, ['string', 'array', 'function', 'object']);
 
 			if (anon || anonctx || named || namedctx) {
 
@@ -485,12 +497,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// Is this a property map?
 			else if (map) {
 				var
-					props		= gtp(args[0], 'object') ? args[0] : {},
-					name		= gtp(props.name, 'string') ? props.name : false,
-					bindings	= gtp(props.bindings, 'array') ? props.bindings : false,
-					fn		= gtp(props.fn, 'function') ? props.fn : false,
-					target		= gtp(props.target, 'object') ? props.target : false,
-					add		= gtp(props.target, 'object') ? props.add : false;
+					props = gtp(args[0], 'object') ? args[0] : {},
+					name = gtp(props.name, 'string') ? props.name : false,
+					bindings = gtp(props.bindings, 'array') ? props.bindings : false,
+					fn = gtp(props.fn, 'function') ? props.fn : false,
+					//add		= gtp(props.target, 'object') ? props.add : false,            
+					target = gtp(props.target, 'object') ? props.target : false;
 
 				ctx = gtp(props.ctx, 'object') ? props.ctx : ctx;
 
@@ -512,8 +524,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 						if (gtp(props.add.bindings, 'array')) {
 							this.add(props.add.name, obj.bind, props.add.bindings);
-						}
-						else {
+						} else {
 							this.add(props.add.name, obj.bind);
 						}
 
@@ -687,7 +698,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister = proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.6';
+	proto.VERSION = '0.5.7';
 
 	// Determine local context
 	if (this.window) {
