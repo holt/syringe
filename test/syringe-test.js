@@ -72,6 +72,29 @@ $(document).ready(function () {
 		equal(typeof syr.get('data2'), 'object', 'object should be returned.');
 	});
 
+	test("add a multiple property maps with deep and shallow items from an array", 4, function () {
+		var syr = Syringe.create();
+		syr.add([{
+			'data': {
+				'first': {
+					'second': 'done'
+				}
+			},
+			'data2': {}
+		}, {
+			'data3': {
+				'first': {
+					'second': 'done'
+				}
+			},
+			'data4': {}
+		}])
+		equal(syr.get('data.first.second'), 'done', 'deep data should be set correctly.');
+		equal(syr.get('data3.first.second'), 'done', 'deep data should be set correctly.');
+		equal(typeof syr.get('data2'), 'object', 'object should be returned.');
+		equal(typeof syr.get('data4'), 'object', 'object should be returned.');
+	});
+
 	test("add deep method with binding", 1, function () {
 		var syr = Syringe.create();
 		syr.add({
