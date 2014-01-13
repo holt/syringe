@@ -3,7 +3,7 @@
     "description": "An ultra-lightweight dependency injection framework for JavaScript",
     "url": "https://holt.org/gitprojects",
     "author": "Michael Holt <mike@holt.org>",
-    "version": "0.5.7",
+    "version": "0.5.8",
     "main": "syringe.min",
     "keywords": [
             "syringe",
