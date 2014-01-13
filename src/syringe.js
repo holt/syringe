@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.5.7. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.5.8. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -359,7 +359,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 						this.remove(item);
 					}
 				}, this);
-				return;
+				return this;
 			}
 
 			// Remove a single item
@@ -698,7 +698,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister = proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.7';
+	proto.VERSION = '0.5.8';
 
 	// Determine local context
 	if (this.window) {
