@@ -846,4 +846,166 @@ $(document).ready(function () {
 		equal(syr.func(), 'foo', 'mixin returns Syringe object');
 	});
 
+
+
+
+	module("Events");
+
+	test("Listen for any add event", 2, function () {
+
+		var syr = Syringe.create({
+			'data': 'foo'
+		});
+
+		syr.listen('add', function (name, value) {
+			equal(name, 'data2', 'Add event fires and returns correct name');
+			equal(value, 'bar', 'Add event fires and returns correct value');
+		});		
+
+		syr.add('data2', 'bar');
+		
+	});
+
+	test("Listen for any set event", 2, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('set', function (name, value) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+			equal(value, 'done and done', 'Set event fires and returns correct value');
+		});		
+
+		syr.set('first.second.third', 'done and done');
+		
+	});
+
+	test("Listen for any get event", 1, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('get', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+		syr.get('first.second.third');
+		
+	});
+
+	test("Listen for any remove event", 1, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('remove', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+		syr.remove('first.second.third');
+		
+	});
+
+	test("Listen for a namespaced add event", 2, function () {
+
+		var syr = Syringe.create({
+			'data': 'foo'
+		});
+
+		syr.listen('add:data2', function (name, value) {
+			equal(name, 'data2', 'Add event fires and returns correct name');
+			equal(value, 'bar', 'Add event fires and returns correct value');
+		});		
+
+		syr.add('data2', 'bar');
+		
+	});
+
+	
+	test("Listen for a namespaced set event", 4, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('set:first.second.third', function (name, value) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+			equal(value, 'done and done', 'Set event fires and returns correct value');
+		});		
+
+		syr.listen('set:third', function (name, value) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+			equal(value, 'done and done', 'Set event fires and returns correct value');
+		});		
+
+		syr.set('first.second.third', 'done and done');
+		
+	});
+
+	test("Listen for any get event", 2, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('get:first.second.third', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+		syr.listen('get:third', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+
+		syr.get('first.second.third');
+		
+	});
+
+
+	test("Listen for a namespaced remove event", 2, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('remove:first.second.third', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+		syr.listen('remove:third', function (name) {
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+		});		
+
+		syr.remove('first.second.third');
+		
+	});
+
+
 });
