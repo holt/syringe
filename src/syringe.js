@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.5.8. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.6.0. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -11,10 +11,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 	// Globals
 	var
-		root = this,
-		store = {},
-		hasProp = {}.hasOwnProperty,
-		slice = [].slice;
+		root	= this,
+		store	= {},
+		hasProp	= {}.hasOwnProperty,
+		slice	= [].slice;
 
 	// Utility methods used by the API
 	var utils = {
@@ -189,14 +189,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Asynch fetch
 		fetch: function (arr, props, ctx) {
-			props = props || {};
-			props.success = props.success || false;
-			props.xss = props.xss || false;
+			props			= props || {};
+			props.success	= props.success || false;
+			props.xss		= props.xss || false;
 
 			var
-			self = this,
-				count = 0,
-				url = '';
+				self	= this,
+				count	= 0,
+				url		= '';
 
 			// Test to see if a passed URL is local
 			var isLocalURL = function (url) {
@@ -266,15 +266,39 @@ quotmark: true, node: true, newcap: true, browser:true */
 			else {
 				return fn.apply(this, props);
 			}
+		},
+
+		// Execute any events associated with a type of passed action
+		fire: function (type, id, arr) {
+
+			// Fire the events attached to this action
+			store[id].events[type].forEach(function (event) {
+				if (utils.getType(event.fn, 'function')) {
+
+					// All types of event
+					if (!event.path) {
+						event.fn.apply(this, arr);
+					}
+					// Events matching a deep path
+					else if (arr[0] === event.path) {
+						event.fn.apply(this, arr);
+					}
+					// Events matching a shallow path
+					else if (arr[0].split(store[id].separator).pop() === event.path) {
+						event.fn.apply(this, arr);
+					}
+				}
+			}, this);
 		}
 	};
 
 	// Syringe base constructor
 	var Syringe = function (props) {
 		store[this.id = utils.makeId()] = {
-			cabinet: [],
-			registry: (props && utils.getType(props, 'object')) ? props : {},
-			separator: '.'
+			cabinet		: [],
+			registry	: (props && utils.getType(props, 'object')) ? props : {},
+			separator	: '.',
+			events		: { add: [], set: [], get: [], remove: [] }
 		};
 	};
 
@@ -300,8 +324,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 			var
 				reg = store[this.id].registry,
 				sep = store[this.id].separator;
-
-			//console.log(arguments);
 
 			switch ((utils.getType(name))) {
 
@@ -346,6 +368,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 					reg[arr.toString()] = value;
 				}
 			}
+
+			// Raise an "add" event, passing the name and value
+			utils.fire('add', this.id, [name, value]);
+
 			return this;
 		},
 
@@ -398,6 +424,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 						store[this.id].registry = nrg;
 					}
 				}
+
+				// Raise a remove event, passing the name
+				utils.fire('remove', this.id, [snm + sep + name]);
+
 			}
 
 			return this;
@@ -409,14 +439,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// described below.		
 		on: function ( /* 1, 2, 3, or 4 params */ ) {
 			var
-				cab = store[this.id].cabinet,
-				args = slice.call(arguments),
-				ctx = root,
-				obj = {
+				cab		= store[this.id].cabinet,
+				args	= slice.call(arguments),
+				ctx		= root,
+				obj		= {
 					args: args
 				},
-				gtp = utils.getType,
-				mtc = utils.matchArgs,
+				gtp		= utils.getType,
+				mtc		= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;
 
 			// Bind arguments only, no context - used when a context is
@@ -461,17 +491,17 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
 
-			map = mtc(args, ['object']);
-			anon = mtc(args, ['array', 'function']);
-			anonctx = mtc(args, ['array', 'function', 'object']);
-			named = mtc(args, ['string', 'array', 'function']);
-			namedctx = mtc(args, ['string', 'array', 'function', 'object']);
+			map			= mtc(args, ['object']);
+			anon		= mtc(args, ['array', 'function']);
+			anonctx		= mtc(args, ['array', 'function', 'object']);
+			named		= mtc(args, ['string', 'array', 'function']);
+			namedctx	= mtc(args, ['string', 'array', 'function', 'object']);
 
 			if (anon || anonctx || named || namedctx) {
 
 				var n = (named || namedctx) ? 1 : 0;
 
-				obj.fn = args[n + 1];
+				obj.fn	= args[n + 1];
 				obj.ctx = anonctx ? args[n + 2] : ctx;
 
 				if (anon || named) {
@@ -497,12 +527,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// Is this a property map?
 			else if (map) {
 				var
-					props = gtp(args[0], 'object') ? args[0] : {},
-					name = gtp(props.name, 'string') ? props.name : false,
-					bindings = gtp(props.bindings, 'array') ? props.bindings : false,
-					fn = gtp(props.fn, 'function') ? props.fn : false,
+					props		= gtp(args[0], 'object') ? args[0] : {},
+					name		= gtp(props.name, 'string') ? props.name : false,
+					bindings	= gtp(props.bindings, 'array') ? props.bindings : false,
+					fn			= gtp(props.fn, 'function') ? props.fn : false,
 					//add		= gtp(props.target, 'object') ? props.add : false,            
-					target = gtp(props.target, 'object') ? props.target : false;
+					target		= gtp(props.target, 'object') ? props.target : false;
 
 				ctx = gtp(props.ctx, 'object') ? props.ctx : ctx;
 
@@ -573,6 +603,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// does not exist.
 		get: function (name) {
 			var reg = store[this.id].registry;
+			
+			// Raise a "get" event, passing the name
+			utils.fire('get', this.id, [name]);
+			
 			if (utils.getType(name, 'string')) {
 				var obj = utils.getObj(name, reg, store[this.id].separator);
 				if (!utils.getType(obj, 'undefined')) {
@@ -623,6 +657,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 			} else {
 				reg[arr.toString()] = value;
 			}
+
+			// Raise a "set" event, passing the name and value
+			utils.fire('set', this.id, [name, value]);
+
 			return this;
 		},
 
@@ -673,6 +711,26 @@ quotmark: true, node: true, newcap: true, browser:true */
 			return false;
 		},
 
+		// Attach callbacks to add, set, get, or remove action types. The
+		// event stack associated with each action will be called when
+		// the action is executed.
+		listen: function (name, fn) {
+
+			var path = name.split(':');
+			name = path.shift();
+
+			if (utils.getType(name, 'string') && utils.getType(fn, 'function')) {
+				var arr = store[this.id].events[name];
+				if (utils.getType(arr, 'array')) {
+					arr.push({
+						path: path.length ? path[0] : false,
+						fn	: fn
+					});
+				}
+			}
+			return this;
+		},
+
 		// Create a new Syringe object
 		create: function (props) {
 			return new Syringe(props);
@@ -693,17 +751,17 @@ quotmark: true, node: true, newcap: true, browser:true */
 	};
 
 	// Create some method aliases
-	proto.bind = proto.on;
-	proto.register = proto.add;
-	proto.unregister = proto.remove;
+	proto.bind			= proto.on;
+	proto.register		= proto.add;
+	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.5.8';
+	proto.VERSION = '0.6.0';
 
 	// Determine local context
 	if (this.window) {
-		proto.fetch = utils.fetch;
-		root.Syringe = new Syringe();
+		proto.fetch		= utils.fetch;
+		root.Syringe	= new Syringe();
 	} else if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
 	}
