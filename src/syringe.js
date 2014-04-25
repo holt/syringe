@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.6.0. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.6.1. Copyright (c) 2013 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -210,12 +210,31 @@ quotmark: true, node: true, newcap: true, browser:true */
 				if (xhr && xhr.responseText) {
 					var data = JSON.parse(xhr.responseText);
 					if (data) {
-						self.add(arr[count].bind, data);
+						
+						// Handle "add" versus "set" scenarios. If the target binding path
+						// exists then the object is extended, otherwise it is added. Note
+						// that if the returned data is an array and the binding already
+						// exists, the data is added to the object as a key named "json".
+						if (self.get(arr[count].bind)) {
+							if (utils.getType(data, 'array')) {
+								self.add(arr[count].bind + '.json', data);
+							}
+							else if (utils.getType(data, 'object')) {
+								for (var key in data) {
+									if (data.hasOwnProperty(key)) {
+										self.add(arr[count].bind + '.' + key, data[key]);
+									}
+								}
+							}
+						}
+						else {
+							self.add(arr[count].bind, data);
+						}
 					}
 				}
 				if (++count === arr.length) {
 					if (utils.getType(props.success, 'function')) {
-						props.success.call(self, (ctx || self));
+						props.success.apply(self, [(ctx || self), xhr]);
 					}
 				}
 			};
@@ -756,7 +775,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.6.0';
+	proto.VERSION = '0.6.1';
 
 	// Determine local context
 	if (this.window) {
