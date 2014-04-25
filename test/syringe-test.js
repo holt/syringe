@@ -791,21 +791,35 @@ $(document).ready(function () {
 		equal(f2('woo'), 'bar', 'bound function returns injected data.');
 	});
 
-	module("Faking response data", {
+	module("Fetch", {
 		setup: function () {
-			var testData = {
-				foo: 'bar'
-			};
+
 			this.server = sinon.fakeServer.create();
+
+			// Return an object
 			this.server.respondWith("GET", "/syringe/fetch1", [200, {
 					"Content-Type": "application/json"
 				},
-				JSON.stringify(testData)
+				JSON.stringify({
+					foo: 'bar'
+				})
 			]);
+
+			// Return an array
+			this.server.respondWith("GET", "/syringe/fetch1arr", [200, {
+					"Content-Type": "application/json"
+				},
+				JSON.stringify([{
+					foo: 'bar'
+				}])
+			]);
+
 			this.server.autoRespond = true;
+
 		},
 		teardown: function () {
 			this.server.restore();
+
 		}
 	});
 
@@ -822,6 +836,44 @@ $(document).ready(function () {
 		}], {
 			'success': function () {
 				ok((typeof this.get('data1') === 'object' && this.get('data1.foo') === 'bar'), "asynch data fetched and bound correctly");
+				start();
+			}
+		});
+	});
+
+	asyncTest("fetch and bind an item to an existing path", 1, function () {
+
+		var syr = Syringe.create({
+			data1: { 'woo': true },
+			data2: {}
+		});
+
+		syr.fetch([{
+			path: '/syringe/fetch2',
+			bind: 'data2'
+		}, {
+			path: '/syringe/fetch1',
+			bind: 'data1'
+		}], {
+			'success': function () {
+				ok((typeof this.get('data1') === 'object' && this.get('data1.foo') === 'bar' && this.get('data1.woo') === true), "asynch data fetched and bound correctly");
+				start();
+			}
+		});
+	});
+
+	asyncTest("fetch and bind an array item to an existing path", 1, function () {
+
+		var syr = Syringe.create({
+			data1: { 'woo': true }
+		});
+
+		syr.fetch([{
+			path: '/syringe/fetch1arr',
+			bind: 'data1'
+		}], {
+			'success': function () {
+				ok((typeof this.get('data1') === 'object' && this.get('data1.json').length && this.get('data1.woo') === true), "asynch data fetched and bound correctly");
 				start();
 			}
 		});
@@ -845,9 +897,6 @@ $(document).ready(function () {
 
 		equal(syr.func(), 'foo', 'mixin returns Syringe object');
 	});
-
-
-
 
 	module("Events");
 
