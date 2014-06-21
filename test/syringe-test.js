@@ -188,7 +188,7 @@ $(document).ready(function () {
 
 	test("set shallow props of non-existant item", 1, function () {
 		var syr = Syringe.create();
-		raises(function () {
+		throws(function () {
 				syr.set('data', 'ok');
 			},
 			Error, "must throw error to pass.");
@@ -196,7 +196,7 @@ $(document).ready(function () {
 
 	test("set deep props of non-existant item", 1, function () {
 		var syr = Syringe.create();
-		raises(function () {
+		throws(function () {
 				syr.set('first.second.third', 'ok');
 			},
 			Error, "must throw error to pass.");
@@ -985,7 +985,6 @@ $(document).ready(function () {
 		
 	});
 
-	
 	test("Listen for a namespaced set event", 4, function () {
 
 		var syr = Syringe.create({
@@ -1033,7 +1032,6 @@ $(document).ready(function () {
 		
 	});
 
-
 	test("Listen for a namespaced remove event", 2, function () {
 
 		var syr = Syringe.create({
@@ -1056,5 +1054,84 @@ $(document).ready(function () {
 		
 	});
 
+	module("List Operations");
+
+	test("Process an array and return a result to the associated event", 3, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': [1,2,3]
+				}
+			}
+		});
+
+		syr.listen('listops:first.second.third', function (name) {
+			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
+		});		
+
+		syr.listen('listops:third', function (name) {
+			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
+		});	
+
+		syr.listops('first.second.third', function (arr) {
+			arr.push(4,5,6);
+		});
+
+		var val = syr.get('first.second.third');
+
+		deepEqual(val, [1,2,3,4,5,6], 'List operation completed successfully')
+		
+	});
+
+	test("Process an array and return an extended result to the associated event", 6, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': [1,2,3]
+				}
+			}
+		});
+
+		syr.listen('listops:first.second.third', function (name, arr) {
+			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
+			deepEqual(arr, [1,2], 'Listops event fires and returns processed list');
+
+		});		
+
+		syr.listen('listops:third', function (name, arr, val) {
+			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
+			deepEqual(arr, [1,2], 'Listops event fires and returns processed list');
+			equal(val, 3, 'Listops event fires and returns correct value');
+
+		});	
+
+		syr.listops('first.second.third', function (arr) {
+			return arr.pop();
+		});
+
+		var val = syr.get('first.second.third');
+
+		deepEqual(val, [1,2], 'List operation completed successfully')
+		
+	});
+
+	test("Process a non-array and throw an error", 1, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': {'a': 1, 'b': 2, 'c': 3}
+				}
+			}
+		});
+
+		throws(function () {
+				syr.listops('first.second.third', function (arr) { arr.pop(); });
+			},
+			Error, "must throw error to pass.");
+			
+	});
 
 });
