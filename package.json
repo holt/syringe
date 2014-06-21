@@ -1,21 +1,21 @@
 {
-    "name": "syringejs",
-    "description": "An ultra-lightweight dependency injection framework for JavaScript",
-    "url": "https://holt.org/gitprojects",
-    "author": "Michael Holt <mike@holt.org>",
-    "version": "0.6.1",
-    "main": "syringe.min",
-    "keywords": [
-            "syringe",
-            "injection",
-            "ioc",
-            "dependency",
-            "inversion",
-            "javascript",
-            "currying"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/holt/syringe.git"
-    }
+	"name": "syringejs",
+	"description": "An ultra-lightweight dependency injection framework for JavaScript",
+	"url": "https://holt.org/gitprojects",
+	"author": "Michael Holt <mike@holt.org>",
+	"version": "0.6.2",
+	"main": "syringe.min",
+	"keywords": [
+		"syringe",
+		"injection",
+		"ioc",
+		"dependency",
+		"inversion",
+		"javascript",
+		"currying"
+	],
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/holt/syringe.git"
+	}
 }

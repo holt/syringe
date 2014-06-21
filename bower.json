@@ -1,26 +1,26 @@
 {
-  "name": "syringe",
-  "version": "0.6.1",
-  "main": "syringe.min.js",
-  "homepage": "https://github.com/holt/syringe",
-  "authors": [
-    "Michael Holt <mike@holt.org>"
-  ],
-  "description": "An ultra-lightweight dependency injection framework for JavaScript",
-  "keywords": [
-    "syringe",
-    "injection",
-    "ioc",
-    "dependency",
-    "inversion",
-    "javascript",
-    "currying"
-  ],
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "img"
-  ]
+	"name": "syringe",
+	"version": "0.6.2",
+	"main": "syringe.min.js",
+	"homepage": "https://github.com/holt/syringe",
+	"authors": [
+		"Michael Holt <mike@holt.org>"
+	],
+	"description": "An ultra-lightweight dependency injection framework for JavaScript",
+	"keywords": [
+		"syringe",
+		"injection",
+		"ioc",
+		"dependency",
+		"inversion",
+		"javascript",
+		"currying"
+	],
+	"license": "MIT",
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"img"
+	]
 }
