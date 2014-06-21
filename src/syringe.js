@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.6.1. Copyright (c) 2013 Michael Holt
+// > syringe.js v0.6.2. Copyright (c) 2013-2014 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -156,7 +156,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 					try {
 						xhr = new window.ActiveXObject(item);
 						return;
-					} catch (e) {}
+					} catch (e) {
+						throw new Error(e);
+					}
 				});
 			}
 
@@ -189,9 +191,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Asynch fetch
 		fetch: function (arr, props, ctx) {
-			props			= props || {};
+			props			= props		|| {};
 			props.success	= props.success || false;
-			props.xss		= props.xss || false;
+			props.xss		= props.xss	|| false;
 
 			var
 				self	= this,
@@ -309,6 +311,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 				}
 			}, this);
 		}
+
 	};
 
 	// Syringe base constructor
@@ -317,7 +320,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 			cabinet		: [],
 			registry	: (props && utils.getType(props, 'object')) ? props : {},
 			separator	: '.',
-			events		: { add: [], set: [], get: [], remove: [] }
+			events		: { add: [], set: [], get: [], remove: [], listops: [] }
 		};
 	};
 
@@ -331,6 +334,36 @@ quotmark: true, node: true, newcap: true, browser:true */
 			return (utils.getType(val, 'string') &&
 				(1 === val.replace(/[?a-zA-Z\d]|\s/g, '').length)) ?
 				(store[this.id].separator = val, this) : false;
+		},
+
+		// Convenience function that allows you to process array items directly
+		// and which raises an event on completion.
+		listops: function (name, fn) {
+			
+			var
+				reg = store[this.id].registry,
+				sep = store[this.id].separator,
+				arr = name.split(sep),
+				obj = utils.getObj(name, reg, sep),
+				res = null;
+
+			if (utils.getType(obj, 'array') && typeof fn === 'function') {
+
+				res = fn(obj);
+				arr = [name, obj];
+				
+				if (res) {
+					arr.push(res);
+				}
+
+				utils.fire('listops', this.id, arr);
+			}
+
+			else {
+				throw new Error('Key "' + name + '" is not an array!');				
+			}			
+
+			return this;
 		},
 
 		// Add a new item to the Syringe registry. The name can be provided 
@@ -458,14 +491,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// described below.		
 		on: function ( /* 1, 2, 3, or 4 params */ ) {
 			var
-				cab		= store[this.id].cabinet,
+				cab	= store[this.id].cabinet,
 				args	= slice.call(arguments),
-				ctx		= root,
-				obj		= {
+				ctx	= root,
+				obj	= {
 					args: args
 				},
-				gtp		= utils.getType,
-				mtc		= utils.matchArgs,
+				gtp	= utils.getType,
+				mtc	= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;
 
 			// Bind arguments only, no context - used when a context is
@@ -510,7 +543,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
 
-			map			= mtc(args, ['object']);
+			map		= mtc(args, ['object']);
 			anon		= mtc(args, ['array', 'function']);
 			anonctx		= mtc(args, ['array', 'function', 'object']);
 			named		= mtc(args, ['string', 'array', 'function']);
@@ -549,7 +582,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					props		= gtp(args[0], 'object') ? args[0] : {},
 					name		= gtp(props.name, 'string') ? props.name : false,
 					bindings	= gtp(props.bindings, 'array') ? props.bindings : false,
-					fn			= gtp(props.fn, 'function') ? props.fn : false,
+					fn		= gtp(props.fn, 'function') ? props.fn : false,
 					//add		= gtp(props.target, 'object') ? props.add : false,            
 					target		= gtp(props.target, 'object') ? props.target : false;
 
@@ -576,7 +609,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 						} else {
 							this.add(props.add.name, obj.bind);
 						}
-
 					}
 
 					// if this is a named method?, If so, add the bound function to the name			
@@ -775,11 +807,11 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.6.1';
+	proto.VERSION = '0.6.2';
 
 	// Determine local context
 	if (this.window) {
-		proto.fetch		= utils.fetch;
+		proto.fetch	= utils.fetch;
 		root.Syringe	= new Syringe();
 	} else if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
