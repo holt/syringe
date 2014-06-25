@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.6.2. Copyright (c) 2013-2014 Michael Holt
+// > syringe.js v0.6.3. Copyright (c) 2013-2014 Michael Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -296,18 +296,23 @@ quotmark: true, node: true, newcap: true, browser:true */
 			store[id].events[type].forEach(function (event) {
 				if (utils.getType(event.fn, 'function')) {
 
-					// All types of event
-					if (!event.path) {
-						event.fn.apply(this, arr);
+					// Add the event type
+					arr.unshift(type);
+
+					if (
+						// Match all types of event
+						!event.path ||
+						// Events matching a deep path			
+						arr[1] === event.path ||
+						// Events matching a shallow path
+						arr[1].split(store[id].separator).pop() === event.path
+					) {
+						event.fn.apply(this, arr); 
 					}
-					// Events matching a deep path
-					else if (arr[0] === event.path) {
-						event.fn.apply(this, arr);
-					}
-					// Events matching a shallow path
-					else if (arr[0].split(store[id].separator).pop() === event.path) {
-						event.fn.apply(this, arr);
-					}
+
+					// Remove the event type
+					arr.shift();
+
 				}
 			}, this);
 		}
@@ -320,7 +325,14 @@ quotmark: true, node: true, newcap: true, browser:true */
 			cabinet		: [],
 			registry	: (props && utils.getType(props, 'object')) ? props : {},
 			separator	: '.',
-			events		: { add: [], set: [], get: [], remove: [], listops: [] }
+			events		: {
+				add		: [],
+				set		: [],
+				get		: [],
+				remove	: [],
+				listops	: [],
+				all		: []
+			}
 		};
 	};
 
@@ -491,14 +503,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// described below.		
 		on: function ( /* 1, 2, 3, or 4 params */ ) {
 			var
-				cab	= store[this.id].cabinet,
+				cab		= store[this.id].cabinet,
 				args	= slice.call(arguments),
-				ctx	= root,
-				obj	= {
-					args: args
-				},
-				gtp	= utils.getType,
-				mtc	= utils.matchArgs,
+				ctx		= root,
+				obj		= { args: args },
+				gtp		= utils.getType,
+				mtc		= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;
 
 			// Bind arguments only, no context - used when a context is
@@ -762,7 +772,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 			return false;
 		},
 
-		// Attach callbacks to add, set, get, or remove action types. The
+		// Attach callbacks to add, set, get, remove, or all action types. The
 		// event stack associated with each action will be called when
 		// the action is executed.
 		listen: function (name, fn) {
@@ -771,16 +781,31 @@ quotmark: true, node: true, newcap: true, browser:true */
 			name = path.shift();
 
 			if (utils.getType(name, 'string') && utils.getType(fn, 'function')) {
-				var arr = store[this.id].events[name];
-				if (utils.getType(arr, 'array')) {
-					arr.push({
-						path: path.length ? path[0] : false,
-						fn	: fn
-					});
+
+				var 
+					events = store[this.id].events,
+					proc = function (path, arr) {
+					if (utils.getType(arr, 'array')) {
+						arr.push({
+							path: path.length ? path[0] : false,
+							fn	: fn
+						});
+					}
+				};
+
+				if (name !== 'all') {
+					proc(path, events[name]);					
+				}
+				else {
+					for (var key in store[this.id].events) {
+						if (hasProp.call(events, key)) {
+							proc(path, events[key]);
+						}
+					}
 				}
 			}
 			return this;
-		},
+		},		
 
 		// Create a new Syringe object
 		create: function (props) {
@@ -807,7 +832,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.6.2';
+	proto.VERSION = '0.6.3';
 
 	// Determine local context
 	if (this.window) {
