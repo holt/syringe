@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.6.2. Copyright (c) 2013-2014 Michael Holt
+syringe.js v0.6.3. Copyright (c) 2013-2014 Michael Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -604,13 +604,13 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
-              <p>All types of event</p>
+              <p>Add the event type</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span> (!event.path) {
-						event.fn.apply(<span class="hljs-keyword">this</span>, arr);
-					}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>					arr.unshift(type);
+
+					<span class="hljs-keyword">if</span> (</pre></div></div>
             
         </li>
         
@@ -621,13 +621,11 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
-              <p>Events matching a deep path</p>
+              <p>Match all types of event</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (arr[<span class="hljs-number">0</span>] === event.path) {
-						event.fn.apply(<span class="hljs-keyword">this</span>, arr);
-					}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						!event.path ||</pre></div></div>
             
         </li>
         
@@ -638,18 +636,11 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
-              <p>Events matching a shallow path</p>
+              <p>Events matching a deep path            </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (arr[<span class="hljs-number">0</span>].split(store[id].separator).pop() === event.path) {
-						event.fn.apply(<span class="hljs-keyword">this</span>, arr);
-					}
-				}
-			}, <span class="hljs-keyword">this</span>);
-		}
-
-	};</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						arr[<span class="hljs-number">1</span>] === event.path ||</pre></div></div>
             
         </li>
         
@@ -660,18 +651,14 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
-              <p>Syringe base constructor</p>
+              <p>Events matching a shallow path</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> Syringe = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(props)</span> {</span>
-		store[<span class="hljs-keyword">this</span>.id = utils.makeId()] = {
-			cabinet		: [],
-			registry	: (props &amp;&amp; utils.getType(props, <span class="hljs-string">'object'</span>)) ? props : {},
-			separator	: <span class="hljs-string">'.'</span>,
-			events		: { add: [], set: [], get: [], remove: [], listops: [] }
-		};
-	};</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						arr[<span class="hljs-number">1</span>].split(store[id].separator).pop() === event.path
+					) {
+						event.fn.apply(<span class="hljs-keyword">this</span>, arr); 
+					}</pre></div></div>
             
         </li>
         
@@ -682,11 +669,17 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
-              <p>Syringe object prototype methods</p>
+              <p>Remove the event type</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> proto = Syringe.prototype = {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>					arr.shift();
+
+				}
+			}, <span class="hljs-keyword">this</span>);
+		}
+
+	};</pre></div></div>
             
         </li>
         
@@ -696,6 +689,50 @@ to it. </p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Syringe base constructor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> Syringe = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(props)</span> {</span>
+		store[<span class="hljs-keyword">this</span>.id = utils.makeId()] = {
+			cabinet		: [],
+			registry	: (props &amp;&amp; utils.getType(props, <span class="hljs-string">'object'</span>)) ? props : {},
+			separator	: <span class="hljs-string">'.'</span>,
+			events		: {
+				add		: [],
+				set		: [],
+				get		: [],
+				remove	: [],
+				listops	: [],
+				all		: []
+			}
+		};
+	};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Syringe object prototype methods</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> proto = Syringe.prototype = {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Set the separator character used for creating, specifying, and
 retrieving objects. Whitespace and alphanumeric characters are
@@ -712,11 +749,11 @@ not permitted. By default, the period ‘.’ character is used.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Convenience function that allows you to process array items directly
 and which raises an event on completion.</p>
@@ -754,11 +791,11 @@ and which raises an event on completion.</p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Add a new item to the Syringe registry. The name can be provided 
 in dot-notation, in which case a deep reference is built within
@@ -821,11 +858,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Raise an “add” event, passing the name and value</p>
 
@@ -839,11 +876,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Remove a named item from the registry</p>
 
@@ -854,11 +891,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Remove an array of items</p>
 
@@ -876,11 +913,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-35">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>Remove a single item</p>
 
@@ -914,11 +951,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Deep removal (delimited name)</p>
 
@@ -931,11 +968,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Shallow removal (non-delimited name)</p>
 
@@ -949,11 +986,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Raise a remove event, passing the name</p>
 
@@ -969,11 +1006,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Bind a method to the dependency registry. This function accepts
 a variety of different arguments, the formulation of which 
@@ -984,24 +1021,22 @@ described below.        </p>
             
             <div class="content"><div class='highlight'><pre>		on: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">( <span class="hljs-comment">/* 1, 2, 3, or 4 params */</span> )</span> {</span>
 			<span class="hljs-keyword">var</span>
-				cab	= store[<span class="hljs-keyword">this</span>.id].cabinet,
+				cab		= store[<span class="hljs-keyword">this</span>.id].cabinet,
 				args	= slice.call(<span class="hljs-built_in">arguments</span>),
-				ctx	= root,
-				obj	= {
-					args: args
-				},
-				gtp	= utils.getType,
-				mtc	= utils.matchArgs,
+				ctx		= root,
+				obj		= { args: args },
+				gtp		= utils.getType,
+				mtc		= utils.matchArgs,
 				anon, anonctx, named, namedctx, map;</pre></div></div>
             
         </li>
         
         
-        <li id="section-40">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Bind arguments only, no context - used when a context is
 provided</p>
@@ -1013,11 +1048,11 @@ provided</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Utility that adds named methods to a provided context</p>
 
@@ -1042,44 +1077,13 @@ provided</p>
         </li>
         
         
-        <li id="section-42">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
-              </div>
-              <p><strong>One</strong> parameter: a map (property) object.</p>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-43">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
-              </div>
-              <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
-<code>args[1]</code>. No name or context object is provided. The
-bound function will be returned as an anonymous function.</p>
-
-            </div>
-            
-        </li>
-        
-        
         <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
-              <p><strong>Three</strong> parameters (1): the registry array <code>args[0]</code>, the
-method <code>args[1]</code>, and a context object <code>args[2]</code>.
-When the bound method executes the provided context
-will be used.</p>
+              <p><strong>One</strong> parameter: a map (property) object.</p>
 
             </div>
             
@@ -1092,10 +1096,9 @@ will be used.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
-              <p><strong>Three</strong> parameters (2): a name <code>args[0]</code>, the registry array
-<code>args[1]</code>, and method <code>args[2]</code>. No context object
-is provided. The bound function will be assigned to
-whatever the root object is.</p>
+              <p><strong>Two</strong> parameters: the registry array <code>args[0]</code> and method
+<code>args[1]</code>. No name or context object is provided. The
+bound function will be returned as an anonymous function.</p>
 
             </div>
             
@@ -1107,6 +1110,38 @@ whatever the root object is.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p><strong>Three</strong> parameters (1): the registry array <code>args[0]</code>, the
+method <code>args[1]</code>, and a context object <code>args[2]</code>.
+When the bound method executes the provided context
+will be used.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p><strong>Three</strong> parameters (2): a name <code>args[0]</code>, the registry array
+<code>args[1]</code>, and method <code>args[2]</code>. No context object
+is provided. The bound function will be assigned to
+whatever the root object is.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
               <p><strong>Four</strong> parameters: a name <code>args[0]</code>, the registry array
 <code>args[1]</code>, the method <code>args[2]</code>, and a context object
@@ -1138,11 +1173,11 @@ context will be used.</p>
         </li>
         
         
-        <li id="section-47">
+        <li id="section-49">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-47">&#182;</a>
+                <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
               <p>Store a copy of this binding in the <code>cabinet</code> object.
 This is useful if we want to copy an existing bound
@@ -1155,11 +1190,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-48">
+        <li id="section-50">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-48">&#182;</a>
+                <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
               <p>if this is a named method?, If so, add the bound function to the name            </p>
 
@@ -1176,11 +1211,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-49">
+        <li id="section-51">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-49">&#182;</a>
+                <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
               <p>Is this a property map?</p>
 
@@ -1196,11 +1231,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-50">
+        <li id="section-52">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-50">&#182;</a>
+                <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
               <p>add        = gtp(props.target, ‘object’) ? props.add : false,            </p>
 
@@ -1226,11 +1261,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-51">
+        <li id="section-53">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-51">&#182;</a>
+                <a class="pilcrow" href="#section-53">&#182;</a>
               </div>
               <p>Handler for adding the bound function to repository (if requested)</p>
 
@@ -1248,11 +1283,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-52">
+        <li id="section-54">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
+                <a class="pilcrow" href="#section-54">&#182;</a>
               </div>
               <p>if this is a named method?, If so, add the bound function to the name            </p>
 
@@ -1270,11 +1305,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-53">
+        <li id="section-55">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-53">&#182;</a>
+                <a class="pilcrow" href="#section-55">&#182;</a>
               </div>
               <p>If nothing gets returned, just return the Syringe object</p>
 
@@ -1286,11 +1321,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-54">
+        <li id="section-56">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-54">&#182;</a>
+                <a class="pilcrow" href="#section-56">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -1322,11 +1357,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-55">
+        <li id="section-57">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-55">&#182;</a>
+                <a class="pilcrow" href="#section-57">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -1340,11 +1375,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-56">
+        <li id="section-58">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-56">&#182;</a>
+                <a class="pilcrow" href="#section-58">&#182;</a>
               </div>
               <p>Raise a “get” event, passing the name</p>
 
@@ -1365,11 +1400,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-57">
+        <li id="section-59">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-57">&#182;</a>
+                <a class="pilcrow" href="#section-59">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -1389,11 +1424,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-58">
+        <li id="section-60">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-58">&#182;</a>
+                <a class="pilcrow" href="#section-60">&#182;</a>
               </div>
               <p>Test the existence of the key we’re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -1430,11 +1465,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-59">
+        <li id="section-61">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-59">&#182;</a>
+                <a class="pilcrow" href="#section-61">&#182;</a>
               </div>
               <p>Raise a “set” event, passing the name and value</p>
 
@@ -1448,11 +1483,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-60">
+        <li id="section-62">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-60">&#182;</a>
+                <a class="pilcrow" href="#section-62">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -1484,11 +1519,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-61">
+        <li id="section-63">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-61">&#182;</a>
+                <a class="pilcrow" href="#section-63">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -1519,13 +1554,13 @@ execution context.</p>
         </li>
         
         
-        <li id="section-62">
+        <li id="section-64">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-62">&#182;</a>
+                <a class="pilcrow" href="#section-64">&#182;</a>
               </div>
-              <p>Attach callbacks to add, set, get, or remove action types. The
+              <p>Attach callbacks to add, set, get, remove, or all action types. The
 event stack associated with each action will be called when
 the action is executed.</p>
 
@@ -1537,12 +1572,27 @@ the action is executed.</p>
 			name = path.shift();
 
 			<span class="hljs-keyword">if</span> (utils.getType(name, <span class="hljs-string">'string'</span>) &amp;&amp; utils.getType(fn, <span class="hljs-string">'function'</span>)) {
-				<span class="hljs-keyword">var</span> arr = store[<span class="hljs-keyword">this</span>.id].events[name];
-				<span class="hljs-keyword">if</span> (utils.getType(arr, <span class="hljs-string">'array'</span>)) {
-					arr.push({
-						path: path.length ? path[<span class="hljs-number">0</span>] : <span class="hljs-literal">false</span>,
-						fn	: fn
-					});
+
+				<span class="hljs-keyword">var</span> 
+					events = store[<span class="hljs-keyword">this</span>.id].events,
+					proc = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(path, arr)</span> {</span>
+					<span class="hljs-keyword">if</span> (utils.getType(arr, <span class="hljs-string">'array'</span>)) {
+						arr.push({
+							path: path.length ? path[<span class="hljs-number">0</span>] : <span class="hljs-literal">false</span>,
+							fn	: fn
+						});
+					}
+				};
+
+				<span class="hljs-keyword">if</span> (name !== <span class="hljs-string">'all'</span>) {
+					proc(path, events[name]);					
+				}
+				<span class="hljs-keyword">else</span> {
+					<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> store[<span class="hljs-keyword">this</span>.id].events) {
+						<span class="hljs-keyword">if</span> (hasProp.call(events, key)) {
+							proc(path, events[key]);
+						}
+					}
 				}
 			}
 			<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
@@ -1551,11 +1601,11 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-63">
+        <li id="section-65">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-63">&#182;</a>
+                <a class="pilcrow" href="#section-65">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
@@ -1569,11 +1619,11 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-64">
+        <li id="section-66">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-64">&#182;</a>
+                <a class="pilcrow" href="#section-66">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
@@ -1594,11 +1644,11 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-65">
+        <li id="section-67">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-65">&#182;</a>
+                <a class="pilcrow" href="#section-67">&#182;</a>
               </div>
               <p>Create some method aliases</p>
 
@@ -1611,26 +1661,26 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-66">
+        <li id="section-68">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-66">&#182;</a>
+                <a class="pilcrow" href="#section-68">&#182;</a>
               </div>
               <p>Add the current semver</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="hljs-string">'0.6.2'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="hljs-string">'0.6.3'</span>;</pre></div></div>
             
         </li>
         
         
-        <li id="section-67">
+        <li id="section-69">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-67">&#182;</a>
+                <a class="pilcrow" href="#section-69">&#182;</a>
               </div>
               <p>Determine local context</p>
 
