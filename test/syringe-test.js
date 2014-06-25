@@ -292,7 +292,6 @@ $(document).ready(function () {
 		equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targeted data should not be removed.');
 	});
 
-
 	test("remove multiple deep props", 4, function () {
 		var syr = Syringe.create({
 			'data': {
@@ -315,7 +314,6 @@ $(document).ready(function () {
 		equal(typeof syr.get('data.other'), 'object', 'siblings of targeted data should not be removed.');
 		equal(typeof syr.get('data2'), 'object', 'siblings of ancestor of targeted data should not be removed.');
 	});
-
 
 	module("Bind");
 
@@ -906,13 +904,12 @@ $(document).ready(function () {
 			'data': 'foo'
 		});
 
-		syr.listen('add', function (name, value) {
+		syr.listen('add', function (type, name, value) {
 			equal(name, 'data2', 'Add event fires and returns correct name');
 			equal(value, 'bar', 'Add event fires and returns correct value');
 		});		
 
-		syr.add('data2', 'bar');
-		
+		syr.add('data2', 'bar');		
 	});
 
 	test("Listen for any set event", 2, function () {
@@ -925,13 +922,12 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('set', function (name, value) {
+		syr.listen('set', function (type, name, value) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 			equal(value, 'done and done', 'Set event fires and returns correct value');
 		});		
 
-		syr.set('first.second.third', 'done and done');
-		
+		syr.set('first.second.third', 'done and done');		
 	});
 
 	test("Listen for any get event", 1, function () {
@@ -944,12 +940,11 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('get', function (name) {
+		syr.listen('get', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
-		syr.get('first.second.third');
-		
+		syr.get('first.second.third');		
 	});
 
 	test("Listen for any remove event", 1, function () {
@@ -962,30 +957,28 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('remove', function (name) {
+		syr.listen('remove', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
-		syr.remove('first.second.third');
-		
+		syr.remove('first.second.third');		
 	});
 
-	test("Listen for a namespaced add event", 2, function () {
+	test("Listen for a scoped add event", 2, function () {
 
 		var syr = Syringe.create({
 			'data': 'foo'
 		});
 
-		syr.listen('add:data2', function (name, value) {
+		syr.listen('add:data2', function (type, name, value) {
 			equal(name, 'data2', 'Add event fires and returns correct name');
 			equal(value, 'bar', 'Add event fires and returns correct value');
 		});		
 
-		syr.add('data2', 'bar');
-		
+		syr.add('data2', 'bar');		
 	});
 
-	test("Listen for a namespaced set event", 4, function () {
+	test("Listen for a scoped set event", 4, function () {
 
 		var syr = Syringe.create({
 			'first': {
@@ -995,18 +988,17 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('set:first.second.third', function (name, value) {
+		syr.listen('set:first.second.third', function (type, name, value) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 			equal(value, 'done and done', 'Set event fires and returns correct value');
 		});		
 
-		syr.listen('set:third', function (name, value) {
+		syr.listen('set:third', function (type, name, value) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 			equal(value, 'done and done', 'Set event fires and returns correct value');
 		});		
 
-		syr.set('first.second.third', 'done and done');
-		
+		syr.set('first.second.third', 'done and done');		
 	});
 
 	test("Listen for any get event", 2, function () {
@@ -1019,20 +1011,19 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('get:first.second.third', function (name) {
+		syr.listen('get:first.second.third', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
-		syr.listen('get:third', function (name) {
+		syr.listen('get:third', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
 
-		syr.get('first.second.third');
-		
+		syr.get('first.second.third');		
 	});
 
-	test("Listen for a namespaced remove event", 2, function () {
+	test("Listen for a scoped remove event", 2, function () {
 
 		var syr = Syringe.create({
 			'first': {
@@ -1042,16 +1033,53 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('remove:first.second.third', function (name) {
+		syr.listen('remove:first.second.third', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
-		syr.listen('remove:third', function (name) {
+		syr.listen('remove:third', function (type, name) {
 			equal(name, 'first.second.third', 'Set event fires and returns correct name');
 		});		
 
-		syr.remove('first.second.third');
-		
+		syr.remove('first.second.third');		
+	});
+
+	test("Listen for any event", 3, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('all', function (type, name, value) {
+			equal(type, 'set', 'Set event fires and returns correct name');
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+			equal(value, 'done and done', 'Set event fires and returns correct value');
+		});		
+
+		syr.set('first.second.third', 'done and done');		
+	});
+
+	test("Listen for any event", 3, function () {
+
+		var syr = Syringe.create({
+			'first': {
+				'second': {
+					'third': 'done'
+				}
+			}
+		});
+
+		syr.listen('all:first.second.third', function (type, name, value) {
+			equal(type, 'remove', 'Set event fires and returns correct name');
+			equal(name, 'first.second.third', 'Set event fires and returns correct name');
+			equal(value, undefined, 'Set event fires and returns correct value');
+		});		
+
+		syr.remove('first.second.third');		
 	});
 
 	module("List Operations");
@@ -1066,11 +1094,11 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('listops:first.second.third', function (name) {
+		syr.listen('listops:first.second.third', function (type, name) {
 			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
 		});		
 
-		syr.listen('listops:third', function (name) {
+		syr.listen('listops:third', function (type, name) {
 			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
 		});	
 
@@ -1080,8 +1108,7 @@ $(document).ready(function () {
 
 		var val = syr.get('first.second.third');
 
-		deepEqual(val, [1,2,3,4,5,6], 'List operation completed successfully')
-		
+		deepEqual(val, [1,2,3,4,5,6], 'List operation completed successfully')		
 	});
 
 	test("Process an array and return an extended result to the associated event", 6, function () {
@@ -1094,13 +1121,13 @@ $(document).ready(function () {
 			}
 		});
 
-		syr.listen('listops:first.second.third', function (name, arr) {
+		syr.listen('listops:first.second.third', function (type, name, arr) {
 			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
 			deepEqual(arr, [1,2], 'Listops event fires and returns processed list');
 
 		});		
 
-		syr.listen('listops:third', function (name, arr, val) {
+		syr.listen('listops:third', function (type, name, arr, val) {
 			equal(name, 'first.second.third', 'Listops event fires and returns correct name');
 			deepEqual(arr, [1,2], 'Listops event fires and returns processed list');
 			equal(val, 3, 'Listops event fires and returns correct value');
@@ -1113,8 +1140,7 @@ $(document).ready(function () {
 
 		var val = syr.get('first.second.third');
 
-		deepEqual(val, [1,2], 'List operation completed successfully')
-		
+		deepEqual(val, [1,2], 'List operation completed successfully')		
 	});
 
 	test("Process a non-array and throw an error", 1, function () {
@@ -1130,8 +1156,7 @@ $(document).ready(function () {
 		throws(function () {
 				syr.listops('first.second.third', function (arr) { arr.pop(); });
 			},
-			Error, "must throw error to pass.");
-			
+			Error, "must throw error to pass.");			
 	});
 
 });
