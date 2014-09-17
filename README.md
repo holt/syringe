@@ -8,244 +8,12 @@ Now, let's roll up our sleeves and begin shall we?
 
 ## Table of Contents
 
+- [Installation](#installation)
 - [Overview](#overview)
 - [Questions](#questions)
-- [Installation](#installation)
 - [API](#api)
 - [Examples](#examples)
 - [License](#license)
-
-## Overview ##
-
-Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
-
-### A Simple Example
-
-First, create a new `Syringe` object instance:
-
-```javascript
-var syr = Syringe.create({
-    'data': {
-        '00000': {
-            'name'      : 'Slothrop, Tyrone',
-            'rank'      : 'Lieutenant',
-            'locale'    : 'GB',
-            'division'  : 'ACHTUNG'
-        }
-    }
-});
-```
-
-Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected
-into the getter when it is invoked:
-
-```javascript
-syr.add('utils.get', function (data, id) {
-
-    'use strict';
-
-    if (data = data[id] || false) {
-        data.msg = ''
-            + 'ID: '            + id
-            + '; Rank: '        + data.rank     || 'N/A'
-            + '; Division: '    + data.division || 'N/A';
-    }
-
-    return data;
-}, ['data']);
-```
-**Note:** The `data` _parameter_ could actually be called anything (for example, `d` or `staff`) - it doesn't have to match the name of the injected object.
-
-Let's create a simple utility function into which, on invocation, the getter is injected:
-
-```javascript
-syr.on('log', ['utils.get'], function (get, id) {
-
-    'use strict';
-
-    return (get = get(id))
-        ? (console.info('Schwarzgerät accessed by "' + get.name + '"\n' + get.msg), get)
-        : false;
-});
-```
-
-Now call the utility function with Slothrop's ID:
-
-```javascript
-log('00000');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID: 00000; Rank: Lieutenant; Division: ACHTUNG
-
-                // Returns:
-                //      {
-                //          'name'      : 'Slothrop, Tyrone',
-                //          'rank'      : 'Lieutenant',
-                //          'locale'    : 'GB',
-                //          'division'  : 'ACHTUNG',
-                //          'msg'       : 'ID: 00000; Rank: Lieutenant; Division: ACHTUNG'
-                //      }
-```
-
-The logging utility returns some useful information and logs out a message to the console.
-
-### What Just Happened?
-
- The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
-
-Loose coupling between the concerns means that we can easily change the registry data for the injected items. Let's add a custom warning message:
-
-```javascript
-syr.add({
-    'warnings': {
-        'access': {
-            'success'   : '{0} is A-OK!',
-            'fail'      : '{0} does not have the proper authorization!'
-        }
-    }
-});
-```
-... modify the getter to check the data:
-
-```javascript
-syr.set('utils.get', function (data, access, id) {
-
-    'use strict';
-
-    if (data = data[id] || false) {
-        var action = (data.rank !== 'General') ? 'fail' : 'success';
-        data.msg = access[action].replace('{0}', 'ID ' + id);
-    }
-
-    return data;
-}, ['data', 'warnings.access']);
-
-```
-
-... and call the utility function again:
-
-
-```javascript
-log('00000');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID 00000 does not have the proper authorization!
-                // ...
-```
-
-Change Slothrop's rank:
-
-```javascript
-syr.set('data.00000.rank', 'General');
-```
-... and call the utility function again:
-
-```javascript
-log('00000');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID 00000 is A-OK!
-                // ...
-```
-
-## Questions
-
-### "Does injection work with constructor functions?"
-
-Indeed it does, and we can demonstrate this with another simple example. Create a data object:
-
-```javascript
-var syr = Syringe.create({
-    'data': {
-        '00000': {
-            'name'      : 'Slothrop, Tyrone',
-            'rank'      : 'Lieutenant',
-            'locale'    : 'GB',
-            'division'  : 'ACHTUNG'
-        },
-        '00001': {
-            'name'      : 'Mucker-Maffick, Oliver',
-            'rank'      : 'Lieutenant',
-            'locale'    : 'GB',
-            'division'  : 'ACHTUNG'
-        }
-    }
-});
-```
-Create a simple constructor that automatically adds `data` to its context:
-```javascript
-var StaffObj = function (data, id) {
-
-    'use strict';
-
-    data = data || {};
-
-    if (({}).toString.call(data[id]) === '[object Object]') {
-        for (var prop in data[id]) {
-            if (data[id].hasOwnProperty(prop)) {
-                this[prop] = data[id][prop];
-            }
-        }
-    }
-};
-```
-Bind the `data` object to the constructor:
-```javascript
-StaffObj = syr.on(['data'], StaffObj);
-```
-... and create a couple of new objects:
-```javascript
-var slothrop = new StaffObj('00000');   // Creates:
-                                        //      {
-                                        //          "name"    : "Slothrop, Tyrone",
-                                        //          "rank"    : "Lieutenant",
-                                        //          "locale"  : "GB",
-                                        //          "division": "ACHTUNG"
-                                        //      }
-
-var tantivy = new StaffObj('00001');    // Creates:
-                                        //      {
-                                        //          "name"    : "Mucker-Maffick, Oliver",
-                                        //          "rank"    : "Lieutenant",
-                                        //          "locale"  : "GB",
-                                        //          "division": "ACHTUNG"
-                                        //      }
-```
-
-### "Can I see a more complex example?"
-
-[Here's a Todos application](http://holt.github.io/syringe-todos)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
-
-<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
-
-<sup>+ CSS and images courtesy of the awesome [TodoMVC](http://todomvc.com) project</sup>
-
-### "Aren't we just making a curry?"
-
-When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
-
-This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. To further labor the medical theme, it's as if the flu shot you received last Winter could be remotely updated throughout the year. Only minus the Nobel Prize, obviously.
-
-Currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
-
-### "What's this about a registry?"
-
-The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
-
-**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
-
-### "Why doesn't Syringe just use the function signature?"
-
-Some JavaScript dependency injection tutorials and libraries out there describe or provide ways of deriving function dependencies by _inference_ - that is, by scraping the contents of the bound function's signature:
-
-```javascript
-var f = function ($dep1, $dep2, freearg1, frearg2) { ... };
-
-Injection.bind(f);  // The library uses RegEx to figure out the parameters
-                    // of `f` in order to pull them from the data registry
-                    // and apply them to `f` when the function is executed
-```
-
-There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression / obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
-
-In addition, unless you namespace the dependencies it is impossible to disambiguate them from the free arguments. Also, dot-notation is not allowed in parameter names so you end up using something goofy like `$leve1_level2_level3` to retrieve deep items.
 
 ## Installation
 
@@ -294,6 +62,238 @@ Ensure that you have installed the latest version of [Bower](http://bower.io/) a
 Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
 
 `Install-Package syringe.js`
+
+## Overview ##
+
+Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
+
+### A Simple Example
+
+First, create a new `Syringe` object instance:
+
+```javascript
+var syr = Syringe.create({
+    'data': {
+        'A00': {
+            'name'      : 'Slothrop, Tyrone',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
+        }
+    }
+});
+```
+
+Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected
+into the getter when it is invoked:
+
+```javascript
+syr.add('utils.get', function (data, id) {
+
+    'use strict';
+
+    if (data = data[id] || false) {
+        data.msg = ''
+            + 'ID: '            + id
+            + '; Rank: '        + data.rank     || 'N/A'
+            + '; Division: '    + data.division || 'N/A';
+    }
+
+    return data;
+}, ['data']);
+```
+**Note:** The `data` _parameter_ could actually be called anything (for example, `d` or `staff`) - it doesn't have to match the name of the injected object.
+
+Let's create a simple utility function into which, on invocation, the getter is injected:
+
+```javascript
+syr.on('log', ['utils.get'], function (get, id) {
+
+    'use strict';
+
+    return (get = get(id))
+        ? (console.info('Schwarzgerät accessed by "' + get.name + '"\n' + get.msg), get)
+        : false;
+});
+```
+
+Now call the utility function with Slothrop's ID:
+
+```javascript
+log('A00');   // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID: A00; Rank: Lieutenant; Division: ACHTUNG
+
+                // Returns:
+                //      {
+                //          'name'      : 'Slothrop, Tyrone',
+                //          'rank'      : 'Lieutenant',
+                //          'locale'    : 'GB',
+                //          'division'  : 'ACHTUNG',
+                //          'msg'       : 'ID: A00; Rank: Lieutenant; Division: ACHTUNG'
+                //      }
+```
+
+The logging utility returns some useful information and logs out a message to the console.
+
+### What Just Happened?
+
+ The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
+
+Loose coupling between the concerns means that we can easily change the registry data for the injected items. Let's add a custom warning message:
+
+```javascript
+syr.add({
+    'warnings': {
+        'access': {
+            'success'   : '{0} is A-OK!',
+            'fail'      : '{0} does not have the proper authorization!'
+        }
+    }
+});
+```
+... modify the getter to check the data:
+
+```javascript
+syr.set('utils.get', function (data, access, id) {
+
+    'use strict';
+
+    if (data = data[id] || false) {
+        var action = (data.rank !== 'General') ? 'fail' : 'success';
+        data.msg = access[action].replace('{0}', 'ID ' + id);
+    }
+
+    return data;
+}, ['data', 'warnings.access']);
+
+```
+
+... and call the utility function again:
+
+
+```javascript
+log('A00');   // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID A00 does not have the proper authorization!
+                // ...
+```
+
+Change Slothrop's rank:
+
+```javascript
+syr.set('data.A00.rank', 'General');
+```
+... and call the utility function again:
+
+```javascript
+log('A00');   // Logs:
+                //      Schwarzgerät accessed by "Slothrop, Tyrone"
+                //      ID A00 is A-OK!
+                // ...
+```
+
+## Questions
+
+### "Does injection work with constructor functions?"
+
+Indeed it does, and we can demonstrate this with another simple example. Create a data object:
+
+```javascript
+var syr = Syringe.create({
+    'data': {
+        'A00': {
+            'name'      : 'Slothrop, Tyrone',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
+        },
+        'A01': {
+            'name'      : 'Mucker-Maffick, Oliver',
+            'rank'      : 'Lieutenant',
+            'locale'    : 'GB',
+            'division'  : 'ACHTUNG'
+        }
+    }
+});
+```
+Create a simple constructor that automatically adds `data` to its context:
+```javascript
+var StaffObj = function (data, id) {
+
+    'use strict';
+
+    data = data || {};
+
+    if (({}).toString.call(data[id]) === '[object Object]') {
+        for (var prop in data[id]) {
+            if (data[id].hasOwnProperty(prop)) {
+                this[prop] = data[id][prop];
+            }
+        }
+    }
+};
+```
+Bind the `data` object to the constructor:
+```javascript
+StaffObj = syr.on(['data'], StaffObj);
+```
+... and create a couple of new objects:
+```javascript
+var slothrop = new StaffObj('A00');   // Creates:
+                                        //      {
+                                        //          "name"    : "Slothrop, Tyrone",
+                                        //          "rank"    : "Lieutenant",
+                                        //          "locale"  : "GB",
+                                        //          "division": "ACHTUNG"
+                                        //      }
+
+var tantivy = new StaffObj('A01');    // Creates:
+                                        //      {
+                                        //          "name"    : "Mucker-Maffick, Oliver",
+                                        //          "rank"    : "Lieutenant",
+                                        //          "locale"  : "GB",
+                                        //          "division": "ACHTUNG"
+                                        //      }
+```
+
+### "Can I see a more complex example?"
+
+[Here's a Todos application](http://holt.github.io/syringe-todos)<sup>+</sup> that uses Syringe dependency injection to construct collection and view objects and manage controller operations. You can view the source code for this app in the [syringe-todos](https://github.com/holt/syringe-todos) repo.
+
+<img src="https://github.com/holt/syringe/blob/master/img/todos.png?raw=true" align="center" title="What to do... what to do..."/>
+
+<sup>+ CSS and images courtesy of the awesome [TodoMVC](http://todomvc.com) project</sup>
+
+### "Aren't we just making a curry?"
+
+When you [curry](https://en.wikipedia.org/wiki/Partial_application) a function you typically have some values in your hand before you create a version of the function that has some (or all) of those values partially applied to it. With Syringe, instead of actual values we bind pointers to a registry which is interrogated at execution time when the bound method is invoked.
+
+This is very convenient because you can arbitrarily change the registry values for a parameter so that completely different data gets passed the next time your bound function gets called. To further labor the medical theme, it's as if the flu shot you received last Winter could be remotely updated throughout the year. Only minus the Nobel Prize, obviously.
+
+Currying _does_ take place, just at a different point. Syringe curries _your_ bound function into a factory that examines the passed parameters and applies the corresponding registry values to your function when it is called.
+
+### "What's this about a registry?"
+
+The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
+
+**Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
+
+### "Why doesn't Syringe just use the function signature?"
+
+Some JavaScript dependency injection tutorials and libraries out there describe or provide ways of deriving function dependencies by _inference_ - that is, by scraping the contents of the bound function's signature:
+
+```javascript
+var f = function ($dep1, $dep2, freearg1, frearg2) { ... };
+
+Injection.bind(f);  // The library uses RegEx to figure out the parameters
+                    // of `f` in order to pull them from the data registry
+                    // and apply them to `f` when the function is executed
+```
+
+There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression / obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
+
+In addition, unless you namespace the dependencies it is impossible to disambiguate them from the free arguments. Also, dot-notation is not allowed in parameter names so you end up using something goofy like `$leve1_level2_level3` to retrieve deep items.
 
 ## API ##
 
