@@ -19,51 +19,12 @@ Now, let's roll up our sleeves and begin!
 
 ## Installation
 
-### Browser
-
-Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.
-
-#### Dependencies
-
-Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:
-
-- `Array.filter`
-- `Array.map`
-- `Array.reduce`
-- `Function.bind`
-- `Object.keys`
-- `Object.create`
-- `String.trim`
-
-All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
-
-#### Compatibility
-
-Syringe has been tested on the following browsers:
-
-- Firefox 2+
-- Chrome 11+
-- Safari 3+
-- Opera 9+
-- Internet Explorer 7+
-
-### Node
-
-Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:
-
-`npm install syringejs`
-
-### Bower
-
-Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:
-
-`bower install syringe --save`
-
-### NuGet
-
-Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):
-
-`Install-Package syringe.js`
+Platform          | Description 
+------------------|----------------------------------------------------
+**Browser**       | Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.<br/><br/>Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:<br/><br/>- `Array.filter`<br/>- `Array.map`<br/>- `Array.reduce`<br/>- `Function.bind`<br/>- `Object.keys`<br/>- `Object.create`<br/>- `String.trim`<br/><br/>Syringe has been tested on the following browsers:<br/><br/>- Firefox 2+<br/>- Chrome 11+<br/>- Safari 3+<br/>- Opera 9+<br/>- Internet Explorer 7+<br/><br/>
+**Node**          | Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:<br/><br/>`npm install syringejs`<br/><br/>
+**Bower**         | Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:<br/><br/>`bower install syringe --save`<br/><br/>
+**NuGet**         | Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):<br/><br/>`Install-Package syringe.js`<br/><br/>
 
 ## Overview ##
 
@@ -306,7 +267,9 @@ syr.exec('utils.profile', ['coope_a'])  // Returns:
 
 In much the same way that you might want to be alerted when a stored function executes, you may also want to be notified when the registry itself changes. For this purpose, Syringe provides listeners that can execute when they detect a particular registry event.
 
-Listeners can be created to detect operations that use the `get`, `set`, `add`, `remove`, `listops` methods (or all of the above). In addition, they can be mapped to specific registry items, or to general items using the `*` wildcard. Example:
+Listeners can be created to detect operations that use the `get`, `set`, `add`, `remove`, `listops` methods (or `all` of the above). In addition, they can be mapped to specific registry items, or to *any* item by using the `*` wildcard.
+
+Example:
 
 ```javascript
 syr.listen('add:data.personnel.*', function (name, value, data) {
