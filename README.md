@@ -2,9 +2,11 @@
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
-Syringe is a teeny-tiny JavaScript dependency injection framework that allows you to dynamically assign data contracts to your functions, constructor functions, and methods. No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time!
+Syringe is a small JavaScript library that allows you to dynamically assign data contracts to your functions, constructor functions, and methods. 
 
-Now, let's roll up our sleeves and begin shall we?
+No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time.
+
+Now, let's roll up our sleeves and begin!
 
 ## Table of Contents
 
@@ -29,9 +31,9 @@ Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 m
 - `Array.map`
 - `Array.reduce`
 - `Function.bind`
-- `String.trim`
 - `Object.keys`
 - `Object.create`
+- `String.trim`
 
 All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)
 
@@ -65,142 +67,280 @@ Run the following command in the [Package Manager Console](http://docs.nuget.org
 
 ## Overview ##
 
-Syringe works by taking a function and inoculating it with deep or shallow references to data items located within a data registry. When a syringed function executes, the references are reconciled against the registry and the _actual_ data items are passed to the function automatically.
+Syringe works by taking a function and binding it with deep or shallow references to data items located within a *data registry*. When this *pre-bound* function executes, the references are reconciled against the registry and the corresponding data items are passed into the function automatically. This technique is known as *dependency injection*.
 
-### A Simple Example
+### Tutorial
 
-First, create a new `Syringe` object instance:
+In the following tutorial we're going to demonstrate how dependency injection works by using Syringe to build a small set of pre-bound functions that allow us to interact in various ways with a simple datastore.
+
+#### Defining the Data
+
+Let's start by creating a Syringe object that holds some departmental information for a fictional organization. `Syringe.create()` is used to generate a new instance of an empty Syringe object, but can also be initialized with a payload of fresh data if you pass in an object map like this:
 
 ```javascript
 var syr = Syringe.create({
-    'data': {
-        'A00': {
-            'name'      : 'Slothrop, Tyrone',
-            'rank'      : 'Lieutenant',
-            'locale'    : 'GB',
-            'division'  : 'ACHTUNG'
-        }
+    depts: {
+        'sales'     : {id: 'A1', name: 'Sales'},
+        'finance'   : {id: 'B2', name: 'Finance'},
+        'marketing' : {id: 'C3', name: 'Marketing'}
     }
 });
 ```
 
-Now define a simple _getter_ method and add it to the Syringe object registry. As part of this registration, we also specify that we want the `data` object to be injected
-into the getter when it is invoked:
+Now we'll check our new `syr` object instance to ensure that it does indeed contain some data:
 
 ```javascript
-syr.add('utils.get', function (data, id) {
-
-    'use strict';
-
-    if (data = data[id] || false) {
-        data.msg = ''
-            + 'ID: '            + id
-            + '; Rank: '        + data.rank     || 'N/A'
-            + '; Division: '    + data.division || 'N/A';
-    }
-
-    return data;
-}, ['data']);
+syr.get('depts.sales.id');          // Returns: "A1"
+syr.get('depts.finance.name');      // Returns: "Finance"
 ```
-**Note:** The `data` _parameter_ could actually be called anything (for example, `d` or `staff`) - it doesn't have to match the name of the injected object.
 
-Let's create a simple utility function into which, on invocation, the getter is injected:
+The first important thing to note here is that the `syr` object's `get` method uses a *dot-delimited* string to retrieve data. 
+
+Unlike using *dot-notation* to fetch items directly from a JavaScript object (e.g., `obj.foo.bar`), this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. Instead, if you execute something like `syr.get('depts.engineering.id')` you'll get a return value of `false`.
+
+Okay, so we've confirmed that we have now got a brand new `syr` object that holds some basic data. Let's use Syringe's binding capabilities to create a retrieval function called `report` that receives the `depts` object data automatically when it executes.
+
+To do this we use the `on` method to create a new bound function:
 
 ```javascript
-syr.on('log', ['utils.get'], function (get, id) {
-
-    'use strict';
-
-    return (get = get(id))
-        ? (console.info('Schwarzgerät accessed by "' + get.name + '"\n' + get.msg), get)
-        : false;
+var report = syr.on(['depts'], function (data, key) {
+    return data[key] || false;
 });
 ```
 
-Now call the utility function with Slothrop's ID:
+Now we can execute our `report` function like so:
 
 ```javascript
-log('A00');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID: A00; Rank: Lieutenant; Division: ACHTUNG
-
-                // Returns:
-                //      {
-                //          'name'      : 'Slothrop, Tyrone',
-                //          'rank'      : 'Lieutenant',
-                //          'locale'    : 'GB',
-                //          'division'  : 'ACHTUNG',
-                //          'msg'       : 'ID: A00; Rank: Lieutenant; Division: ACHTUNG'
-                //      }
+report('sales');    // Returns: {id: "A1", name: "Sales"}
 ```
 
-The logging utility returns some useful information and logs out a message to the console.
+Notice how we only passed in *one* argument: the name of the department we're interested in. Arguments passed by the function's caller are known as *free* arguments. The `depts` argument is pre-bound to the function and passed in automatically.
 
-### What Just Happened?
+When defining a pre-bound function, data registry item *names* and argument *names* (the `depts` array item and the `data` argument respectively in the above example) do *not* have to match. However, there *must* be at least as many pre-bound arguments as registry items. 
 
- The `log` function definition doesn't contain any _direct_ references to which getter method should be used or where the staff data is stored as the `get` method is passed into `log` by injection. When `get` is executed the `data` object is passed into `get` automatically. Thus, invoking `log` completes an injection contract between the three entities: `data`, `get`, and `log`.
-
-Loose coupling between the concerns means that we can easily change the registry data for the injected items. Let's add a custom warning message:
+To make this a little clearer, consider the following example:
 
 ```javascript
+
+var func = syr.on(['foo', 'bar.fly', 'buzz.lightyear'], function (a, b, c, key) {
+    // ...
+});
+
+```
+
+In the above example the `a`, `b`, and `c` arguments are bound to their corresponding data registry items `foo`, `bar.fly`, and `buzz.lightyear`, with `key` being the only *free* (unbound) argument.
+
+Bound arguments always match the array order of their corresponding data registry items and precede the free arguments (if any) in the function signature.
+
+#### Storing Bound Functions
+
+Syringe's `on` method allows us the create *ad hoc* pre-bound functions. However the `report` function is useful, so let's add it to the Syringe data registry as a utility method in its own right so it can be used throughout our system. 
+
+The code for adding pre-bound functions to the registry looks like this:
+
+```javascript
+syr.add('utils.report', function (data, key) {
+    return data[key] || false;
+}, ['depts']);
+```
+
+The first argument specifies where we want our method to reside inside the Syringe data registry. It doesn't matter that the registry does not yet have a `utils` property as it is created automatically when we add the `utils.report` item.
+
+**Note:** If a `utils` property containing a `report` property *was* already present in the registry, Syringe would throw an error and suggest that we first use the `remove` method to unregister the `report` property. 
+
+The second argument is the function definition, and the third argument is the array of items we want to pull from the Syringe data registry and inject directly into our `utils.report` function when it executes. 
+
+The third argument is optional. You don't *have* to store a pre-bound function; you could just store a regular function (however, in this case we want to).
+
+Unlike `on`, the `add` operation returns the *entire* Syringe object, so it isn't useful to assign it to a variable. If we want to test our newly added method (or any a method contained within the Syringe registry) we can execute it like this:
+
+```javascript
+syr.exec('report', ['sales']);  // Returns: {id: "A1", name: "Sales"}
+```
+
+However, apart from calling newly-defined pre-bound methods directly for testing purposes, you probably won't be using the `exec` method very often. The real value of adding pre-bound methods to the Syringe data registry is that they too can be injected into other functions. And that's what we're going to look at next.
+
+#### Injecting Bound Functions
+
+So far we've created a Syringe object that contains some basic departmental information, and defined a getter-like `report` function that grants any executor access to a specific named item within the `depts` data object.
+
+Let's enhance `report` by improving its data-retrieval capabilities. We'll expand it to accept either a name *or* an ID as a lookup key in order to locate departmental information.
+
+Because `utils.report` already exists, we must use the `set` method instead of the `add` method to change the function definition:
+
+```javascript
+syr.set('utils.report', function(data, key) {
+    if (data[key]) {
+        return data[key];
+    } else {
+        var str = Object.keys(data).filter(function(item) {
+            return data[item].id === key;
+        });
+        return str ? data[str] : false;
+    }
+}, ['depts']);
+```
+
+As before, we can use the `exec` method test our enhanced `utils.report` function:
+
+```javascript
+syr.exec('utils.report', ['sales']);    // Returns: {id: "A1", name: "Sales"}
+syr.exec('utils.report', ['B2']);       // Returns: {id: "B2", name: "Finance"}
+```
+
+We are now going to extend the Syringe registry to include some members of staff:
+
+```javascript
+
 syr.add({
-    'warnings': {
-        'access': {
-            'success'   : '{0} is A-OK!',
-            'fail'      : '{0} does not have the proper authorization!'
-        }
+    personnel: {
+        'smith_r': {id: '001', name: 'Robert Smith', dept: 'A1'},
+        'jones_t': {id: '002', name: 'Edward Jones', dept: 'B2'},
+        'coope_a': {id: '003', name: 'Andrea Coope', dept: 'C3'}
     }
 });
 ```
-... modify the getter to check the data:
+
+It would be useful to create a function that uses what we've created so far in order to provide us with profile data about a member of staff that also includes information about their department. 
+
+Like `report`, this function should be able to accept either a name or an ID as a lookup key in order to locate the corresponding profile. 
+
+We'll call this new method `utils.profile`. When it's executed, the method gets passed the `utils.report` function as its first argument:
 
 ```javascript
-syr.set('utils.get', function (data, access, id) {
 
-    'use strict';
+syr.add('utils.profile', function(fn, key) {
 
-    if (data = data[id] || false) {
-        var action = (data.rank !== 'General') ? 'fail' : 'success';
-        data.msg = access[action].replace('{0}', 'ID ' + id);
+    var
+        personnel   = this.copy(['personnel'], fn),
+        employee    = personnel(key);
+
+    if (employee && employee.dept) {
+
+        return {
+            id  : employee.id,
+            name: employee.name,
+            dept: fn(employee.dept)
+        };
+
+    } else {
+        return false;
     }
-
-    return data;
-}, ['data', 'warnings.access']);
-
+}, ['utils.report']);
 ```
 
-... and call the utility function again:
+Syringe provides a method called `copy` that allows you to duplicate an existing pre-bound function but specify a new injection payload. 
 
+We can use this method to create a new internal function called `personnel` that uses the same mechanism as `utils.report` but is pre-bound to a different data payload.  
+
+As before, we can test this new function by executing the following:
 
 ```javascript
-log('A00');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID A00 does not have the proper authorization!
-                // ...
+syr.exec('utils.profile', 'coope_a');   // Returns: 
+                                            //  {
+                                            //       "id"  : "003",
+                                            //       "name": "Andrea Coope",
+                                            //       "dept": {
+                                            //           "id"  : "C3",
+                                            //           "name": "Marketing"
+                                            //       }
+                                            //   }
+
+syr.exec('utils.profile', '002');       // Returns: 
+                                            //  {
+                                            //       "id"  : "002",
+                                            //       "name": "Edward Jones",
+                                            //       "dept": {
+                                            //           "id"  : "B2",
+                                            //           "name": "Finance"
+                                            //       }
+                                            //   }
 ```
 
-Change Slothrop's rank:
+
+#### Wrappers
+
+When our `utils.profile` method is called, we want some way to indicate that this activity has taken place by logging a message to the console.
+
+One way we can do this is by wrapping the `utils.profile` method in another method that itself receives pre-bound arguments upon execution.
+
+First, let's create a boilerplate alert message in our data registry:
 
 ```javascript
-syr.set('data.A00.rank', 'General');
+syr.add('data.messages.access', 'Profile accessed: {0}');
 ```
-... and call the utility function again:
+
+Next, create a logger function that is pre-bound with the `data.messages` object and can receive both the original `utils.profile` function and also a lookup key (name or ID) to pass to it:
 
 ```javascript
-log('A00');   // Logs:
-                //      Schwarzgerät accessed by "Slothrop, Tyrone"
-                //      ID A00 is A-OK!
-                // ...
+var log = syr.on(['data.messages'], function (msg, fn, key) {
+    var profile = fn(key);
+    console.log(msg.access.replace('{0}', profile.name));
+    return profile;
+});
 ```
+
+We can now use Syringe's `wrap` method to wrap our `log` function around the `utils.profile` method. Then we'll use the result to update the original `utils.profile` method in the registry:
+
+```javascript
+syr.set('utils.profile', syr.wrap(syr.get('utils.profile'), log));
+```
+
+As before, we can use the `exec` method to test our freshly wrapped `utils.report` function:
+
+```javascript
+syr.exec('utils.profile', ['coope_a'])  // Returns: 
+                                        //      {
+                                        //          "id"  : "003",
+                                        //          "name": "Andrea Coope",
+                                        //          "dept": {
+                                        //              "id"  : "C3",
+                                        //              "name": "Marketing"
+                                        //          }
+                                        //      }
+
+                                        // Logs: 
+                                        //      Profile accessed: "Andrea Coope"
+```
+
+#### Listeners
+
+In much the same way that you might want to be alerted when a stored function executes, you may also want to be notified when the registry itself changes. For this purpose, Syringe provides listeners that can execute when they detect a particular registry event.
+
+Listeners can be created to detect operations that use the `get`, `set`, `add`, `remove`, `listops` methods (or all of the above). In addition, they can be mapped to specific registry items, or to general items using the `*` wildcard. Example:
+
+```javascript
+syr.listen('add:data.personnel.*', function (name, value, data) {
+    console.log('The following data was added to "%s": %o', value, data);
+}); 
+```
+
+The above binding will fire if any additions are made to the `data.personnel` object. So, now if we do this:
+
+```javascript
+syr.add('data.personnel.moore_l', {id: '004', name: 'Leanna Moore', dept: 'D4'});
+```
+
+... the following is logged to the console:
+
+```javascript
+ The following data was added to "data.personnel.moore_l": {
+     dept: 'D4',
+     id  : '004',
+     name: 'Leanna Moore'
+ }
+```
+
+
 
 ## Questions
 
 ### "Does injection work with constructor functions?"
 
-Indeed it does, and we can demonstrate this with another simple example. Create a data object:
+Yes it does, and we can demonstrate this with another simple example. Create a data object:
 
 ```javascript
-var syr = Syringe.create({
+var syr2 = Syringe.create({
     'data': {
         'A00': {
             'name'      : 'Slothrop, Tyrone',
@@ -217,14 +357,12 @@ var syr = Syringe.create({
     }
 });
 ```
-Create a simple constructor that automatically adds `data` to its context:
+
+Create a simple constructor that automatically adds `data` to its context and bind the `data` object to the constructor:
+
 ```javascript
-var StaffObj = function (data, id) {
-
-    'use strict';
-
+StaffObj = syr2.on(['data'], function (data, id) {
     data = data || {};
-
     if (({}).toString.call(data[id]) === '[object Object]') {
         for (var prop in data[id]) {
             if (data[id].hasOwnProperty(prop)) {
@@ -232,13 +370,11 @@ var StaffObj = function (data, id) {
             }
         }
     }
-};
+});
 ```
-Bind the `data` object to the constructor:
-```javascript
-StaffObj = syr.on(['data'], StaffObj);
-```
+
 ... and create a couple of new objects:
+
 ```javascript
 var slothrop = new StaffObj('A00');   // Creates:
                                         //      {
@@ -299,17 +435,16 @@ In addition, unless you namespace the dependencies it is impossible to disambigu
 
 This following table describes the methods provided by the `Syringe` object:
 
-Name     | Parameters   | Description
+Method     | Parameter(s)   | Description
 ---------|--------------|-------------
 *create* | `[map]` | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
 *add*    | `name, value [, bindings]` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
 *add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
 *add*    | `array`      | Register an array of map of dependencies, where each map is an object. Useful for asserting order when additions are functions that are side-effectful. Alias: _register_. <br/><br/>**Example**: `syr.add([{'data.name': 'Mike'}, {'data.age': '39'}]);`
 *remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
-*remove* | `array`                   | Remove an array of named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove(['data', 'foo.bar']);`
+*remove* | `array`                   | Remove an array of named items from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove(['data', 'foo.bar']);`
 *on*     | `bindings, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind a shallow or deep item located _outside_ of the dependency map in the global object, use the prefix `global:` before the keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['global:jQuery'], function ($) {..});`
-*on*     | `name, bindings, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
-*on* | `map` | Bind a named function to an optional target, or return an unnamed function. The `name` property can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure. An optional `ctx` property makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: [See below](#creating-bound-functions-using-a-property-map)
+*on*     | `name, bindings, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure in the global context.<br/><br/>An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
 *set*    | `name, value [, bindings]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
 *exec*    | `name, args [, ctx]` | Directly execute a method within the dependency map. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
@@ -321,57 +456,6 @@ Name     | Parameters   | Description
 *listen* | `name, fn` | Binds a listener to a named Syringe method (`get`, `set`, `add`, `remove`, `listops`, or `all`). Shallow or deep path namespacing is also supported. <br/><br/>**Example**: `syr.listen('add', function (name, value) {...});` <br/><br/>**Example**: `syr.listen('set:name', function (name, value) {...});`  <br/><br/>**Example**: `syr.listen('remove:data.name', function (name) {...});`
 *listops* | `name, fn` | A convenience function that allows you to directly perform operations on stored arrays, raising an event on completion. <br/><br/>**Example**: `syr.listops('data.names', function (arr) { ... });`
 
-### Creating Bound Functions Using a Property Map
-
-Instead of passing multiple arguments to `.on()`, functions can be bound using a property map object.
-
-Property  | Description  | Example | Optional
-----------|--------------|---------|----------
-*name*    | A character delimited name for the bound function.<br/><br/>If a name but no `target` property is provided, the function is attached in shallow or deep form to the global object.<br/><br/>If a name and a `target` property is provided, the function is attached in shallow or deep form to the target object.<br/><br/>**Note:** If no name is provided, the bound function is returned as an anonymous function. | `first.second.third` | Yes
-*bindings*| An array of registry map items to be injected into the function specified by `fn`. | `['data', 'weather.report']` | No
-*fn*      | The function against which the injection operation takes place. Must have at least as many parameters as injected items. Any additional parameters are treated as free arguments that are passed by the caller on invocation. | `function (data, report) {...}` | No
-*ctx*     | The `this` context in which the function specified by `fn` will execute. | `{'foo': 'bar'}` | Yes
-*target*  | The target into which a named bound function can be attached. If the function isn't named, this property has no effect. | `window.utils` | Yes
-
-Here's a simple example. Add a an empty target:
-
-```javascript
-window.utils = {};
-```
-Add some data to the registry:
-```javascript
-Syringe.add({
-    data: 'example data',
-    weather: {
-        report: 'sunny'
-    }
-})
-```
-Create a simple function:
-```javascript
-var fn = function (data, report) {
-    console.log('Here is some ' + data);
-    console.log('The weather is ' + report);
-    console.log('Let\'s go to the ' + this.foo);
-};
-```
-Bind the function as a named function that executes with a provided context and gets added to a specified target:
-```javascript
-Syringe.on({
-    name    : 'first.second.third',
-    bindings: ['data', 'weather.report'],
-    fn      : fn,
-    ctx     : {'foo': 'bar'},
-    target  : window.utils
-});
-```
-Execute the bound function:
-```javascript
-window.utils.first.second.third();  //  Logs:
-                                    //      Here is some example data
-                                    //      The weather is sunny
-                                    //      Let's go to the bar
-```
 
 ### Register Items Asynchronously
 
@@ -393,7 +477,7 @@ syr.fetch([{
 ```
 
 
-## Examples ##
+## Additional Examples ##
 
 The following generic examples show how some of the API methods provided by Syringe might be used to manage function operations.
 
@@ -453,7 +537,8 @@ Syringe.add('while', function (proc, arr, cnt) {
     }
    
     while (len < arr.length) {
-        arr[len] % arr[cnt] === 0 && arr[len] !== arr[cnt] || newarr.push(arr[len])        
+        arr[len] % arr[cnt] === 0 
+            && arr[len] !== arr[cnt] || newarr.push(arr[len])        
         len++;
     }
 
