@@ -1,5 +1,5 @@
 // > http://syringejs.org
-// > syringe.js v0.6.4. Copyright (c) 2013-2014 M Holt
+// > syringe.js v0.6.5. Copyright (c) 2013-2015 M Holt
 // > holt.org. Distributed under the MIT License
 /* jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true,
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
@@ -47,8 +47,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// properly on bound Syringe functions.
 		bindArgs: function () {
 			var
-				args = slice.call(arguments),
-				fn = this;
+				args	= slice.call(arguments),
+				fn		= this;
+
 			return function () {
 				return fn.apply(this, args.concat(slice.call(arguments)));
 			};
@@ -181,12 +182,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Returns `true` if an object contains no enumerable propeties
 		isEmpty: function (obj) {
-			for (var key in obj) {
-				if (hasProp.call(obj, key)) {
-					return false;
-				}
-			}
-			return true;
+			return Object.keys(obj).length ? false : true;
 		},
 
 		// Asynch fetch
@@ -299,7 +295,25 @@ quotmark: true, node: true, newcap: true, browser:true */
 					// Add the event type
 					arr.unshift(type);
 
-					if (
+					// Match paths that terminate with a wildcard
+					if (event.path && event.path.split(store[id].separator).pop() === '*') {
+
+						var 
+							wldpath	= event.path.split(store[id].separator),
+							arrpath	= arr[1].split(store[id].separator);
+						
+						wldpath.pop();
+						arrpath.pop();
+
+						wldpath	= wldpath.join(store[id].separator);
+						arrpath	= arrpath.join(store[id].separator);
+
+						if (arrpath === wldpath) {
+							event.fn.apply(this, arr);
+						}
+					}
+
+					else if (
 						// Match all types of event
 						!event.path ||
 						// Events matching a deep path			
@@ -501,7 +515,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 		// a variety of different arguments, the formulation of which 
 		// determine what type of binding takes place. The variations are
 		// described below.		
-		on: function ( /* 1, 2, 3, or 4 params */ ) {
+		on: function ( /* 2, 3, or 4 params */ ) {
 			var
 				cab		= store[this.id].cabinet,
 				args	= slice.call(arguments),
@@ -509,7 +523,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 				obj		= { args: args },
 				gtp		= utils.getType,
 				mtc		= utils.matchArgs,
-				anon, anonctx, named, namedctx, map;
+				anon, anonctx, named, namedctx;
 
 			// Bind arguments only, no context - used when a context is
 			// provided
@@ -532,8 +546,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 			}.bind(this);
 
-			// __One__ parameter: a map (property) object.
-
 			// __Two__ parameters: the registry array `args[0]` and method
 			// `args[1]`. No name or context object is provided. The
 			// bound function will be returned as an anonymous function.
@@ -553,7 +565,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 			// `args[3]`. When the bound method executes the provided
 			// context will be used.
 
-			map		= mtc(args, ['object']);
 			anon		= mtc(args, ['array', 'function']);
 			anonctx		= mtc(args, ['array', 'function', 'object']);
 			named		= mtc(args, ['string', 'array', 'function']);
@@ -586,51 +597,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 				}
 			}
 
-			// Is this a property map?
-			else if (map) {
-				var
-					props		= gtp(args[0], 'object') ? args[0] : {},
-					name		= gtp(props.name, 'string') ? props.name : false,
-					bindings	= gtp(props.bindings, 'array') ? props.bindings : false,
-					fn		= gtp(props.fn, 'function') ? props.fn : false,
-					//add		= gtp(props.target, 'object') ? props.add : false,            
-					target		= gtp(props.target, 'object') ? props.target : false;
-
-				ctx = gtp(props.ctx, 'object') ? props.ctx : ctx;
-
-				if (bindings.length && fn) {
-
-					obj.fn = fn;
-					obj.ctx = ctx;
-
-					if (props.ctx) {
-						obj.bind = utils.run.bind(props.ctx, bindings, fn, this);
-					} else {
-						obj.bind = bindArgsOnly(bindings, fn, this);
-					}
-
-					cab.push(obj);
-
-					// Handler for adding the bound function to repository (if requested)
-					if (props.add && gtp(props.add.name, 'string')) {
-
-						if (gtp(props.add.bindings, 'array')) {
-							this.add(props.add.name, obj.bind, props.add.bindings);
-						} else {
-							this.add(props.add.name, obj.bind);
-						}
-					}
-
-					// if this is a named method?, If so, add the bound function to the name			
-					if (name) {
-						namedFuncFactory(name, obj.bind, target);
-						return this;
-					} else {
-						return obj.bind;
-					}
-				}
-			}
-
 			// If nothing gets returned, just return the Syringe object
 			return this;
 		},
@@ -652,7 +618,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 					fn = _fn ? _fn.fn : fn;
 					return utils.run
 						.apply(ctx, [_fn.args[0], fn, this]
-							.concat(args));
+						.concat(args));
 				}
 				return fn.apply(ctx, args);
 			}
@@ -782,9 +748,7 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 			if (utils.getType(name, 'string') && utils.getType(fn, 'function')) {
 
-				var 
-					events = store[this.id].events,
-					proc = function (path, arr) {
+				var proc = function (path, arr) {
 					if (utils.getType(arr, 'array')) {
 						arr.push({
 							path: path.length ? path[0] : false,
@@ -793,8 +757,10 @@ quotmark: true, node: true, newcap: true, browser:true */
 					}
 				};
 
+				var events = store[this.id].events;
+
 				if (name !== 'all') {
-					proc(path, events[name]);					
+					proc(path, events[name]);
 				}
 				else {
 					for (var key in store[this.id].events) {
@@ -832,12 +798,12 @@ quotmark: true, node: true, newcap: true, browser:true */
 	proto.unregister	= proto.remove;
 
 	// Add the current semver
-	proto.VERSION = '0.6.4';
+	proto.VERSION = '0.6.5';
 
 	// Determine local context
 	if (this.window) {
 		proto.fetch	= utils.fetch;
-		root.Syringe	= new Syringe();
+		root.Syringe = new Syringe();
 	} else if (typeof module !== 'undefined' && module.exports) {
 		exports = module.exports = new Syringe();
 	}
