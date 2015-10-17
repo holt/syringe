@@ -29,7 +29,7 @@
               </div>
               <blockquote>
 <p><a href="http://syringejs.org">http://syringejs.org</a>
-syringe.js v0.6.4. Copyright (c) 2013-2014 M Holt
+syringe.js v0.6.5. Copyright (c) 2013-2015 M Holt
 holt.org. Distributed under the MIT License</p>
 </blockquote>
 
@@ -39,7 +39,7 @@ holt.org. Distributed under the MIT License</p>
 undef:true, unused:true, curly:true, indent:4, maxerr:50, laxcomma:true, evil: true,
 laxbreak:true, multistr: true, camelcase:true, immed: true, latedef: true, nonew:true,
 quotmark: true, node: true, newcap: true, browser:true */</span>
-(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 <span class="hljs-pi">
 	'use strict'</span>;</pre></div></div>
             
@@ -92,10 +92,10 @@ string notation. The <code>sep</code> parameter determines the delimiter
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getObj: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(str, ctx, sep)</span> {</span>
-			<span class="hljs-keyword">return</span> str.split((sep || <span class="hljs-string">'.'</span>)).filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(num)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		getObj: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">str, ctx, sep</span>) </span>{
+			<span class="hljs-keyword">return</span> str.split((sep || <span class="hljs-string">'.'</span>)).filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">num</span>) </span>{
 				<span class="hljs-keyword">return</span> num.length;
-			}).reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(prev, curr, index, list)</span> {</span>
+			}).reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">prev, curr, index, list</span>) </span>{
 				<span class="hljs-keyword">if</span> (prev) {
 					<span class="hljs-keyword">return</span> prev[list[index]];
 				}
@@ -117,8 +117,8 @@ the delimiter (period by default).            </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		setObj: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(str, ctx, sep)</span> {</span>
-			<span class="hljs-keyword">return</span> str.split((sep || <span class="hljs-string">'.'</span>)).reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(prev, curr)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		setObj: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">str, ctx, sep</span>) </span>{
+			<span class="hljs-keyword">return</span> str.split((sep || <span class="hljs-string">'.'</span>)).reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">prev, curr</span>) </span>{
 				<span class="hljs-keyword">return</span> (prev[curr]) ? (prev[curr]) : (prev[curr]) = {};
 			}, (ctx || <span class="hljs-keyword">this</span>));
 		},</pre></div></div>
@@ -139,11 +139,12 @@ properly on bound Syringe functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		bindArgs: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+            <div class="content"><div class='highlight'><pre>		bindArgs: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 			<span class="hljs-keyword">var</span>
-				args = slice.call(<span class="hljs-built_in">arguments</span>),
-				fn = <span class="hljs-keyword">this</span>;
-			<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+				args	= slice.call(<span class="hljs-built_in">arguments</span>),
+				fn		= <span class="hljs-keyword">this</span>;
+
+			<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 				<span class="hljs-keyword">return</span> fn.apply(<span class="hljs-keyword">this</span>, args.concat(slice.call(<span class="hljs-built_in">arguments</span>)));
 			};
 		},</pre></div></div>
@@ -161,8 +162,8 @@ properly on bound Syringe functions.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		makeId: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
-			<span class="hljs-keyword">return</span> <span class="hljs-string">'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'</span>.replace(<span class="hljs-regexp">/[xy]/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(b)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		makeId: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+			<span class="hljs-keyword">return</span> <span class="hljs-string">'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'</span>.replace(<span class="hljs-regexp">/[xy]/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">b</span>) </span>{
 				<span class="hljs-keyword">var</span> a = <span class="hljs-number">16</span> * <span class="hljs-built_in">Math</span>.random() | <span class="hljs-number">0</span>;
 				<span class="hljs-keyword">return</span> (<span class="hljs-string">'x'</span> === b ? a : a &amp; <span class="hljs-number">3</span> | <span class="hljs-number">8</span>).toString(<span class="hljs-number">16</span>);
 			});
@@ -183,7 +184,7 @@ is returned.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getType: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj, istype)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		getType: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">obj, istype</span>) </span>{
 			<span class="hljs-keyword">var</span>
 				ret = <span class="hljs-string">'Undefined'</span>,
 				types = [<span class="hljs-string">'Window'</span>, <span class="hljs-string">'HTMLDocument'</span>, <span class="hljs-string">'Global'</span>, <span class="hljs-string">'Document'</span>];
@@ -192,7 +193,7 @@ is returned.</p>
 
 				ret = ({}).toString.call(obj).match(<span class="hljs-regexp">/\s([a-z|A-Z]+)/</span>)[<span class="hljs-number">1</span>];
 
-				types = types.some(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+				types = types.some(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 					<span class="hljs-keyword">return</span> item.toLowerCase() === ret.toLowerCase();
 				});
 
@@ -232,15 +233,15 @@ validate the payload</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		matchArgs: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(args, istype)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		matchArgs: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, istype</span>) </span>{
 			istype = istype || [];
 			args = [].slice.call(args);
 			<span class="hljs-keyword">if</span> (!istype.length) {
-				<span class="hljs-keyword">return</span> args.map(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+				<span class="hljs-keyword">return</span> args.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 					<span class="hljs-keyword">return</span> utils.getType(item);
 				});
 			} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (istype.length === args.length) {
-				<span class="hljs-keyword">return</span> args.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(prev, curr, idx)</span> {</span>
+				<span class="hljs-keyword">return</span> args.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">prev, curr, idx</span>) </span>{
 					<span class="hljs-keyword">if</span> (!prev &amp;&amp; utils.getType(istype[idx], <span class="hljs-string">'string'</span>)) {
 						<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
 					}
@@ -266,9 +267,9 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getReg: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(arr, id)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		getReg: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arr, id</span>) </span>{
 			<span class="hljs-keyword">var</span> reg = store[id].registry;
-			<span class="hljs-keyword">return</span> arr.map(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+			<span class="hljs-keyword">return</span> arr.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">switch</span> (item) {
 				<span class="hljs-keyword">case</span> <span class="hljs-string">''</span>:
 					<span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
@@ -295,7 +296,7 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		getData: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(url, callback)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		getData: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url, callback</span>) </span>{
 			<span class="hljs-keyword">var</span> xhr;
 			<span class="hljs-keyword">if</span> (!utils.getType(XMLHttpRequest, <span class="hljs-string">'undefined'</span>)) {
 				xhr = <span class="hljs-keyword">new</span> XMLHttpRequest();
@@ -306,9 +307,9 @@ in the registry object</p>
 					<span class="hljs-string">'MSXML2.XmlHttp.3.0'</span>,
 					<span class="hljs-string">'MSXML2.XmlHttp.2.0'</span>,
 					<span class="hljs-string">'Microsoft.XmlHttp'</span>
-				].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+				].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 					<span class="hljs-keyword">try</span> {
-						xhr = <span class="hljs-keyword">new</span> window.ActiveXObject(item);
+						xhr = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.ActiveXObject(item);
 						<span class="hljs-keyword">return</span>;
 					} <span class="hljs-keyword">catch</span> (e) {
 						<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(e);
@@ -316,7 +317,7 @@ in the registry object</p>
 				});
 			}
 
-			xhr.onreadystatechange = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+			xhr.onreadystatechange = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 				<span class="hljs-keyword">if</span> (xhr.readyState &lt; <span class="hljs-number">4</span>) {
 					<span class="hljs-keyword">return</span>;
 				}
@@ -346,13 +347,8 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		isEmpty: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj)</span> {</span>
-			<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> obj) {
-				<span class="hljs-keyword">if</span> (hasProp.call(obj, key)) {
-					<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-				}
-			}
-			<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+            <div class="content"><div class='highlight'><pre>		isEmpty: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">obj</span>) </span>{
+			<span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.keys(obj).length ? <span class="hljs-literal">false</span> : <span class="hljs-literal">true</span>;
 		},</pre></div></div>
             
         </li>
@@ -368,7 +364,7 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		fetch: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(arr, props, ctx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		fetch: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arr, props, ctx</span>) </span>{
 			props			= props		|| {};
 			props.success	= props.success || <span class="hljs-literal">false</span>;
 			props.xss		= props.xss	|| <span class="hljs-literal">false</span>;
@@ -391,7 +387,7 @@ in the registry object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> isLocalURL = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(url)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> isLocalURL = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">url</span>) </span>{
 				<span class="hljs-keyword">var</span> regexp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'//'</span> + location.host + <span class="hljs-string">'($|/)'</span>);
 				<span class="hljs-keyword">return</span> <span class="hljs-string">'http'</span> === url.substring(<span class="hljs-number">0</span>, <span class="hljs-number">4</span>) ? regexp.test(url) : <span class="hljs-literal">true</span>;
 			};</pre></div></div>
@@ -410,7 +406,7 @@ against the length of the script list</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> stack = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(xhr)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> stack = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">xhr</span>) </span>{
 				<span class="hljs-keyword">if</span> (xhr &amp;&amp; xhr.responseText) {
 					<span class="hljs-keyword">var</span> data = <span class="hljs-built_in">JSON</span>.parse(xhr.responseText);
 					<span class="hljs-keyword">if</span> (data) {</pre></div></div>
@@ -455,7 +451,7 @@ exists, the data is added to the object as a key named “json”.</p>
 				}
 			};
 
-			arr.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+			arr.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">if</span> (isLocalURL(url = item.path) || props.xss === <span class="hljs-literal">true</span>) {
 					utils.getData(item.path, stack);
 				}
@@ -478,7 +474,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		run: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(arr, fn, syr)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		run: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">arr, fn, syr</span>) </span>{
 			<span class="hljs-keyword">var</span>
 				args = slice.call(<span class="hljs-built_in">arguments</span>),
 				props, match, ins, res;</pre></div></div>
@@ -511,7 +507,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			match = store[syr.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			match = store[syr.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">return</span> item.fn === fn;
 			})[<span class="hljs-number">0</span>];
 
@@ -533,7 +529,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			arr.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item, idx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			arr.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item, idx</span>) </span>{
 				<span class="hljs-keyword">if</span> (utils.getType(item, <span class="hljs-string">'string'</span>) &amp;&amp; item.indexOf(<span class="hljs-string">'global:'</span>) === <span class="hljs-number">0</span>) {
 					props[idx] = utils.getObj(item.slice(<span class="hljs-number">7</span>, item.length), root, <span class="hljs-string">'.'</span>);
 
@@ -577,7 +573,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		fire: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(type, id, arr)</span> {</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>		fire: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">type, id, arr</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -592,7 +588,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			store[id].events[type].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(event)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			store[id].events[type].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">event</span>) </span>{
 				<span class="hljs-keyword">if</span> (utils.getType(event.fn, <span class="hljs-string">'function'</span>)) {</pre></div></div>
             
         </li>
@@ -608,9 +604,7 @@ to it. </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>					arr.unshift(type);
-
-					<span class="hljs-keyword">if</span> (</pre></div></div>
+            <div class="content"><div class='highlight'><pre>					arr.unshift(type);</pre></div></div>
             
         </li>
         
@@ -621,11 +615,28 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
-              <p>Match all types of event</p>
+              <p>Match paths that terminate with a wildcard</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						!event.path ||</pre></div></div>
+            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span> (event.path &amp;&amp; event.path.split(store[id].separator).pop() === <span class="hljs-string">'*'</span>) {
+
+						<span class="hljs-keyword">var</span> 
+							wldpath	= event.path.split(store[id].separator),
+							arrpath	= arr[<span class="hljs-number">1</span>].split(store[id].separator);
+						
+						wldpath.pop();
+						arrpath.pop();
+
+						wldpath	= wldpath.join(store[id].separator);
+						arrpath	= arrpath.join(store[id].separator);
+
+						<span class="hljs-keyword">if</span> (arrpath === wldpath) {
+							event.fn.apply(<span class="hljs-keyword">this</span>, arr);
+						}
+					}
+
+					<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (</pre></div></div>
             
         </li>
         
@@ -636,11 +647,11 @@ to it. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
-              <p>Events matching a deep path            </p>
+              <p>Match all types of event</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>						arr[<span class="hljs-number">1</span>] === event.path ||</pre></div></div>
+            <div class="content"><div class='highlight'><pre>						!event.path ||</pre></div></div>
             
         </li>
         
@@ -650,6 +661,21 @@ to it. </p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Events matching a deep path            </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>						arr[<span class="hljs-number">1</span>] === event.path ||</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Events matching a shallow path</p>
 
@@ -663,11 +689,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Remove the event type</p>
 
@@ -684,17 +710,17 @@ to it. </p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Syringe base constructor</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> Syringe = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(props)</span> {</span>
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">var</span> Syringe = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">props</span>) </span>{
 		store[<span class="hljs-keyword">this</span>.id = utils.makeId()] = {
 			cabinet		: [],
 			registry	: (props &amp;&amp; utils.getType(props, <span class="hljs-string">'object'</span>)) ? props : {},
@@ -713,11 +739,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Syringe object prototype methods</p>
 
@@ -728,11 +754,11 @@ to it. </p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Set the separator character used for creating, specifying, and
 retrieving objects. Whitespace and alphanumeric characters are
@@ -740,7 +766,7 @@ not permitted. By default, the period ‘.’ character is used.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		separator: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(val)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		separator: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">val</span>) </span>{
 			<span class="hljs-keyword">return</span> (utils.getType(val, <span class="hljs-string">'string'</span>) &amp;&amp;
 				(<span class="hljs-number">1</span> === val.replace(<span class="hljs-regexp">/[?a-zA-Z\d]|\s/g</span>, <span class="hljs-string">''</span>).length)) ?
 				(store[<span class="hljs-keyword">this</span>.id].separator = val, <span class="hljs-keyword">this</span>) : <span class="hljs-literal">false</span>;
@@ -749,18 +775,18 @@ not permitted. By default, the period ‘.’ character is used.</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Convenience function that allows you to process array items directly
 and which raises an event on completion.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		listops: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, fn)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		listops: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, fn</span>) </span>{
 			
 			<span class="hljs-keyword">var</span>
 				reg = store[<span class="hljs-keyword">this</span>.id].registry,
@@ -791,11 +817,11 @@ and which raises an event on completion.</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Add a new item to the Syringe registry. The name can be provided 
 in dot-notation, in which case a deep reference is built within
@@ -806,7 +832,7 @@ can be automatically bound to other registry methods.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		add: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, value, bindings)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		add: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, value, bindings</span>) </span>{
 			<span class="hljs-keyword">var</span>
 				reg = store[<span class="hljs-keyword">this</span>.id].registry,
 				sep = store[<span class="hljs-keyword">this</span>.id].separator;
@@ -815,13 +841,13 @@ can be automatically bound to other registry methods.</p>
 
 			<span class="hljs-keyword">case</span> <span class="hljs-string">'Array'</span>:
 
-				name.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+				name.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 					<span class="hljs-keyword">this</span>.add.apply(<span class="hljs-keyword">this</span>, [item]);
 				}, <span class="hljs-keyword">this</span>);
 				<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 
 			<span class="hljs-keyword">case</span> <span class="hljs-string">'Object'</span>:
-				<span class="hljs-built_in">Object</span>.keys(name).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(key)</span> {</span>
+				<span class="hljs-built_in">Object</span>.keys(name).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
 					<span class="hljs-keyword">this</span>.add.apply(<span class="hljs-keyword">this</span>, [key, name[key]]);
 				}, <span class="hljs-keyword">this</span>);
 				<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
@@ -858,11 +884,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Raise an “add” event, passing the name and value</p>
 
@@ -876,33 +902,33 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-35">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
-              </div>
-              <p>Remove a named item from the registry</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>		remove: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name)</span> {</span></pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
+              <p>Remove a named item from the registry</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		remove: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
               <p>Remove an array of items</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">if</span> (utils.getType(name, <span class="hljs-string">'array'</span>)) {
-				name.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+				name.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 					<span class="hljs-keyword">if</span> (utils.getType(item, <span class="hljs-string">'string'</span>)) {
 						<span class="hljs-keyword">this</span>.remove(item);
 					}
@@ -913,11 +939,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Remove a single item</p>
 
@@ -942,7 +968,7 @@ can be automatically bound to other registry methods.</p>
 
 					name = lst || snm;
 
-					<span class="hljs-built_in">Object</span>.keys(obj).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(key)</span> {</span>
+					<span class="hljs-built_in">Object</span>.keys(obj).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
 						<span class="hljs-keyword">if</span> (key !== name) {
 							nrg[key] = obj[key];
 						}
@@ -951,11 +977,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Deep removal (delimited name)</p>
 
@@ -968,11 +994,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Shallow removal (non-delimited name)</p>
 
@@ -986,11 +1012,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Raise a remove event, passing the name</p>
 
@@ -1006,11 +1032,11 @@ can be automatically bound to other registry methods.</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Bind a method to the dependency registry. This function accepts
 a variety of different arguments, the formulation of which 
@@ -1019,7 +1045,7 @@ described below.        </p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		on: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">( <span class="hljs-comment">/* 1, 2, 3, or 4 params */</span> )</span> {</span>
+            <div class="content"><div class='highlight'><pre>		on: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"> <span class="hljs-comment">/* 2, 3, or 4 params */</span> </span>) </span>{
 			<span class="hljs-keyword">var</span>
 				cab		= store[<span class="hljs-keyword">this</span>.id].cabinet,
 				args	= slice.call(<span class="hljs-built_in">arguments</span>),
@@ -1027,16 +1053,16 @@ described below.        </p>
 				obj		= { args: args },
 				gtp		= utils.getType,
 				mtc		= utils.matchArgs,
-				anon, anonctx, named, namedctx, map;</pre></div></div>
+				anon, anonctx, named, namedctx;</pre></div></div>
             
         </li>
         
         
-        <li id="section-42">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>Bind arguments only, no context - used when a context is
 provided</p>
@@ -1048,17 +1074,17 @@ provided</p>
         </li>
         
         
-        <li id="section-43">
+        <li id="section-44">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
               <p>Utility that adds named methods to a provided context</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> namedFuncFactory = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, fn, target)</span> {</span>
+            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">var</span> namedFuncFactory = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, fn, target</span>) </span>{
 				<span class="hljs-keyword">var</span>
 					sep = store[<span class="hljs-keyword">this</span>.id].separator,
 					arr = name.split(sep),
@@ -1073,19 +1099,6 @@ provided</p>
 				}
 
 			}.bind(<span class="hljs-keyword">this</span>);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-44">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-44">&#182;</a>
-              </div>
-              <p><strong>One</strong> parameter: a map (property) object.</p>
-
-            </div>
             
         </li>
         
@@ -1151,7 +1164,6 @@ context will be used.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>
-			map		= mtc(args, [<span class="hljs-string">'object'</span>]);
 			anon		= mtc(args, [<span class="hljs-string">'array'</span>, <span class="hljs-string">'function'</span>]);
 			anonctx		= mtc(args, [<span class="hljs-string">'array'</span>, <span class="hljs-string">'function'</span>, <span class="hljs-string">'object'</span>]);
 			named		= mtc(args, [<span class="hljs-string">'string'</span>, <span class="hljs-string">'array'</span>, <span class="hljs-string">'function'</span>]);
@@ -1217,100 +1229,6 @@ function but use new registry items. </p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
-              <p>Is this a property map?</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>			<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (map) {
-				<span class="hljs-keyword">var</span>
-					props		= gtp(args[<span class="hljs-number">0</span>], <span class="hljs-string">'object'</span>) ? args[<span class="hljs-number">0</span>] : {},
-					name		= gtp(props.name, <span class="hljs-string">'string'</span>) ? props.name : <span class="hljs-literal">false</span>,
-					bindings	= gtp(props.bindings, <span class="hljs-string">'array'</span>) ? props.bindings : <span class="hljs-literal">false</span>,
-					fn		= gtp(props.fn, <span class="hljs-string">'function'</span>) ? props.fn : <span class="hljs-literal">false</span>,</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-52">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-52">&#182;</a>
-              </div>
-              <p>add        = gtp(props.target, ‘object’) ? props.add : false,            </p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>					target		= gtp(props.target, <span class="hljs-string">'object'</span>) ? props.target : <span class="hljs-literal">false</span>;
-
-				ctx = gtp(props.ctx, <span class="hljs-string">'object'</span>) ? props.ctx : ctx;
-
-				<span class="hljs-keyword">if</span> (bindings.length &amp;&amp; fn) {
-
-					obj.fn = fn;
-					obj.ctx = ctx;
-
-					<span class="hljs-keyword">if</span> (props.ctx) {
-						obj.bind = utils.run.bind(props.ctx, bindings, fn, <span class="hljs-keyword">this</span>);
-					} <span class="hljs-keyword">else</span> {
-						obj.bind = bindArgsOnly(bindings, fn, <span class="hljs-keyword">this</span>);
-					}
-
-					cab.push(obj);</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-53">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-53">&#182;</a>
-              </div>
-              <p>Handler for adding the bound function to repository (if requested)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span> (props.add &amp;&amp; gtp(props.add.name, <span class="hljs-string">'string'</span>)) {
-
-						<span class="hljs-keyword">if</span> (gtp(props.add.bindings, <span class="hljs-string">'array'</span>)) {
-							<span class="hljs-keyword">this</span>.add(props.add.name, obj.bind, props.add.bindings);
-						} <span class="hljs-keyword">else</span> {
-							<span class="hljs-keyword">this</span>.add(props.add.name, obj.bind);
-						}
-					}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-54">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-54">&#182;</a>
-              </div>
-              <p>if this is a named method?, If so, add the bound function to the name            </p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>					<span class="hljs-keyword">if</span> (name) {
-						namedFuncFactory(name, obj.bind, target);
-						<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-					} <span class="hljs-keyword">else</span> {
-						<span class="hljs-keyword">return</span> obj.bind;
-					}
-				}
-			}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-55">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-55">&#182;</a>
-              </div>
               <p>If nothing gets returned, just return the Syringe object</p>
 
             </div>
@@ -1321,11 +1239,11 @@ function but use new registry items. </p>
         </li>
         
         
-        <li id="section-56">
+        <li id="section-52">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-56">&#182;</a>
+                <a class="pilcrow" href="#section-52">&#182;</a>
               </div>
               <p>Sometimes you need to call an executable registry item directly.
 You can use this method to do just that. You can also (optionally) 
@@ -1333,10 +1251,10 @@ pass an array of arguments and a context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		exec: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, args, ctx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		exec: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, args, ctx</span>) </span>{
 			ctx = ctx || <span class="hljs-keyword">this</span>;
 			<span class="hljs-keyword">var</span> fn = <span class="hljs-keyword">this</span>.get(name);
-			<span class="hljs-keyword">var</span> _fn = store[<span class="hljs-keyword">this</span>.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+			<span class="hljs-keyword">var</span> _fn = store[<span class="hljs-keyword">this</span>.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">return</span> item.bind === fn;
 			})[<span class="hljs-number">0</span>];
 
@@ -1347,7 +1265,7 @@ pass an array of arguments and a context.</p>
 					fn = _fn ? _fn.fn : fn;
 					<span class="hljs-keyword">return</span> utils.run
 						.apply(ctx, [_fn.args[<span class="hljs-number">0</span>], fn, <span class="hljs-keyword">this</span>]
-							.concat(args));
+						.concat(args));
 				}
 				<span class="hljs-keyword">return</span> fn.apply(ctx, args);
 			}
@@ -1357,11 +1275,11 @@ pass an array of arguments and a context.</p>
         </li>
         
         
-        <li id="section-57">
+        <li id="section-53">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-57">&#182;</a>
+                <a class="pilcrow" href="#section-53">&#182;</a>
               </div>
               <p>Retrieve a named item from the registry. You can use dot-notation
 in the passed string. The method will return <code>false</code> if the item
@@ -1369,17 +1287,17 @@ does not exist.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		get: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
 			<span class="hljs-keyword">var</span> reg = store[<span class="hljs-keyword">this</span>.id].registry;</pre></div></div>
             
         </li>
         
         
-        <li id="section-58">
+        <li id="section-54">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-58">&#182;</a>
+                <a class="pilcrow" href="#section-54">&#182;</a>
               </div>
               <p>Raise a “get” event, passing the name</p>
 
@@ -1400,11 +1318,11 @@ does not exist.</p>
         </li>
         
         
-        <li id="section-59">
+        <li id="section-55">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-59">&#182;</a>
+                <a class="pilcrow" href="#section-55">&#182;</a>
               </div>
               <p>Set a named item from the registry. As with <code>get</code>, you can 
 use dot-notation in the passed string. The method will throw
@@ -1413,7 +1331,7 @@ exist.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		set: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, value, bindings)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		set: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, value, bindings</span>) </span>{
 			<span class="hljs-keyword">var</span>
 				reg = store[<span class="hljs-keyword">this</span>.id].registry,
 				sep = store[<span class="hljs-keyword">this</span>.id].separator,
@@ -1424,11 +1342,11 @@ exist.</p>
         </li>
         
         
-        <li id="section-60">
+        <li id="section-56">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-60">&#182;</a>
+                <a class="pilcrow" href="#section-56">&#182;</a>
               </div>
               <p>Test the existence of the key we’re trying to set. The getObj function
 simply returns the key value, which could be <code>undefined</code>. Thus, we need to
@@ -1465,11 +1383,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-61">
+        <li id="section-57">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-61">&#182;</a>
+                <a class="pilcrow" href="#section-57">&#182;</a>
               </div>
               <p>Raise a “set” event, passing the name and value</p>
 
@@ -1483,11 +1401,11 @@ throw an error.</p>
         </li>
         
         
-        <li id="section-62">
+        <li id="section-58">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-62">&#182;</a>
+                <a class="pilcrow" href="#section-58">&#182;</a>
               </div>
               <p>Wrap a previously bound method in another <code>wrapper</code> function.
 The original function is passed as the first argument to the
@@ -1495,18 +1413,18 @@ wrapper.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		wrap: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(fn, wrapper, ctx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		wrap: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">fn, wrapper, ctx</span>) </span>{
 			ctx = ctx || <span class="hljs-keyword">this</span>;
-			<span class="hljs-keyword">var</span> match = store[<span class="hljs-keyword">this</span>.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+			<span class="hljs-keyword">var</span> match = store[<span class="hljs-keyword">this</span>.id].cabinet.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">return</span> item.bind === fn;
 			})[<span class="hljs-number">0</span>];
 
 			<span class="hljs-keyword">if</span> (match) {
-				<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+				<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 					<span class="hljs-keyword">var</span> args = slice.call(<span class="hljs-built_in">arguments</span>);
 					<span class="hljs-keyword">return</span> wrapper.apply(ctx, [
 
-						<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
+						<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
 							args = <span class="hljs-built_in">arguments</span>.length ? <span class="hljs-built_in">arguments</span> : args;
 							<span class="hljs-keyword">return</span> match.bind.apply(ctx, args);
 						}
@@ -1519,11 +1437,11 @@ wrapper.</p>
         </li>
         
         
-        <li id="section-63">
+        <li id="section-59">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-63">&#182;</a>
+                <a class="pilcrow" href="#section-59">&#182;</a>
               </div>
               <p>Copy an existing bound function <code>fn</code> where the copy
 has different registry bindings, provided by the
@@ -1532,10 +1450,10 @@ execution context.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		copy: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(bindings, fn, ctx)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		copy: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">bindings, fn, ctx</span>) </span>{
 			ctx = ctx || <span class="hljs-keyword">this</span>;
 			<span class="hljs-keyword">var</span> cab = store[<span class="hljs-keyword">this</span>.id].cabinet;
-			<span class="hljs-keyword">var</span> match = cab.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(item)</span> {</span>
+			<span class="hljs-keyword">var</span> match = cab.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
 				<span class="hljs-keyword">return</span> item.bind === fn;
 			})[<span class="hljs-number">0</span>];
 
@@ -1554,11 +1472,11 @@ execution context.</p>
         </li>
         
         
-        <li id="section-64">
+        <li id="section-60">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-64">&#182;</a>
+                <a class="pilcrow" href="#section-60">&#182;</a>
               </div>
               <p>Attach callbacks to add, set, get, remove, or all action types. The
 event stack associated with each action will be called when
@@ -1566,16 +1484,14 @@ the action is executed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		listen: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(name, fn)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		listen: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name, fn</span>) </span>{
 
 			<span class="hljs-keyword">var</span> path = name.split(<span class="hljs-string">':'</span>);
 			name = path.shift();
 
 			<span class="hljs-keyword">if</span> (utils.getType(name, <span class="hljs-string">'string'</span>) &amp;&amp; utils.getType(fn, <span class="hljs-string">'function'</span>)) {
 
-				<span class="hljs-keyword">var</span> 
-					events = store[<span class="hljs-keyword">this</span>.id].events,
-					proc = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(path, arr)</span> {</span>
+				<span class="hljs-keyword">var</span> proc = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">path, arr</span>) </span>{
 					<span class="hljs-keyword">if</span> (utils.getType(arr, <span class="hljs-string">'array'</span>)) {
 						arr.push({
 							path: path.length ? path[<span class="hljs-number">0</span>] : <span class="hljs-literal">false</span>,
@@ -1584,8 +1500,10 @@ the action is executed.</p>
 					}
 				};
 
+				<span class="hljs-keyword">var</span> events = store[<span class="hljs-keyword">this</span>.id].events;
+
 				<span class="hljs-keyword">if</span> (name !== <span class="hljs-string">'all'</span>) {
-					proc(path, events[name]);					
+					proc(path, events[name]);
 				}
 				<span class="hljs-keyword">else</span> {
 					<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> store[<span class="hljs-keyword">this</span>.id].events) {
@@ -1601,17 +1519,17 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-65">
+        <li id="section-61">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-65">&#182;</a>
+                <a class="pilcrow" href="#section-61">&#182;</a>
               </div>
               <p>Create a new Syringe object</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		create: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(props)</span> {</span>
+            <div class="content"><div class='highlight'><pre>		create: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">props</span>) </span>{
 			<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Syringe(props);
 		}
 	};</pre></div></div>
@@ -1619,19 +1537,19 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-66">
+        <li id="section-62">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-66">&#182;</a>
+                <a class="pilcrow" href="#section-62">&#182;</a>
               </div>
               <p>Allow mixins to be added to the prototype</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.mixin = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj)</span> {</span>
+            <div class="content"><div class='highlight'><pre>	proto.mixin = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">obj</span>) </span>{
 		<span class="hljs-keyword">if</span> (utils.getType(obj, <span class="hljs-string">'object'</span>)) {
-			<span class="hljs-built_in">Object</span>.keys(obj).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(key)</span> {</span>
+			<span class="hljs-built_in">Object</span>.keys(obj).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
 				<span class="hljs-keyword">if</span> (utils.getType(obj[key], <span class="hljs-string">'function'</span>)) {
 					proto[key] = obj[key];
 				}
@@ -1644,11 +1562,11 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-67">
+        <li id="section-63">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-67">&#182;</a>
+                <a class="pilcrow" href="#section-63">&#182;</a>
               </div>
               <p>Create some method aliases</p>
 
@@ -1661,26 +1579,26 @@ the action is executed.</p>
         </li>
         
         
-        <li id="section-68">
+        <li id="section-64">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-68">&#182;</a>
+                <a class="pilcrow" href="#section-64">&#182;</a>
               </div>
               <p>Add the current semver</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="hljs-string">'0.6.3'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	proto.VERSION = <span class="hljs-string">'0.6.5'</span>;</pre></div></div>
             
         </li>
         
         
-        <li id="section-69">
+        <li id="section-65">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-69">&#182;</a>
+                <a class="pilcrow" href="#section-65">&#182;</a>
               </div>
               <p>Determine local context</p>
 
@@ -1688,9 +1606,9 @@ the action is executed.</p>
             
             <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.window) {
 		proto.fetch	= utils.fetch;
-		root.Syringe	= <span class="hljs-keyword">new</span> Syringe();
-	} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> module !== <span class="hljs-string">'undefined'</span> &amp;&amp; module.exports) {
-		exports = module.exports = <span class="hljs-keyword">new</span> Syringe();
+		root.Syringe = <span class="hljs-keyword">new</span> Syringe();
+	} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span> !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-built_in">module</span>.exports) {
+		exports = <span class="hljs-built_in">module</span>.exports = <span class="hljs-keyword">new</span> Syringe();
 	}
 
 }.call(<span class="hljs-keyword">this</span>));</pre></div></div>
