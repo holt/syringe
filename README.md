@@ -12,8 +12,8 @@ Now, let's roll up our sleeves and begin!
 
 - [Installation](#installation)
 - [Overview](#overview)
-- [Questions](#questions)
 - [API](#api)
+- [Questions](#questions)
 - [Examples](#examples)
 - [License](#license)
 
@@ -257,7 +257,6 @@ syr.exec('utils.profile', '002');       // Returns:
                                             //   }
 ```
 
-
 #### Wrappers
 
 When our `utils.profile` method is called, we want some way to indicate that this activity has taken place by logging a message to the console.
@@ -321,7 +320,7 @@ The above binding will fire if any additions are made to the `data.personnel` ob
 syr.add('data.personnel.moore_l', {id: '004', name: 'Leanna Moore', dept: 'D4'});
 ```
 
-... the following is logged to the console:
+... the following statement is logged to the console:
 
 ```javascript
  The following data was added to "data.personnel.moore_l": {
@@ -331,7 +330,49 @@ syr.add('data.personnel.moore_l', {id: '004', name: 'Leanna Moore', dept: 'D4'})
  }
 ```
 
+## API ##
 
+This following table describes the methods provided by the `Syringe` object:
+
+Method     | Parameter(s)   | Description
+---------|--------------|-------------
+*create* | `[map]` | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
+*add*    | `name, value [, bindings]` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
+*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
+*add*    | `array`      | Register an array of map of dependencies, where each map is an object. Useful for asserting order when additions are functions that are side-effectful. Alias: _register_. <br/><br/>**Example**: `syr.add([{'data.name': 'Mike'}, {'data.age': '39'}]);`
+*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
+*remove* | `array`                   | Remove an array of named items from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove(['data', 'foo.bar']);`
+*on*     | `bindings, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind a shallow or deep item located _outside_ of the dependency map in the global object, use the prefix `global:` before the keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['global:jQuery'], function ($) {..});`
+*on*     | `name, bindings, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure in the global context.<br/><br/>An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
+*get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
+*set*    | `name, value [, bindings]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
+*exec*    | `name, args [, ctx]` | Directly execute a method within the dependency map. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
+*fetch*  | `array, props` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-items-asynchronously)
+*wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#fibonacci-number-add-on-remove-wrap-get)
+*copy*   | `bindings, fn [, ctx]` | Create a new bound function from an existing one using a new dependency map binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
+*mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
+*separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
+*listen* | `name, fn` | Binds a listener to a named Syringe method (`get`, `set`, `add`, `remove`, `listops`, or `all`). Shallow or deep path namespacing is also supported. <br/><br/>**Example**: `syr.listen('add', function (name, value) {...});` <br/><br/>**Example**: `syr.listen('set:name', function (name, value) {...});`  <br/><br/>**Example**: `syr.listen('remove:data.name', function (name) {...});`
+*listops* | `name, fn` | A convenience function that allows you to directly perform operations on stored arrays, raising an event on completion. <br/><br/>**Example**: `syr.listops('data.names', function (arr) { ... });`
+
+### Register Items Asynchronously
+
+You can retrieve JSON data items from a remote source and add them to the Syringe registry using the `fetch` method:
+
+```javascript
+syr.fetch([{
+    path: '/syringe/test1',
+    bind: 'data1'
+}, {
+    path: '/syringe/test2',
+    bind: 'data2'
+}], {
+    'success': function () {
+        console.log(this.get('data1'));
+        console.log(this.get('data2'));
+    }
+});
+```
 
 ## Questions
 
@@ -430,52 +471,6 @@ Injection.bind(f);  // The library uses RegEx to figure out the parameters
 There are a number of reasons why Syringe does not work this way, the main one being that parameters often get renamed when run through compression / obfuscation systems such as Google Closure or UglifyJS. This makes any subsequent reconciliation of the parameters against named items impossible.
 
 In addition, unless you namespace the dependencies it is impossible to disambiguate them from the free arguments. Also, dot-notation is not allowed in parameter names so you end up using something goofy like `$leve1_level2_level3` to retrieve deep items.
-
-## API ##
-
-This following table describes the methods provided by the `Syringe` object:
-
-Method     | Parameter(s)   | Description
----------|--------------|-------------
-*create* | `[map]` | Create a new syringe object. <br/><br/>**Example**: `var syr = Syringe.create();`
-*add*    | `name, value [, bindings]` | Register an item with the dependency map, where `name` is the dependency name and `value` is any valid JavaScript value. Alias: _register_. <br/><br/>**Example**: `syr.add('data', {'name': 'Mike'});`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject. Alias: _register_. <br/><br/>**Example**: `syr.add('data', function (props) {...}, ['props']);`
-*add*    | `map`      | Register a map of dependencies, where `map` is an object. Alias: _register_. <br/><br/>**Example**: `syr.add({'data': {'name': 'Mike'}});`
-*add*    | `array`      | Register an array of map of dependencies, where each map is an object. Useful for asserting order when additions are functions that are side-effectful. Alias: _register_. <br/><br/>**Example**: `syr.add([{'data.name': 'Mike'}, {'data.age': '39'}]);`
-*remove* | `name`                   | Remove a named item from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove('data');`
-*remove* | `array`                   | Remove an array of named items from the dependency map. Alias: _unregister_. <br/><br/>**Example**: `syr.remove(['data', 'foo.bar']);`
-*on*     | `bindings, fn [, ctx]` | Return a bound function that can access the dependency map. An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `var f = syr.on(['data'], function (data) {...});` <br/><br/> If you want to bind the current Syringe object, use the keyword `this` instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['this'], function (syr) {...});` <br/><br/> If you want to bind the _entire_ dependency map, use an asterisk (`*`) instead of a keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['*'], function (map) {...});` <br/><br/> If you want to bind a shallow or deep item located _outside_ of the dependency map in the global object, use the prefix `global:` before the keyname in the bindings array. <br/><br/>**Example**: `var f = syr.on(['global:jQuery'], function ($) {..});`
-*on*     | `name, bindings, fn [, ctx]`| Bind a named function. The `name` string can be a character-delimited path; if the path doesn't exist it will be created dynamically as a nested object structure in the global context.<br/><br/>An optional `ctx` parameter makes the bound function execute in a specific context. Alias: _bind_. <br/><br/>**Example**: `syr.on('f', ['data'], function (data) {...}, this);`
-*get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
-*set*    | `name, value [, bindings]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
-*exec*    | `name, args [, ctx]` | Directly execute a method within the dependency map. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
-*fetch*  | `array, props` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-items-asynchronously)
-*wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#fibonacci-number-add-on-remove-wrap-get)
-*copy*   | `bindings, fn [, ctx]` | Create a new bound function from an existing one using a new dependency map binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
-*mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
-*separator* | `value` | Change the name separator character used to create, retrieve, and bind objects. The default character is a period (`.`). The character must be non-alphanumeric. <br/><br/>**Example**: `syr.separator('#');`
-*listen* | `name, fn` | Binds a listener to a named Syringe method (`get`, `set`, `add`, `remove`, `listops`, or `all`). Shallow or deep path namespacing is also supported. <br/><br/>**Example**: `syr.listen('add', function (name, value) {...});` <br/><br/>**Example**: `syr.listen('set:name', function (name, value) {...});`  <br/><br/>**Example**: `syr.listen('remove:data.name', function (name) {...});`
-*listops* | `name, fn` | A convenience function that allows you to directly perform operations on stored arrays, raising an event on completion. <br/><br/>**Example**: `syr.listops('data.names', function (arr) { ... });`
-
-
-### Register Items Asynchronously
-
-You can retrieve JSON data items from a remote source and add them to the Syringe registry using the `fetch` method:
-
-```javascript
-syr.fetch([{
-    path: '/syringe/test1',
-    bind: 'data1'
-}, {
-    path: '/syringe/test2',
-    bind: 'data2'
-}], {
-    'success': function () {
-        console.log(this.get('data1'));
-        console.log(this.get('data2'));
-    }
-});
-```
-
 
 ## Additional Examples ##
 
