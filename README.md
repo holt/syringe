@@ -443,7 +443,7 @@ In addition, unless you namespace the dependencies it is impossible to disambigu
 
 The following generic examples show how some of the API methods provided by Syringe might be used to manage function operations.
 
-### FizzBuzz (add, bind, exec, remove) ###
+### FizzBuzz (add & bind, exec, remove) ###
 
 A FizzBuzz is a program that prints the numbers from 1 to 100. But for multiples of three it prints `Fizz` instead of the number. For multiples of five it prints `Buzz`. For numbers which are multiples of both three and five it prints `FizzBuzz`. It's also a drinking game, and a surprisingly tricky one.
 
@@ -466,7 +466,9 @@ The above code shows how a simple functional FizzBuzz can be created with Syring
 
 The bound function also receives its action (in this case a logger from the `global:` context) as a passed parameter, which decouples side-effectful operations from the main operation slightly. When the function completes, it removes itself from the dependency map and returns the Syringe object.
 
-### Sieve Of Eratosthenes (add, bind, on, copy) ###
+<a href="http://jsfiddle.net/77rfoy3L" target="_blank">[ JSFiddle ]</a>
+
+### Sieve Of Eratosthenes (add & bind, on, copy) ###
 
 The sieve of Eratosthenes is a simple, ancient algorithm for finding all prime numbers up to any given limit. It does so by iteratively marking as composite (that is, not prime) the multiples of each prime, starting with all multiples of 2. 
 
@@ -533,20 +535,12 @@ Finally, let's ask both to return all prime numbers between 1 and 10,000 and see
 
 ```javascript
 console.time('sieve while');
-
-console.log(sieve_while(10000));    // Logs:
-                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 ... ]
-console.timeEnd('sieve while');     // Logs:
-                                    //      sieve while: 80ms
-
+console.log(sieve_while(10000));    // Logs: [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ... ]
+console.timeEnd('sieve while');     // Logs: "sieve while: 80ms"
 
 console.time('sieve reduce');
-
-console.log(sieve_reduce(10000));   // Logs:
-                                    //      [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 ... ]
-
-console.timeEnd('sieve reduce');    // Logs:
-                                    //      sieve reduce: 120ms
+console.log(sieve_reduce(10000));   // Logs: [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 ... ]
+console.timeEnd('sieve reduce');    // Logs: "sieve reduce: 120ms"
 ```
 
 The `while` processor appears to be considerably more performant!
