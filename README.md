@@ -59,10 +59,7 @@ syr.get('depts.finance.name');      // Returns: "Finance"
 
 The first thing to note here is that the `syr` object's `get` method uses a *dot-delimited* string to retrieve data. 
 
-
-<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
-
-**Note:** Unlike using *dot-notation* to fetch items directly from a JavaScript object, this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. If you execute `syr.get('depts.engineering.id')` you'll get a return value of `false`.
+<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>**Note:** Unlike using *dot-notation* to fetch items directly from a JavaScript object, this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. If you execute `syr.get('depts.engineering.id')` you'll get a return value of `false`.
 
 Now we've confirmed that we have now got a brand new `syr` object that holds some basic data we can use Syringe's binding capabilities to create a retrieval function called `report` that receives the `depts` object data automatically when executed.
 
@@ -112,6 +109,7 @@ syr.add('utils.report', function (data, key) {
 
 The first argument specifies where we want our method to reside inside the Syringe data registry. It doesn't matter that the registry does not yet have a `utils` property as it is created automatically when we add the `utils.report` item.
 
+<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
 **Note:** If a `utils` property containing a `report` property *was* already present in the registry, Syringe would throw an error and suggest that we first use the `remove` method to unregister the `report` property. 
 
 The second argument is the function definition, and the third argument is the array of items we want to pull from the Syringe data registry and inject directly into our `utils.report` function when it executes. 
@@ -422,6 +420,7 @@ Currying _does_ take place, just at a different point. Syringe curries _your_ bo
 
 The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
+<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
 ### "Why doesn't Syringe just use the function signature?"
