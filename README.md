@@ -2,9 +2,9 @@
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
-Syringe is a small JavaScript library that allows you to dynamically assign data contracts to your functions, constructor functions, and methods. 
+Syringe is a minimalist JavaScript framework that allows you to effortlessly implement inversion of control when building applications.
 
-No more worrying about passing information directly, indirectly, or relying on the lexical scope as Syringe can vaccinate your operations ahead of time.
+The Syringe library provides a comprehensive suite of robust yet straightforward API methods that facilitates the development of loosely-coupled code. 
 
 Now, let's roll up our sleeves and begin!
 
@@ -448,15 +448,15 @@ The following generic examples show how some of the API methods provided by Syri
 A FizzBuzz is a program that prints the numbers from 1 to 100. But for multiples of three it prints `Fizz` instead of the number. For multiples of five it prints `Buzz`. For numbers which are multiples of both three and five it prints `FizzBuzz`. It's also a drinking game, and a surprisingly tricky one.
 
 ```javascript
-Syringe.add('fn', function (syr, fn, lg, n) {
+Syringe.add('fn', function (syr, fn, cnsl, n) {
 
     // Examine the passed integer and log the evaluation
-    n = n || 1, lg((n % 3?'':'Fizz')+(n % 5?'':'Buzz') || n);
+    n = n || 1, cnsl.log((n % 3?'':'Fizz')+(n % 5?'':'Buzz') || n);
 
     // Execute against self with current integer or remove self
     return (100 >= ++n ? fn(n) : syr.remove('fn'));
 
-}, ['this', 'fn', 'global:console.log']);
+}, ['this', 'fn', 'global:console']);
 
 // Execute the function:
 Syringe.exec('fn');
