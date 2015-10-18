@@ -14,7 +14,7 @@ Now, let's roll up our sleeves and begin!
 - [Overview](#overview)
 - [API](#api)
 - [Questions](#questions)
-- [Examples](#examples)
+- [Examples](#additional-examples)
 - [License](#license)
 
 ## Installation
