@@ -21,14 +21,14 @@ Now, let's roll up our sleeves and begin!
 
 Platform          | Description 
 ------------------|----------------------------------------------------
-**Browser**       | Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.<br/><br/>Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:<br/><br/>- `Array.filter`<br/>- `Array.map`<br/>- `Array.reduce`<br/>- `Function.bind`<br/>- `Object.keys`<br/>- `Object.create`<br/>- `String.trim`<br/><br/>All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)<br/><br/>Syringe has been tested on the following:<br/><br/>- Firefox 2+<br/>- Chrome 11+<br/>- Safari 3+<br/>- Opera 9+<br/>- Internet Explorer 7+<br/><br/>
+**Browser**       | Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.<br/><br/>Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:<br/><br/>- `Array.filter`<br/>- `Array.map`<br/>- `Array.reduce`<br/>- `Function.bind`<br/>- `Object.keys`<br/>- `Object.create`<br/>- `String.trim`<br/><br/>All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)<br/><br/>
 **Node**          | Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:<br/><br/>`npm install syringejs`<br/><br/>
 **Bower**         | Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:<br/><br/>`bower install syringe --save`<br/><br/>
 **NuGet**         | Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):<br/><br/>`Install-Package syringe.js`<br/><br/>
 
 ## Overview ##
 
-Syringe works by taking a function and binding it with deep or shallow references to data items located within a *data registry*. When this *pre-bound* function executes, the references are reconciled against the registry and the corresponding data items are passed into the function automatically. This technique is known as *dependency injection*.
+Syringe works by taking a function and binding it with shallow or deep references to data items located within a *data registry*. When this *pre-bound* function executes, the references are reconciled against the registry and the corresponding data items are passed into the function automatically. This technique is known as *dependency injection*.
 
 ### Tutorial
 
@@ -50,7 +50,7 @@ var syr = Syringe.create({
 });
 ```
 
-Let's examine `syr` to ensure that it does indeed contain some departmental information:
+Let's examine `syr` to ensure that it does indeed contain departmental information:
 
 ```javascript
 syr.get('depts.sales.id');          // Returns: "A1"
@@ -59,7 +59,7 @@ syr.get('depts.finance.name');      // Returns: "Finance"
 
 The first thing to note here is that the `syr` object's `get` method uses a *dot-delimited* string to retrieve data. 
 
-<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>**Note:** Unlike using *dot-notation* to fetch items directly from a JavaScript object, this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. If you execute `syr.get('depts.engineering.id')` you'll get a return value of `false`.
+<img align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>**Note:** Unlike using *dot-notation* to fetch items directly from a JavaScript object, this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. So if we execute `syr.get('depts.hr.id')` we'll get a return value of `false`.
 
 Now we've confirmed that we have now got a brand new `syr` object that holds some basic data we can use Syringe's binding capabilities to create a retrieval function called `report` that receives the `depts` object data automatically when executed.
 
@@ -97,7 +97,7 @@ Bound arguments always match the array order of their corresponding data registr
 
 #### Storing Bound Functions
 
-Syringe's `on` method allows us the create *ad hoc* pre-bound functions. However the `report` function is useful, so let's add it to the Syringe data registry as a utility method in its own right so it can be used throughout our system. 
+Syringe's `on` method allows us the create *ad hoc* pre-bound functions and assign them to a variable or object. However the `report` function is useful, so let's add it to the Syringe data registry as a utility method in its own right so it can be used throughout our system as an injectable item in its own right. 
 
 The code for adding pre-bound functions to the registry looks like this:
 
@@ -109,7 +109,7 @@ syr.add('utils.report', function (data, key) {
 
 The first argument specifies where we want our method to reside inside the Syringe data registry. It doesn't matter that the registry does not yet have a `utils` property as it is created automatically when we add the `utils.report` item.
 
-<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
+<img align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
 **Note:** If a `utils` property containing a `report` property *was* already present in the registry, Syringe would throw an error and suggest that we first use the `remove` method to unregister the `report` property. 
 
 The second argument is the function definition, and the third argument is the array of items we want to pull from the Syringe data registry and inject directly into our `utils.report` function when it executes. 
@@ -313,7 +313,7 @@ Method     | Parameter(s)   | Description
 *get*    | `name` | Returns the named value from dependency map object. Dot-notation is permitted. Passing no argument returns the dependency map object. <br/><br/>**Example**: `syr.get('data');`
 *set*    | `name, value [, bindings]` | Directly sets the value of a named key in the dependency map, if it exists. <br/><br/>**Example**: `syr.set('data.name', 'Bob');`<br/><br/> If  `value` is a function that you want to automatically bind as a Syringe method, set the `bindings` property to the array of properties you want to inject.<br/><br/>**Example**: `syr.set('get', function (name) {...}, ['data.name']);`
 *exec*    | `name, args [, ctx]` | Directly execute a method within the dependency map. Provided as a convenience for occasions where binding isn't possible. An optional `ctx` parameter executes the method against a specified context. <br/><br/>**Example**: `syr.exec('f', ['Mike', '39']);`
-*fetch*  | `array, props` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/>**Note:** This method is only available in the browser.<br/><br/>**Example**: [See below](#register-items-asynchronously)
+*fetch*  | `array, props` | Retrieve array-defined items asynchronously. Each array item is an object that contains a `path` property and a `bind` property. The `path` property is a string containing the (local) URI of the resource. The `bind` property specifies the Syringe key you want to associate with the JSON object retrieved from the resource.<br/><br/><img align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>**Note:** This method is only available in the browser.<br/><br/><br/>**Example**: [See below](#register-items-asynchronously)
 *wrap*   | `fn, wrapper [, ctx]` | Wrap a bound method with another method in order to develop middleware. An optional `ctx` parameter adds the bound function to a specified context.<br/><br/>**Example**: [See below](#fibonacci-number-add-on-remove-wrap-get)
 *copy*   | `bindings, fn [, ctx]` | Create a new bound function from an existing one using a new dependency map binding. <br/><br/>**Example**: `var f2 = syr.copy(['data2'], f);`
 *mixin*   | `map` | Add mixin methods to the Syringe object prototype. <br/><br/>**Example**: `syr.mixin({'f': function () { return this; }});`
@@ -420,7 +420,7 @@ Currying _does_ take place, just at a different point. Syringe curries _your_ bo
 
 The registry is a closured dependency map unique to each Syringe object instance that holds all of the data items you're interested in automatically provisioning to your bound functions on invocation. You can provision objects, arrays, values, functions, strings, numbers, anything really. You can map to their values directly, or by reference.
 
-<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
+<img align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
 **Note:** The free arguments you pass to a *bound* function don't have to match the signature; this is consistent with ordinary JavaScript functions. However, the bound parameters are expected to exist in the registry when the bound function is invoked.
 
 ### "Why doesn't Syringe just use the function signature?"
