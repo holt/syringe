@@ -21,7 +21,7 @@ Now, let's roll up our sleeves and begin!
 
 Platform          | Description 
 ------------------|----------------------------------------------------
-**Browser**       | Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.<br/><br/>Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:<br/><br/>- `Array.filter`<br/>- `Array.map`<br/>- `Array.reduce`<br/>- `Function.bind`<br/>- `Object.keys`<br/>- `Object.create`<br/>- `String.trim`<br/><br/>All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)<br/><br/>Syringe has been tested on the following browsers:<br/><br/>- Firefox 2+<br/>- Chrome 11+<br/>- Safari 3+<br/>- Opera 9+<br/>- Internet Explorer 7+<br/><br/>
+**Browser**       | Just download [syringe.min.js](https://raw.github.com/holt/syringe/master/syringe.min.js) and add it to your to your environment.<br/><br/>Syringe uses `JSON.parse` and also the following ECMAScript 5 / JavaScript 1.6 methods:<br/><br/>- `Array.filter`<br/>- `Array.map`<br/>- `Array.reduce`<br/>- `Function.bind`<br/>- `Object.keys`<br/>- `Object.create`<br/>- `String.trim`<br/><br/>All of the above methods are available natively on modern browsers. If you need to support older browsers, the polyfills for these methods are provided in [lib/polyfill.min.js](https://raw.github.com/holt/syringe/master/lib/polyfill.min.js)<br/><br/>Syringe has been tested on the following:<br/><br/>- Firefox 2+<br/>- Chrome 11+<br/>- Safari 3+<br/>- Opera 9+<br/>- Internet Explorer 7+<br/><br/>
 **Node**          | Ensure that you have installed the latest version of [node.js](http://nodejs.org) and run the following from the command prompt:<br/><br/>`npm install syringejs`<br/><br/>
 **Bower**         | Ensure that you have installed the latest version of [Bower](http://bower.io/) and run the following from the command prompt:<br/><br/>`bower install syringe --save`<br/><br/>
 **NuGet**         | Run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console):<br/><br/>`Install-Package syringe.js`<br/><br/>
@@ -32,11 +32,13 @@ Syringe works by taking a function and binding it with deep or shallow reference
 
 ### Tutorial
 
-In the following tutorial we're going to demonstrate how dependency injection works by using Syringe to build a small set of pre-bound functions that allow us to interact in various ways with a simple datastore.
+In the following sections we're going to demonstrate how dependency injection works by using Syringe to build a small set of pre-bound functions that allow us to interact in various ways with a simple datastore.
 
 #### Defining the Data
 
-Let's start by creating a Syringe object that holds some departmental information for a fictional organization. `Syringe.create()` is used to generate a new instance of an empty Syringe object, but can also be initialized with a payload of fresh data if you pass in an object map like this:
+Let's start by creating a Syringe object that holds some departmental information for a fictional organization. Our object will also hold the utility methods that allow other callers to retrieve and interact with this data.
+
+The API method `Syringe.create()` is used to generate a new instance of a Syringe object, which we'll call `syr`. By default, new object instances are empty, however an instance can also be initialized with a payload of new data if we pass `create` an object map, like this:
 
 ```javascript
 var syr = Syringe.create({
@@ -48,18 +50,21 @@ var syr = Syringe.create({
 });
 ```
 
-Now we'll check our new `syr` object instance to ensure that it does indeed contain some data:
+Let's examine `syr` to ensure that it does indeed contain some departmental information:
 
 ```javascript
 syr.get('depts.sales.id');          // Returns: "A1"
 syr.get('depts.finance.name');      // Returns: "Finance"
 ```
 
-The first important thing to note here is that the `syr` object's `get` method uses a *dot-delimited* string to retrieve data. 
+The first thing to note here is that the `syr` object's `get` method uses a *dot-delimited* string to retrieve data. 
 
-Unlike using *dot-notation* to fetch items directly from a JavaScript object (e.g., `obj.foo.bar`), this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. Instead, if you execute something like `syr.get('depts.engineering.id')` you'll get a return value of `false`.
 
-Okay, so we've confirmed that we have now got a brand new `syr` object that holds some basic data. Let's use Syringe's binding capabilities to create a retrieval function called `report` that receives the `depts` object data automatically when it executes.
+<img style="padding-right:10px;" align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
+
+**Note:** Unlike using *dot-notation* to fetch items directly from a JavaScript object, this method of retrieval will not cause the system to throw an exception if you attempt to access the data of a property that doesn't exist. If you execute `syr.get('depts.engineering.id')` you'll get a return value of `false`.
+
+Now we've confirmed that we have now got a brand new `syr` object that holds some basic data we can use Syringe's binding capabilities to create a retrieval function called `report` that receives the `depts` object data automatically when executed.
 
 To do this we use the `on` method to create a new bound function:
 
