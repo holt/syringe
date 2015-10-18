@@ -2,7 +2,7 @@
 
 <img src="https://github.com/holt/syringe/blob/master/img/syringe.png?raw=true" align="right" title="# Just a little pin prick ... there'll be no more AAAAAAAAH!"/>
 
-Syringe is a minimalist JavaScript framework that allows you to effortlessly implement inversion of control when building applications.
+Syringe is a minimalist JavaScript framework that allows you to quickly and easily implement inversion of control when building applications.
 
 The Syringe library provides a comprehensive suite of robust yet straightforward API methods that facilitates the development of loosely-coupled code. 
 
@@ -28,11 +28,11 @@ Platform          | Description
 
 ## Overview ##
 
-Syringe works by taking a function and binding it with shallow or deep references to data items located within a *data registry*. When this *pre-bound* function executes, the references are reconciled against the registry and the corresponding data items are passed into the function automatically. This technique is known as *dependency injection*.
+Syringe works by taking a function and binding it with shallow or deep references to data items located within its [data registry](#whats-this-about-a-registry). When this *pre-bound* function executes, the references are reconciled against the registry and the corresponding data items are passed into the function automatically. This technique is known as *dependency injection*.
 
 ### Tutorial
 
-In the following sections we're going to demonstrate how dependency injection works by using Syringe to build a small set of pre-bound functions that allow us to interact in various ways with a simple datastore.
+In the following sections we'll demonstrate how dependency injection works by using Syringe to build a small set of pre-bound functions that allow us to interact in various ways with a simple datastore held inside a Syringe object.
 
 #### Defining the Data
 
@@ -365,7 +365,7 @@ var syr2 = Syringe.create({
 });
 ```
 
-Create a simple constructor that automatically adds `data` to its context and bind the `data` object to the constructor:
+Create a simple constructor that automatically adds `data` to its context and binds the `data` object to the constructor:
 
 ```javascript
 StaffObj = syr2.on(['data'], function (data, id) {
