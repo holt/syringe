@@ -187,9 +187,9 @@ quotmark: true, node: true, newcap: true, browser:true */
 
 		// Asynch fetch
 		fetch: function (arr, props, ctx) {
-			props			= props		|| {};
+			props			= props			|| {};
 			props.success	= props.success || false;
-			props.xss		= props.xss	|| false;
+			props.xss		= props.xss		|| false;
 
 			var
 				self	= this,
@@ -330,7 +330,6 @@ quotmark: true, node: true, newcap: true, browser:true */
 				}
 			}, this);
 		}
-
 	};
 
 	// Syringe base constructor
