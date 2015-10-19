@@ -2,7 +2,7 @@
 	"name": "syringejs",
 	"filename": "syringe.min.js",
 	"description": "An ultra-lightweight dependency injection framework for JavaScript",
-	"url": "http://syringejs.org",
+	"homepage": "http://syringejs.org",
 	"keywords": [
 		"syringe",
 		"injection",
@@ -13,12 +13,21 @@
 		"currying",
 		"events"
 	],
-	"author": "Holt",
+	"author": "M Holt <mike@holt.org>",
 	"version": "0.6.5",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/holt/syringe.git"
+		"url": "git://github.com/holt/syringe.git"
 	},
+	"npmName": "syringejs",
+	"npmFileMap": [{
+		"basePath": "/",
+		"files": [
+			"src/syringe.js",
+			"syringe.min.js",
+			"syringe.min.map"
+		]
+	}],
 	"files": [
 		"syringe.js", "syringe.min.js", "syringe.min.map", "LICENSE"
 	],
