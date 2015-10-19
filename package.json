@@ -1,5 +1,5 @@
 {
-	"name": "syringe",
+	"name": "syringejs",
 	"filename": "syringe.min.js",
 	"description": "An ultra-lightweight dependency injection framework for JavaScript",
 	"url": "http://syringejs.org",
@@ -14,7 +14,6 @@
 		"events"
 	],
 	"author": "Holt",
-	"main": "syringe.js",
 	"version": "0.6.5",
 	"repository": {
 		"type": "git",
