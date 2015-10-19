@@ -18,9 +18,9 @@
 	"npmFileMap": [{
 		"basePath": "/",
 		"files": [
+			"syringe.js",
 			"syringe.min.js",
-			"syringe.min.map",
-			"syringe.js"
+			"syringe.min.map"
 		]
 	}],
 	"autoupdate": {
@@ -28,15 +28,15 @@
 		"target": "git://github.com/holt/syringe.git",
 		"basePath": "",
 		"files": [
+			"syringe.js",
 			"syringe.min.js",
-			"syringe.min.map",
-			"syringe.js"
+			"syringe.min.map"
 		]
 	},
 	"namespace": "Syringe",
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/holt/syringe.git"
+		"url": "https://github.com/holt/syringe.git"
 	},
 	"license": "MIT"
 }
