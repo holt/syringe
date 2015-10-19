@@ -97,7 +97,7 @@ Bound arguments always match the array order of their corresponding data registr
 
 #### Storing Bound Functions
 
-Syringe's `on` method allows us the create *ad hoc* pre-bound functions and assign them to a variable or object. However the `report` function is useful, so let's add it to the Syringe data registry as a utility method in its own right so it can be used throughout our system as an injectable item in its own right. 
+Syringe's `on` method allows us the create *ad hoc* pre-bound functions and assign them to a variable or object. However the `report` function is useful, so let's add it to the Syringe data registry as a utility method so it can be used throughout our system as an injectable item in its own right. 
 
 The code for adding pre-bound functions to the registry looks like this:
 
