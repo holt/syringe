@@ -23,6 +23,16 @@
 			"syringe.js"
 		]
 	}],
+	"autoupdate": {
+		"source": "git",
+		"target": "git://github.com/holt/syringe.git",
+		"basePath": "",
+		"files": [
+			"syringe.min.js",
+			"syringe.min.map",
+			"syringe.js"
+		]
+	},
 	"namespace": "Syringe",
 	"repository": {
 		"type": "git",
