@@ -114,15 +114,16 @@ The first argument specifies where we want our method to reside inside the Syrin
 
 The second argument is the function definition, and the third argument is the array of items we want to pull from the Syringe data registry and inject directly into our `utils.report` function when it executes. 
 
-The third argument is optional. You don't *have* to store a pre-bound function; you could just store a regular function (however, in this case we want to).
+<img align="left" src="https://github.com/holt/syringe/blob/master/img/note.png?raw=true"/>
+**Note:** The third argument is optional. You don't *have* to store a pre-bound function; you could just store a regular function (however, in this example we want to).
 
-Unlike `on`, the `add` operation returns the *entire* Syringe object, so it isn't useful to assign it to a variable. If we want to test our newly added method (or any a method contained within the Syringe registry) we can execute it like this:
+Unlike `on`, the `add` operation returns the *entire* Syringe object, so it isn't useful to assign it to a variable. If we want to test our newly added method (or any a method stored within the Syringe registry) we can execute it like this:
 
 ```javascript
 syr.exec('report', ['sales']);  // Returns: {id: "A1", name: "Sales"}
 ```
 
-However, apart from calling newly-defined pre-bound methods directly for testing purposes, you probably won't be using the `exec` method very often. The real value of adding pre-bound methods to the Syringe data registry is that they too can be injected into other functions. And that's what we're going to look at next.
+The great value of adding pre-bound methods to the Syringe data registry is that they too can be injected into other functions. And that's what we're going to look at next.
 
 #### Injecting Bound Functions
 
@@ -165,9 +166,9 @@ syr.add({
 });
 ```
 
-It would be useful to create a function that uses what we've created so far in order to provide us with profile data about a member of staff that also includes information about their department. 
+It would be useful to create a function that uses what we've built so far in order to provide us with profile data about a member of staff that also includes the information about their department.
 
-Like `report`, this function should be able to accept either a name or an ID as a lookup key in order to locate the corresponding profile. 
+Like `report`, this function should be able to accept either a name or an ID as a lookup key in order to locate the corresponding profile.
 
 We'll call this new method `utils.profile`. When it's executed, the method gets passed the `utils.report` function as its first argument:
 
@@ -243,7 +244,7 @@ var log = syr.on(['data.messages'], function (msg, fn, key) {
 });
 ```
 
-We can now use Syringe's `wrap` method to wrap our `log` function around the `utils.profile` method. Then we'll use the result to update the original `utils.profile` method in the registry:
+We can now use Syringe's `wrap` method to wrap our `log` function around the `utils.profile` method, and then use the result to update the original `utils.profile` method in the registry:
 
 ```javascript
 syr.set('utils.profile', syr.wrap(syr.get('utils.profile'), log));
